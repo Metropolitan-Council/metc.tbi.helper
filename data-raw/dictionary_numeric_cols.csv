@@ -1,0 +1,29 @@
+which_table,variable,wt_field,category,survey_question,variable_logic,variable_label,units,value,value_label,value_logic
+day,num_trips,day_weight,Trips,The number of trips reported by the person on the survey day.,NA,Trips per day,trips,NA,NA,NA
+hh,num_adults,hh_weight,Demographics,Number of adults living in the household.,NA,Adults in HH,adults,NA,NA,NA
+hh,num_kids,hh_weight,Demographics,Number of children living in the household.,NA,Kids in HH,children,NA,NA,NA
+hh,num_students,hh_weight,Demographics,Number of students living in the household.,NA,Students in HH,students,NA,NA,NA
+hh,num_workers,hh_weight,Demographics,Number of workers living in the household.,NA,Workers in HH,workers,NA,NA,NA
+hh,thriveCategory,hh_weight,Demographics,Thrive designation of the community where the household lives.,NA,HH Thrive Category,NA,NA,NA,NA
+hh,thriveCatBroad,hh_weight,Demographics,"Thrive designation of the community where the household lives, condensing rural types together.",NA,HH Thrive Category - Broader,NA,NA,NA,NA
+hh,thriveCatBroader,hh_weight,Demographics,"Thrive designation of the community where the household lives, at level of Urban/Suburban/Rural.",NA,HH Thrive Category - Broadest,NA,NA,NA,NA
+veh,co2_gpm,hh_weight,Vehicle,Grams of CO2 emitted per mile for the vehicle make/model/year (Source: EPA).,NA,Vehicle CO2 Emissions,grams per mile CO2,NA,NA,NA
+veh,mpg_city,hh_weight,Vehicle,Miles per gallon in city driving conditions for the vehicle make/model/year (Source: EPA).,NA,Vehicle MPG - City,miles per gallon,NA,NA,NA
+veh,mpg_highway,hh_weight,Vehicle,Miles per gallon in highway driving conditions for the vehicle make/model/year (Source: EPA).,NA,Vehicle MPG - Highway,miles per gallon,NA,NA,NA
+veh,fuel_type,hh_weight,Vehicle,"Type of fuel (electric, gas, diesel) used by this vehicle make/model/year (Source: EPA).",NA,Vehicle fuel type,NA,NA,NA,NA
+veh,weight_unladen,hh_weight,Vehicle,Weight (in pounds) for this vehicle make/model/year (Source: MN DPS).,NA,Vehicle weight,pounds,NA,NA,NA
+veh,veh_age,hh_weight,Vehicle,Age (in years) for this vehicle.,NA,Vehicle age,years,NA,NA,NA
+trip,depart_time_imputed,trip_weight,Trips,Time departed - imputed in QA/QC process.,NA,Departure time,time,NA,NA,NA
+trip,arrive_time,trip_weight,Trips,Time arrived.,NA,Arrival time,time,NA,NA,NA
+trip,duration_imputed,trip_weight,Trips,Duration of trip in minutes - imputed in QA/QC process.,NA,Trip duration,minutes,NA,NA,NA
+trip,distance,trip_weight,Trips,Trip distance in miles.,NA,Trip distance,miles per gallon,NA,NA,NA
+trip,speed_mph_imputed,trip_weight,Trips,"Speed (in mph) of trip, imputed in QA/QC process.",NA,Trip speed,miles per hour,NA,NA,NA
+trip,o_thriveCategory,trip_weight,Trips,Thrive designation of the community in which the trip started.,NA,Thrive category of trip origin,NA,NA,NA,NA
+trip,o_thriveCatBroad,trip_weight,Trips,"Thrive designation of the community in which the trip started, condensing rural types together.",NA,Thrive category of trip origin - broader,NA,NA,NA,NA
+trip,o_thriveCatBroader,trip_weight,Trips,"Thrive designation of the community in which the trip started, at level of Urban/Suburban/Rural.",NA,Thrive category of trip origin - broadest,NA,NA,NA,NA
+trip,d_thriveCategory,trip_weight,Trips,Thrive designation of the community in which the trip ended.,NA,Thrive category of trip destination,NA,NA,NA,NA
+trip,d_thriveCatBroad,trip_weight,Trips,"Thrive designation of the community in which the trip ended, condensing rural types together.",NA,Thrive category of trip destination - broader,NA,NA,NA,NA
+trip,d_thriveCatBroader,trip_weight,Trips,"Thrive designation of the community in which the trip ended, at level of Urban/Suburban/Rural.",NA,Thrive category of trip destination - broadest,NA,NA,NA,NA
+trip,trip_in_mpo,trip_weight,Trips,Did the trip start and end in the MPO?,NA,Trip started & ended in MPO,NA,NA,NA,NA
+trip,trip_d_in_mpo,trip_weight,Trips,Did the trip end in the MPO region?,NA,Trip ended in MPO,NA,NA,NA,NA
+trip,trip_o_in_mpo,trip_weight,Trips,Did the trip start in the MPO region?,NA,Trip started in MPO,NA,NA,NA,NA

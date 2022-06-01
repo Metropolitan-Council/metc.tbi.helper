@@ -22,8 +22,11 @@ source("data-raw/add-mpo-boundary-to-trips.R")
 # Remove PII ----------
 source("data-raw/remove-pii.R")
 
+# Create Data Dictionary ----------
+source("data-raw/create-data-dictionary.R")
+
 # Write data -------------------
-tbi <- list(
+tbi_tables <- list(
   "day" = day,
   "per" = per,
   "hh" = hh,
@@ -31,11 +34,13 @@ tbi <- list(
   "trip" = trip
 )
 
-rm(hh, per, trip, veh, day)
 
-saveRDS(tbi, "data/tbi_extract.RData")
+usethis::use_data(tbi_tables,
+                  overwrite = TRUE,
+                  compress = "xz",
+                  internal = FALSE
+)
 
-# Save data dictionary -------------------
-write.csv(dictionary, "data/metadata_table.csv", row.names = F)
 
+rm(hh, per, trip, veh, day, dictionary)
 
