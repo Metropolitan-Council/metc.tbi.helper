@@ -1,10 +1,9 @@
-# read connection string (git-ignored)
-source("data-raw/database-connect-string.R")
+
 
 ## connect to database ------------
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
-  dbname = connect_string,
+  dbname = keyring::key_get("mts_planning_database_string"),
   username = "mts_planning_data",
   password = keyring::key_get("mts_planning_data_pw")
 )

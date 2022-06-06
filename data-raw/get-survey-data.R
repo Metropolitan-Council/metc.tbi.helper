@@ -12,13 +12,10 @@ here::here()
 Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
-# read connection string (git-ignored)
-source("data-raw/database-connect-string.R")
-
 ## connect to database ------------
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
-  dbname = connect_string,
+  dbname = keyring::key_get("mts_planning_database_string"),
   username = "mts_planning_data",
   password = keyring::key_get("mts_planning_data_pw")
 )
@@ -161,4 +158,4 @@ trip <- trip %>%
   ))
 
 ## Clean up---------------
-rm(connect_string, replace_survey_missing, translate_using_dictionary, tbidb)
+rm(replace_survey_missing, translate_using_dictionary, tbidb)

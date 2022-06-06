@@ -54,7 +54,7 @@ Sys.setenv(ORA_SDTZ = "America/Chicago")
 connect.string = '(DESCRIPTION=(ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = fth-exa-scan.mc.local  )(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME =  com4te.mc.local)))'
 tbidb = ROracle::dbConnect(
   dbDriver("Oracle"),
-  dbname = connect.string,
+  dbname = keyring::key_get("mts_planning_database_string"),
   username = 'mts_planning_data',
   # mts_planning_view for viewing data only, no read/write priviliges. mts_planning_data is the username for read/write privlieges.
   password = rstudioapi::askForPassword("database password")
