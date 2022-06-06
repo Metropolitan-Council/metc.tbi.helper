@@ -1,3 +1,6 @@
+library(tidyr)
+library(ROracle)
+
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
   dbname = keyring::key_get("mts_planning_database_string"),
