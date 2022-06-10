@@ -10,29 +10,40 @@ suppressMessages(library(keyring, quietly = T))
 ########################################################### .
 ### READ IN DATA ----
 ########################################################### .
-dir <- " //rafsshare.mc.local/shared/MTS/Working/Modeling/Household Survey 2018/08 Data Processing and Analysis/Task 8 Final Deliverables/TBI Wave 1 Data Deliverable 20200630/TBI Wave 1 Dataset 20200630.zip"
-password <- "your password"
-read.table(
-  text = system(paste0("unzip -p -P ", password, dir, "day.csv"),
-    intern = "TRUE"
-  ), stringsAsFactors = FALSE, header = TRUE, sep = ","
-)
-
 # each csv:
 day <- fread(paste0(
   keyring::key_get("tbirawdirectory"),
-  "Data/raw-Data/TBI Wave 1 Dataset 20200630/day.csv"
+  "day.csv"
 ))
-hh <-
-  fread("Data/raw-Data/TBI Wave 1 Dataset 20200630/household.csv")
-loc <-
-  fread("Data/raw-Data/TBI Wave 1 Dataset 20200630/location.csv")
-veh <-
-  fread("Data/raw-Data/TBI Wave 1 Dataset 20200630/vehicle.csv")
-per <-
-  fread("Data/raw-Data/TBI Wave 1 Dataset 20200630/person.csv")
-trip <- fread("Data/raw-Data/TBI Wave 1 Dataset 20200630/trip.csv")
 
+hh <-
+  day <- fread(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "hh.csv"
+  ))
+
+loc <-
+  day <- fread(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "loc.csv"
+  ))
+
+veh <-
+  day <- fread(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "veh.csv"
+  ))
+
+per <-
+  fread(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "per.csv"
+  ))
+
+trip <-  fread(paste0(
+  keyring::key_get("tbirawdirectory"),
+  "trip.csv"
+))
 
 ########################################################### .
 ### SET IDS as INT64 ----
