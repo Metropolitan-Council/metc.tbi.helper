@@ -245,7 +245,7 @@ veh_dps_rename <-
   veh_dps_full %>%
   select(
     hh_id, vehicle_num, vehicle_name, make_original, model_original, year, fuel,
-    veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, fuel_type,
+    veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, epa_fuel_type,
     weight_unladen, class_vehicle, dps_tbi_veh_match_notes
   ) %>%
   rename(make = make_original, model = model_original)

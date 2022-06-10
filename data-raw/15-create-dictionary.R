@@ -68,17 +68,10 @@
 
 
 # some work by hand occurred:
-tbi_dict <- read.csv('data-raw/full_dictionary_filled.csv')
+dictionary <- read.csv('data-raw/full_dictionary_filled.csv')
 
-tbi_dict <- tbi_dict %>%
+dictionary <- dictionary %>%
   filter(!category %in% c("Survey metadata", "PII"))
-
-
-usethis::use_data(tbi_dict,
-  overwrite = TRUE,
-  compress = "xz",
-  internal = FALSE
-)
 
 ## Clean up---------------
 # rm(db_dictionary, full_dictionary)

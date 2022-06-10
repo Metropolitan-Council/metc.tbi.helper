@@ -1,5 +1,11 @@
-# Metropolitan Council Travel Behavior Inventory Survey Helper
-This repository contains a collection of R code for working with Travel Behavior Inventory Household Survey data. It is in active development, and anyone can contribute! One day, this might be an R package.
+# Travel Behavior Inventory Survey Helper
+This repository contains a collection of R code for working with Travel Behavior Inventory Household Survey data. 
+
+_If you came for a pretty R Data object of the TBI survey data, check out the_ `data` _folder!_
+
+Other things you might find useful in here include  R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxillary datasets & geographic information to the datasets, and more. 
+
+This repository is in active development, and anyone can contribute 🤝. One day, this might (should?) be an R package.
 
 ## Contributing
 This project uses a [feature-branch](https://deepsource.io/blog/git-branch-naming-conventions/) naming convention and workflow.
@@ -28,15 +34,22 @@ Contribute to the project by making changes to your own feature branch and issui
   * To remove deleted feature branches from your local repository run `git remote prune origin`.
   * Do not attempt to push additional commits to a merged pull-request.
   Instead, start a new feature branch and issue a new pull request.
-* Remember to update and branch off of `main` whenever you start a new feature, e.g., `git checkout main; git pull origin main; git checkout -b jr_new_feature`.
+* Remember to update and branch off of `main` whenever you start a new feature, e.g., `git checkout main; git pull origin main; git checkout -b aa-new-feature`.
 
 
 ## Organization
 
 * `metadata`: Read the documentation 💘 
 * `data`: compiled datasets generated from raw TBI data, that live in the Council's Oracle database.
-  * `tbi_tables.rda` is a compressed list object containing the person, day, trip, household, and vehicle tables. It also contains a special table, `trip_purpose`, for working with trip purpose data. 
-      _This is the only data we store in this GitHub repository._ Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csvs to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
+  * `tbi_tables.rda` is a compressed `list` object containing:
+      * `dictionary` of variable names, values, survey questions, and logic;
+      * person-level records (`per`);
+      * `day` records, for analyzing daily trends;
+      * `trip` table;
+      * household (`hh`) records;
+      * vehicle (`veh`) records, including fuel efficiency data; and
+      * `trip_purpose`, for working with trip purpose data. This table has been specially weighted to attribute weights to either end of non-home-based trips, and to the non-home based end of home-based trips.
+    **This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csvs to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
 * `data-raw`: scripts to generate datasets. Work here if you want to add a new variable to the dataset(s) or incorporate a new dataset to the database and/or .RData object. You may need access to internal databases for this work.
   * `data-raw/_data-compile.R` is the main script that sources all numbered .R scripts in this folder. 
   * `derive-var-[variable-name].R`: derive new variables from TBI datasets. 

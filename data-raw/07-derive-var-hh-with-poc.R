@@ -5,9 +5,9 @@
 # households have structural advanatages in the transportation sphere.
 
 hh_race <-
-  tbi$hh %>%
+  hh %>%
   select(hh_id) %>%
-  left_join(tbi$per %>% select(hh_id, starts_with("ethnicity"))) %>%
+  left_join(per %>% select(hh_id, starts_with("ethnicity"))) %>%
   select(-ethnicity_other) %>% # mostly white people
   pivot_longer(cols = starts_with("ethnicity"), names_prefix = "ethnicity_") %>%
   filter(value == "Yes") %>%
@@ -25,3 +25,5 @@ hh_race <-
     hh_with_hisp = max(with_hisp),
     hh_with_aiak = max(with_aiak)
   )
+
+rm(hh_race)
