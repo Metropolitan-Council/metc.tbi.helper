@@ -45,3 +45,5 @@ R/database-connect-string.R
 data-raw/database-connect-string.R
 
 *.xlsx
+
+*.html
