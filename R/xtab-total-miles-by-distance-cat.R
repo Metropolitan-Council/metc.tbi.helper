@@ -1,4 +1,3 @@
-source("~/MetC_Locals/MTS/metc.tbi.helper/R/df-lump-mode-types.R")
 
 vmt_x_trip_distance <-
   tbi_tables$trip %>%

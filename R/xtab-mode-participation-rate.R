@@ -93,4 +93,3 @@ datlist <- list(
   "transit_frequency_selfreported" = transit_freq_self_reported,
   "mode_partn_rate_from_trips" = mode_share
 )
-openxlsx::write.xlsx(datlist, file = "data/mode-participation-rate.xlsx")

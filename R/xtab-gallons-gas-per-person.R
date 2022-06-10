@@ -345,14 +345,3 @@ metadata <- metadata %>%
         "mpg_highway" = "Miles per gallon (highway) for the vehicle (Source: EPA; matched to TBI vehicle make/model/year)"
       )
   )
-
-# For David Montgomery
-# datlist <- list("gal_per_hh_day" = gal_per_hh_bins %>% mutate(took_trips = ifelse(num_trips>0, 1, 0))%>% select(-num_trips),
-#                 "gal_per_hh_summary" = gal_bins_hh_summary,
-#                 "gal_per_hh_avg" = gal_per_hh_average,
-#                 "gal_per_person_day" = gal_per_person_bins,
-#                 "gal_per_person_avg"= gal_per_person_average,
-#                 "gal_per_person_summary" = gal_bins_summary,
-#                 "vehicle_stats" = veh_stats,
-#                 "metadata" = metadata)
-# openxlsx::write.xlsx(datlist, file = "data/VehicleUseExtract_2022-03-15.xlsx")

@@ -1,4 +1,3 @@
-source("~/MetC_Locals/MTS/metc.tbi.helper/R/var-trip-mode-type-condensed.R")
 
 trips_distance_x_mode <-
   tbi_tables$trip %>%
