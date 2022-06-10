@@ -15,13 +15,13 @@ per_race <-
   add_tally(name = "num_races") %>%
   ungroup() %>%
   mutate(race = recode(name,
-    "afam" = "Black or African-American",
+    "afam" = "Black, African, African American",
     "white" = "White",
-    "asian" = "Asian",
-    "aiak" = " American Indian or Alaska Native",
-    "hisp" = "Hispanic, Latino, or Spanish origin",
-    "mideast" = "Middle-Eastern",
-    "hapi" = "Native Hawaiian or other Pacific Islander",
+    "asian" = "Asian, Asian American",
+    "aiak" = "American Indian, Alaskan Native",
+    "hisp" = "Hispanic, Latinx, Latino",
+    "mideast" = "Hispanic, Latinx, Latino",
+    "hapi" = "Native Hawaiian, Pacific Islander",
     "other" = "Other"
   )) %>%
   mutate(race_ethnicity = ifelse(num_races >= 2, "2 or more races", race)) %>%

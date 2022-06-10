@@ -10,10 +10,17 @@ suppressMessages(library(keyring, quietly = T))
 ###########################################################.
 ### READ IN DATA ----
 ###########################################################.
-setwd("C:/Users/AsmusAL/OneDrive - Metropolitan Council/TBIHouseholdSurvey")
+dir <- " //rafsshare.mc.local/shared/MTS/Working/Modeling/Household Survey 2018/08 Data Processing and Analysis/Task 8 Final Deliverables/TBI Wave 1 Data Deliverable 20200630/TBI Wave 1 Dataset 20200630.zip"
+password <- "your password"
+read.table(
+  text = system(paste0("unzip -p -P ", password, dir, "day.csv"),
+                intern = "TRUE"
+  ), stringsAsFactors = FALSE, header = TRUE, sep = ","
+)
 
 # each csv:
-day  <- fread('Data/raw-Data/TBI Wave 1 Dataset 20200630/day.csv')
+day  <- fread(paste0(keyring::key_get("tbirawdirectory"),
+                     'Data/raw-Data/TBI Wave 1 Dataset 20200630/day.csv'))
 hh   <-
   fread('Data/raw-Data/TBI Wave 1 Dataset 20200630/household.csv')
 loc  <-

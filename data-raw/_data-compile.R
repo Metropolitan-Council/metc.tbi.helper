@@ -2,21 +2,27 @@
 source("data-raw/01-get-survey-data.R")
 
 # Append geographic boundaries to  household, work, school, and trip -----------
-source("data-raw/02-add-geographic-boundaries.R")
+source("data-raw/02-derive-var-vehicle-id.R")
+
+# Append geographic boundaries to  household, work, school, and trip -----------
+source("data-raw/03-get-geographic-boundaries.R")
 
 # Get EPA Efficiency Data -----------
-source("data-raw/03-get-epa-vehicle-efficiency-data.R")
+source("data-raw/04-get-epa-vehicle-efficiency-data.R")
 
 # Get DPS Vehicle Weight Data -----------
-source("data-raw/04-get-dps-vehicle-weight-data.R")
+source("data-raw/05-get-dps-vehicle-weight-data.R")
 
 # Extra variables ------
-source("data-raw/05-add-var-person-race.R")
-source("data-raw/06-add-var-hh-income-easyread.R")
-source("data-raw/07-add-var-trip-purpose.R")
-source("data-raw/08-add-var-trip-mode-group.R")
-source("data-raw/09-add-var-trip-purpose-broad.R")
-source("data-raw/10-add-var-trip-seasons.R")
+source("data-raw/06-derive-var-person-race.R")
+source("data-raw/07-derive-var-hh-with-poc.R")
+source("data-raw/08-derive-var-hh-income-easyread.R")
+source("data-raw/09-derive-var-trip-mode-group.R")
+source("data-raw/10-derive-var-trip-purpose.R")
+source("data-raw/11-derive-var-trip-purpose-broad.R")
+source("data-raw/12-derive-var-trip-seasons.R")
+source("data-raw/13-slim-survey-data-columns.R")
+source("data-raw/14-remove-pii.R")
 
 # Re-format time
 trip <- trip %>%

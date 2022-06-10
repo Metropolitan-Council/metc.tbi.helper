@@ -278,7 +278,7 @@ veh_epa <-
     mpg_city,
     mpg_highway,
     epa_tbi_veh_match_notes,
-    fuel_type
+    epa_fuel_type
   )
 
 veh <-
