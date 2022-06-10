@@ -62,7 +62,7 @@ Contribute to the project by making changes to your own feature branch and issui
 ## Using this code in other projects
 One day, this repository might be an R project. For now, you can source data, metadata and R scripts in two ways.
 
-  (1) Clone this repository to your machine _(Preferred method)_
+(1) Clone this repository to your machine _(Preferred method)_
   This method is preferred, though it will require you to do periodic pulls from the `main` branch to your machine.
 
 ```r
@@ -74,7 +74,7 @@ source(
 )
 ```
 
-  (2) Source files directly from GitHub.
+(2) Source files directly from GitHub.
 
 Files that have "raw" output available directly on GitHub ([example](https://github.com/Metropolitan-Council/metc.tbi.helper/blob/main/R/xtab-vmt-per-vehicle.R)) can be sourced directly with base R:
 
@@ -115,5 +115,3 @@ tbi_tables$veh %>%
   summarize(veh_age_avg = survey_mean(veh_age, na.rm = T))
 
 ```
-
-

@@ -12,13 +12,15 @@ trip <- trip %>%
     replacement = paste(hh_id, "_", sep = "")
   )) %>%
   mutate(veh_id = case_when(mode_type_detailed %in%
-                              c("Other vehicle in household",
-                                "Other motorcycle",
-                                "Car from work",
-                                "Friend/relative/colleague's car",
-                                "Rental car",
-                                "Carpool match (e.g., Waze Carpool)",
-                                "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
-                                "Peer-to-peer car rental (e.g., Turo, Getaround)",
-                                "Other vehicle") ~
-                              "Other Vehicle"))
+    c(
+      "Other vehicle in household",
+      "Other motorcycle",
+      "Car from work",
+      "Friend/relative/colleague's car",
+      "Rental car",
+      "Carpool match (e.g., Waze Carpool)",
+      "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
+      "Peer-to-peer car rental (e.g., Turo, Getaround)",
+      "Other vehicle"
+    ) ~
+    "Other Vehicle"))

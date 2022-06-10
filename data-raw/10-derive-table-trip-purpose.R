@@ -11,7 +11,8 @@ linked_trips <-
     d_purpose = first(d_purpose),
     d_purpose_category_imputed = first(d_purpose_category_imputed),
     d_purpose_imputed = first(d_purpose_imputed),
-    trip_purpose_weight = first(trip_weight))
+    trip_purpose_weight = first(trip_weight)
+  )
 
 # add linked trip id to trip table for crosstabs:
 trip <- trip %>%
@@ -97,8 +98,10 @@ nonhomebasedtrips_o <-
 nonhomebasedtrips_d <-
   trip_type %>%
   filter(trip_type == "non-home-based") %>%
-  pivot_longer(cols = c("o_purpose_imputed", "d_purpose_imputed"),
-               values_to = "purpose") %>%
+  pivot_longer(
+    cols = c("o_purpose_imputed", "d_purpose_imputed"),
+    values_to = "purpose"
+  ) %>%
   select(-name) %>%
   mutate(trip_purpose_weight = 0.5 * trip_purpose_weight) %>%
   mutate(trip_type = "Non-Home-based")
@@ -108,17 +111,21 @@ nonhomebasedtrips_d <-
 #### Merge home-based and non-homebased trips ------------
 trip_purpose <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
   select(-trip_type) %>%
-  select(-d_purpose_category_imputed,
-         -d_purpose_imputed,
-         -d_purpose_category,
-         -d_purpose,
-         -o_purpose_category_imputed,
-         -o_purpose_imputed)
+  select(
+    -d_purpose_category_imputed,
+    -d_purpose_imputed,
+    -d_purpose_category,
+    -d_purpose,
+    -o_purpose_category_imputed,
+    -o_purpose_imputed
+  )
 
-rm(homebasedtrips,
-   nonhomebasedtrips_o,
-   nonhomebasedtrips_d,
-   trip_type,
-   homecats,
-   linked_trips,
-   nonhomecats)
+rm(
+  homebasedtrips,
+  nonhomebasedtrips_o,
+  nonhomebasedtrips_d,
+  trip_type,
+  homecats,
+  linked_trips,
+  nonhomecats
+)

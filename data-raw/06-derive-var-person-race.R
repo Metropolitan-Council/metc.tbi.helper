@@ -6,7 +6,7 @@
 # to weed out the (presumably) white people who answer as "human race", "none of your business" etc :/
 
 per_race <-
- per %>%
+  per %>%
   select(person_id, starts_with("ethnicity")) %>%
   pivot_longer(cols = starts_with("ethnicity"), names_prefix = "ethnicity_") %>%
   filter(value == "Yes") %>%

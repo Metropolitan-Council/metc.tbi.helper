@@ -1,13 +1,11 @@
 ### Cumulative Trip Distances, All trips -------------
 get_distance_threshold_table <-
-
   function(triptable,
            min_dist = 1,
            max_dist = 10,
            dist_interval = 1,
            byvar1 = NULL,
            byvar2 = NULL) {
-
     distlist <- list()
 
     if (missing(byvar1) & missing(byvar2)) {
@@ -30,9 +28,7 @@ get_distance_threshold_table <-
         mutate(help_text = paste0(round(pct_trips), "% of trips are ", help_text, " miles."))
 
       return(threshold_dat)
-    }
-
-    else if (!missing(byvar1) & missing(byvar2)) {
+    } else if (!missing(byvar1) & missing(byvar2)) {
       for (this_distance in seq(from = min_dist, to = max_dist, by = dist_interval)) {
         # For the whole metro:
         distlist[[paste0(this_distance, " miles")]] <-
@@ -52,9 +48,7 @@ get_distance_threshold_table <-
         mutate(help_text = paste0(round(pct_trips), "% of trips are ", help_text, " miles."))
 
       return(threshold_dat)
-    }
-
-    else if (!missing(byvar1) & !missing(byvar2)) {
+    } else if (!missing(byvar1) & !missing(byvar2)) {
       for (this_distance in seq(from = min_dist, to = max_dist, by = dist_interval)) {
         # For the whole metro:
         distlist[[paste0(this_distance, " miles")]] <-
@@ -74,10 +68,7 @@ get_distance_threshold_table <-
         mutate(help_text = paste0(round(pct_trips), "% of trips are ", help_text, " miles."))
 
       return(threshold_dat)
+    } else {
+      message("Error in specifying function arguments. Check again?")
     }
-
-    else {message("Error in specifying function arguments. Check again?")}
-
-
-
   }

@@ -1,29 +1,3 @@
-#' @title Create a two-way cross table
-#'
-#' @param variable character, variable name. Must be one of `tbi_dict$variable`.
-#'
-#' @return A tibble with columns
-#'    - variable name with relevant values
-#'    - `group_N` raw sample size - number of people, trips, households, days (by group)
-#'    - `group_N_hh` number of households in sample (by group)
-#'    - `expanded_total` and `expanded_total_se`
-#'    - `estimated_prop` and `estimated_prop_se` estimated proportion (0.0 - 1.0) and SE;
-#'         multiply by 100 for percentages.
-#' @export
-#'
-#' @examples
-#' /dontrun{
-#'
-#' library(travel.survey.explorer)
-#' create_one_way_table("bike_freq")
-#'
-#' }
-#' @importFrom rlang sym quo_name enquo
-#' @importFrom dplyr filter select mutate rename group_by summarize ungroup summarize_all
-#' @importFrom magrittr extract2
-#' @importFrom srvyr survey_total survey_prop
-#' @importFrom purrr pluck
-#'
 create_distance_threshold_table <-
   function(triptable = tbi_tables$trip,
            min_dist = 1,

@@ -1,4 +1,4 @@
-source('R/df-trip-emissions.R')
+source("R/df-trip-emissions.R")
 
 co2_x_trip_distance <-
   drive_trips %>%
@@ -23,17 +23,17 @@ co2_x_trip_distance <-
   ) %>%
   dplyr::ungroup() %>%
   group_by(mode_type_cond) %>%
-  mutate(pct_co2 = 100 * total_co2/sum(total_co2)) 
+  mutate(pct_co2 = 100 * total_co2 / sum(total_co2))
 
 
 message("New table: co2_x_trip_distance")
 
-thrive_population <- tbi_tables$hh %>% 
+thrive_population <- tbi_tables$hh %>%
   select(hh_id, thriveCatBroad) %>%
   left_join(tbi_tables$per %>% select(hh_id, person_id, person_weight)) %>%
   group_by(thriveCatBroad) %>%
   summarize(thrivePop = sum(person_weight))
-  
+
 co2_x_trip_dist_thrive <-
   drive_trips %>%
   left_join(tbi_tables$hh %>% select(hh_id, thriveCatBroad)) %>%
@@ -41,8 +41,7 @@ co2_x_trip_dist_thrive <-
     cuts = cut(
       distance,
       breaks = c(-10, 5, Inf),
-      labels =  c("less than 5", "5 or more"
-      ),
+      labels =  c("less than 5", "5 or more"),
       order_result = TRUE
     )
   ) %>%
@@ -59,8 +58,8 @@ co2_x_trip_dist_thrive <-
   ) %>%
   dplyr::ungroup() %>%
   group_by(mode_type_cond) %>%
-  mutate(pct_co2 = 100 * total_co2/sum(total_co2)) %>%
+  mutate(pct_co2 = 100 * total_co2 / sum(total_co2)) %>%
   left_join(thrive_population) %>%
-  mutate(co2_per_capita = total_co2/thrivePop)
+  mutate(co2_per_capita = total_co2 / thrivePop)
 
 message("New table: co2_x_trip_dist_thrive")

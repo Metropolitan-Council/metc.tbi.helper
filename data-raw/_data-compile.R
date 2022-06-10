@@ -53,9 +53,9 @@ tbi_tables <- list(
 
 #### To RData object: -----
 usethis::use_data(tbi_tables,
-                  overwrite = TRUE,
-                  compress = "xz",
-                  internal = FALSE
+  overwrite = TRUE,
+  compress = "xz",
+  internal = FALSE
 )
 
 #### To Oracle Database: -----
@@ -75,4 +75,3 @@ ROracle::dbWriteTable(tbidb, "tbi_19_hh_public", hh, append = F, overwrite = T)
 ROracle::dbWriteTable(tbidb, "tbi_19_veh_public", veh, append = F, overwrite = T)
 ROracle::dbWriteTable(tbidb, "tbi_19_per_public", per, append = F, overwrite = T)
 ROracle::dbWriteTable(tbidb, "tbi_19_dictionary_public", dictionary, append = F, overwrite = T)
-

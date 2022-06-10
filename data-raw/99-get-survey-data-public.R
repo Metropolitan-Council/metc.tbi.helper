@@ -11,17 +11,17 @@ tbidb <- ROracle::dbConnect(
 ROracle::dbReadTable(tbidb, "tbi_19_day_public") %>%
   write.csv("data/data-csv/day.csv", row.names = F)
 
-ROracle::dbReadTable(tbidb, "tbi_19_trip_public")%>%
+ROracle::dbReadTable(tbidb, "tbi_19_trip_public") %>%
   write.csv("data/data-csv/trip.csv", row.names = F)
 
-ROracle::dbReadTable(tbidb, "tbi_19_hh_public")%>%
+ROracle::dbReadTable(tbidb, "tbi_19_hh_public") %>%
   write.csv("data/data-csv/hh.csv", row.names = F)
 
-ROracle::dbReadTable(tbidb, "tbi_19_veh_public")%>%
+ROracle::dbReadTable(tbidb, "tbi_19_veh_public") %>%
   write.csv("data/data-csv/veh.csv", row.names = F)
 
-ROracle::dbReadTable(tbidb, "tbi_19_per_public")%>%
+ROracle::dbReadTable(tbidb, "tbi_19_per_public") %>%
   write.csv("data/data-csv/per.csv", row.names = F)
 
-ROracle::dbReadTable(tbidb, "tbi_19_dictionary_public")%>%
+ROracle::dbReadTable(tbidb, "tbi_19_dictionary_public") %>%
   write.csv("data/data-csv/per.csv", row.names = F)

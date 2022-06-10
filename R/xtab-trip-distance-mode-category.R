@@ -1,4 +1,4 @@
-source('~/MetC_Locals/MTS/metc.tbi.helper/R/var-trip-mode-type-condensed.R')
+source("~/MetC_Locals/MTS/metc.tbi.helper/R/var-trip-mode-type-condensed.R")
 
 trips_distance_x_mode <-
   tbi_tables$trip %>%
@@ -11,7 +11,7 @@ trips_distance_x_mode <-
     )
   ) %>%
   dplyr::rename(distance_category := cuts) %>%
-  filter(mode_type_cond %in% c("Drive", "Transit", "Bicycle",  "Walk")) %>%
+  filter(mode_type_cond %in% c("Drive", "Transit", "Bicycle", "Walk")) %>%
   filter(!is.na(distance)) %>%
   srvyr::as_survey_design(weights = "trip_weight") %>%
   dplyr::group_by(mode_type_cond, distance_category) %>%

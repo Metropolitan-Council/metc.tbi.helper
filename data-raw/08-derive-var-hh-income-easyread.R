@@ -13,11 +13,11 @@ hh <-
     `$250,000 or more` =  "$250K+"
   )) %>%
   mutate(income_broad = recode_factor(income_detailed,
-                                         `Under $25,000` =     "<$25K",
-                                         `$25,000-$49,999` =   "$25-50K",
-                                         `$50,000-$74,999` =   "$50-75K",
-                                         `$75,000-$99,999` =   "$75-100K",
-                                         `$100,000 or more` = "$100K+"
+    `Under $25,000` = "<$25K",
+    `$25,000-$49,999` = "$25-50K",
+    `$50,000-$74,999` = "$50-75K",
+    `$75,000-$99,999` = "$75-100K",
+    `$100,000 or more` = "$100K+"
   ))
 
 message("New factor labels for income detailed & income broad")

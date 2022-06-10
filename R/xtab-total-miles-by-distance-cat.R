@@ -1,4 +1,4 @@
-source('~/MetC_Locals/MTS/metc.tbi.helper/R/df-lump-mode-types.R')
+source("~/MetC_Locals/MTS/metc.tbi.helper/R/df-lump-mode-types.R")
 
 vmt_x_trip_distance <-
   tbi_tables$trip %>%
@@ -11,7 +11,7 @@ vmt_x_trip_distance <-
     )
   ) %>%
   dplyr::rename(distance_category := cuts) %>%
-  filter(mode_type_cond %in% c("Drive", "Transit", "Bicycle",  "Walk")) %>%
+  filter(mode_type_cond %in% c("Drive", "Transit", "Bicycle", "Walk")) %>%
   filter(!is.na(distance)) %>%
   srvyr::as_survey_design(weights = "trip_weight") %>%
   dplyr::group_by(mode_type_cond, distance_category) %>%

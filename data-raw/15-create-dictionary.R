@@ -68,7 +68,7 @@
 
 
 # some work by hand occurred:
-dictionary <- read.csv('data-raw/full_dictionary_filled.csv')
+dictionary <- read.csv("data-raw/full_dictionary_filled.csv")
 
 dictionary <- dictionary %>%
   filter(!category %in% c("Survey metadata", "PII"))

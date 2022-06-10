@@ -34,9 +34,11 @@ driver_trips <-
 median_mpg <- tbi$veh %>%
   left_join(tbi$hh %>% select(hh_id, hh_weight)) %>%
   as_survey_design(w = hh_weight) %>%
-  summarize(median_mpg_city = survey_median(mpg_city, na.rm = T),
-            median_mpg_highway = survey_median(mpg_highway, na.rm = T),
-            median_co2_gpm = survey_median(co2_gpm, na.rm = T))
+  summarize(
+    median_mpg_city = survey_median(mpg_city, na.rm = T),
+    median_mpg_highway = survey_median(mpg_highway, na.rm = T),
+    median_co2_gpm = survey_median(co2_gpm, na.rm = T)
+  )
 
 # how many missing mpg?
 driver_trips %>%
@@ -68,8 +70,10 @@ gal_per_trip <-
     is.na(speed_mph_imputed) ~ mpg_city
   )) %>%
   mutate(gal_consumed = (1 / mpg) * distance) %>%
-  mutate(gal_consumed = case_when(fuel_type == "Electricity" ~ 0,
-                                  TRUE ~ gal_consumed)) %>%
+  mutate(gal_consumed = case_when(
+    fuel_type == "Electricity" ~ 0,
+    TRUE ~ gal_consumed
+  )) %>%
   filter(gal_consumed > 0)
 
 
@@ -96,11 +100,12 @@ gal_per_hh_day <-
     driving_distance = sum(distance, na.rm = T),
     # will find head of hh's day weight
     head_of_hh = min(person_id),
-    num_trips = max(num_trips, na.rm =T),
+    num_trips = max(num_trips, na.rm = T),
   ) %>%
   ungroup() %>%
   left_join(tbi$day %>% select(person_id, day_num, day_weight),
-            by = c("head_of_hh" = "person_id", "day_num" = "day_num"))
+    by = c("head_of_hh" = "person_id", "day_num" = "day_num")
+  )
 
 
 # a global (numeric) average of gallons used -----------------
@@ -136,7 +141,7 @@ passenger_hh_days <-
   mutate(rode_as_psgr = "rode as passenger")
 
 ##### 4. #, % adults who used other modes -------------------------------------------
-source('R/df-lump-mode-types.R')
+source("R/df-lump-mode-types.R")
 other_mode_trips <-
   tbi$trip %>%
   filter(!is.na(mode_type_cond)) %>%
@@ -200,15 +205,15 @@ gal_per_person_bins <-
   )) %>%
   mutate(gal_bins = as.character(gal_bins)) %>%
   # add extra factor levels for zero gallons used --------------
-mutate(
-  gal_bins = case_when(
-    gal_bins == "0" & num_trips == 0 ~ "0\nStayed\nhome",
-    gal_bins == "0" & rode_as_psgr == "rode as passenger" ~ "0\nRode as\npassgr.",
-    gal_bins == "0" & used_other_modes == "used other modes" ~ "0\nUsed\nother\nmodes",
-    gal_bins == "0" & used_ev == "used EV" ~ "0\nDrove\nan EV",
-    TRUE ~ gal_bins
-  )
-) %>%
+  mutate(
+    gal_bins = case_when(
+      gal_bins == "0" & num_trips == 0 ~ "0\nStayed\nhome",
+      gal_bins == "0" & rode_as_psgr == "rode as passenger" ~ "0\nRode as\npassgr.",
+      gal_bins == "0" & used_other_modes == "used other modes" ~ "0\nUsed\nother\nmodes",
+      gal_bins == "0" & used_ev == "used EV" ~ "0\nDrove\nan EV",
+      TRUE ~ gal_bins
+    )
+  ) %>%
   # just a handful (7) of spurious records here, resulting from incomplete trip info:
   filter(!gal_bins == "0")
 
@@ -235,15 +240,15 @@ gal_per_hh_bins <-
   )) %>%
   mutate(gal_bins = as.character(gal_bins)) %>%
   # add extra factor levels for zero gallons used --------------
-mutate(
-  gal_bins = case_when(
-    gal_bins == "0" & num_trips == 0 ~ "0\nStayed\nhome",
-    gal_bins == "0" & rode_as_psgr == "rode as passenger" ~ "0\nRode as\npassgr.",
-    gal_bins == "0" & used_other_modes == "used other modes" ~ "0\nUsed\nother\nmodes",
-    gal_bins == "0" & used_ev == "used EV" ~ "0\nDrove\nan EV",
-    TRUE ~ gal_bins
-  )
-) %>%
+  mutate(
+    gal_bins = case_when(
+      gal_bins == "0" & num_trips == 0 ~ "0\nStayed\nhome",
+      gal_bins == "0" & rode_as_psgr == "rode as passenger" ~ "0\nRode as\npassgr.",
+      gal_bins == "0" & used_other_modes == "used other modes" ~ "0\nUsed\nother\nmodes",
+      gal_bins == "0" & used_ev == "used EV" ~ "0\nDrove\nan EV",
+      TRUE ~ gal_bins
+    )
+  ) %>%
   # just a handful (7) of spurious records here, resulting from incomplete trip info:
   filter(!gal_bins == "0")
 
@@ -259,13 +264,13 @@ gal_bins_summary <-
   ) %>%
   ungroup() %>%
   mutate(consumed_gas = ifelse(gal_bins %in%
-                                 c(
-                                   "0\nStayed\nhome",
-                                   "0\nRode as\npassgr.",
-                                   "0\nUsed\nother\nmodes"
-                                 ),
-                               "Those who did not drive:",
-                               "Those who drove that day:"
+    c(
+      "0\nStayed\nhome",
+      "0\nRode as\npassgr.",
+      "0\nUsed\nother\nmodes"
+    ),
+  "Those who did not drive:",
+  "Those who drove that day:"
   ))
 
 
@@ -280,69 +285,74 @@ gal_bins_hh_summary <-
   ) %>%
   ungroup() %>%
   mutate(consumed_gas = ifelse(gal_bins %in%
-                                 c(
-                                   "0\nStayed\nhome",
-                                   "0\nRode as\npassgr.",
-                                   "0\nUsed\nother\nmodes"
-                                 ),
-                               "Those who did not drive:",
-                               "Those who drove that day:"
+    c(
+      "0\nStayed\nhome",
+      "0\nRode as\npassgr.",
+      "0\nUsed\nother\nmodes"
+    ),
+  "Those who did not drive:",
+  "Those who drove that day:"
   ))
 
 
 # write to xlsx
 
- datlist <- list("gal_per_hh_day" = gal_per_hh_bins %>% mutate(took_trips = ifelse(num_trips>0, 1, 0))%>% select(-num_trips),
-             "gal_per_hh_summary" = gal_bins_hh_summary,
-             "gal_per_hh_avg" = gal_per_hh_average,
-             "gal_per_person_day" = gal_per_person_bins,
-             "gal_per_person_avg"= gal_per_person_average,
-             "gal_per_person_summary" = gal_bins_summary,
-             "vehicle_stats" = veh_stats)
+datlist <- list(
+  "gal_per_hh_day" = gal_per_hh_bins %>% mutate(took_trips = ifelse(num_trips > 0, 1, 0)) %>% select(-num_trips),
+  "gal_per_hh_summary" = gal_bins_hh_summary,
+  "gal_per_hh_avg" = gal_per_hh_average,
+  "gal_per_person_day" = gal_per_person_bins,
+  "gal_per_person_avg" = gal_per_person_average,
+  "gal_per_person_summary" = gal_bins_summary,
+  "vehicle_stats" = veh_stats
+)
 
- metadata <- data.frame(column_name = lapply(datlist, names) %>% unlist() %>% unique())
+metadata <- data.frame(column_name = lapply(datlist, names) %>% unlist() %>% unique())
 
- metadata <- metadata %>%
-   mutate(description =
-            recode_factor(column_name,
-                 "hh_id" = "Household ID",
-                   "day_num" = "Ordered day number of survey, for merging trips with the day table.",
-                   "gal_consumed_day" = "Gallons of gas consumed per day, based on trip data and EPA fuel efficiency data.",
-                   "driving_distance" = "Miles driven (as driver) per day",
-                   "head_of_hh" = "ID for the 'Head of the Household' -- person with the lowest person_id -- for household-day analyses",
-                   "day_weight" = "Day weight (at person level)",
-                   "rode_as_psgr" = "Did the person/Did anyone in the household ride in a car as a passenger on that day?",
-                   "used_other_modes" = "Did the person/Did anyone in the household use other non-driving modes on that day?",
-                   "used_ev" = "Did the person/Did anyone in the household use an Electric Vehicle on that day?",
-                   "gal_bins" = "Binned values of gallons per day",
-                   "took_trips" = "Did anyone in the household make trips on that day?",
-                   "consumed_gas" = "Did the person/household consume gas on that day?",
-                   "n_hh" = "Estimated number of households, based on survey weights",
-                   "n_hh_se" = "Standard error of the estimate",
-                   "pct_hh" = "Estimated percent of households, based on survey weights",
-                   "pct_hh_se" = "Standard error of the estimate",
-                   "mn_gal" = "Weighted average gallons consumed per day",
-                   "mn_gal_se" = "Standard error of the estimate",
-                   "person_id" = "Person ID",
-                   "num_trips" = "Number of trips made that day",
-                   "n_adults" = "Number of adults 18+ in this category, based on survey weights",
-                   "n_adults_se" = "Standard error of the estimate",
-                   "pct_adults" = "Percent of adults 18+ in this category, based on survey weights",
-                   "pct_adults_se" = "Standard error of the estimate",
-                   "hh_weight" = "Household weight",
-                   "income_broad" = "2019 Household Income, in broad categories",
-                   "thriveCatBroader" = "Broad geography categories for the household (urban, rural, suburban)",
-                   "weight_unladen" = "Empty weight of the vehicle, in pounds (Source: Minnesota DPS; matched to TBI vehicle make/model/year)",
-                   "veh_age" = "Age of vehicle in years",
-                   "mpg_highway" = "Miles per gallon (highway) for the vehicle (Source: EPA; matched to TBI vehicle make/model/year)"))
+metadata <- metadata %>%
+  mutate(
+    description =
+      recode_factor(column_name,
+        "hh_id" = "Household ID",
+        "day_num" = "Ordered day number of survey, for merging trips with the day table.",
+        "gal_consumed_day" = "Gallons of gas consumed per day, based on trip data and EPA fuel efficiency data.",
+        "driving_distance" = "Miles driven (as driver) per day",
+        "head_of_hh" = "ID for the 'Head of the Household' -- person with the lowest person_id -- for household-day analyses",
+        "day_weight" = "Day weight (at person level)",
+        "rode_as_psgr" = "Did the person/Did anyone in the household ride in a car as a passenger on that day?",
+        "used_other_modes" = "Did the person/Did anyone in the household use other non-driving modes on that day?",
+        "used_ev" = "Did the person/Did anyone in the household use an Electric Vehicle on that day?",
+        "gal_bins" = "Binned values of gallons per day",
+        "took_trips" = "Did anyone in the household make trips on that day?",
+        "consumed_gas" = "Did the person/household consume gas on that day?",
+        "n_hh" = "Estimated number of households, based on survey weights",
+        "n_hh_se" = "Standard error of the estimate",
+        "pct_hh" = "Estimated percent of households, based on survey weights",
+        "pct_hh_se" = "Standard error of the estimate",
+        "mn_gal" = "Weighted average gallons consumed per day",
+        "mn_gal_se" = "Standard error of the estimate",
+        "person_id" = "Person ID",
+        "num_trips" = "Number of trips made that day",
+        "n_adults" = "Number of adults 18+ in this category, based on survey weights",
+        "n_adults_se" = "Standard error of the estimate",
+        "pct_adults" = "Percent of adults 18+ in this category, based on survey weights",
+        "pct_adults_se" = "Standard error of the estimate",
+        "hh_weight" = "Household weight",
+        "income_broad" = "2019 Household Income, in broad categories",
+        "thriveCatBroader" = "Broad geography categories for the household (urban, rural, suburban)",
+        "weight_unladen" = "Empty weight of the vehicle, in pounds (Source: Minnesota DPS; matched to TBI vehicle make/model/year)",
+        "veh_age" = "Age of vehicle in years",
+        "mpg_highway" = "Miles per gallon (highway) for the vehicle (Source: EPA; matched to TBI vehicle make/model/year)"
+      )
+  )
 
- # For David Montgomery
- # datlist <- list("gal_per_hh_day" = gal_per_hh_bins %>% mutate(took_trips = ifelse(num_trips>0, 1, 0))%>% select(-num_trips),
- #                 "gal_per_hh_summary" = gal_bins_hh_summary,
- #                 "gal_per_hh_avg" = gal_per_hh_average,
- #                 "gal_per_person_day" = gal_per_person_bins,
- #                 "gal_per_person_avg"= gal_per_person_average,
- #                 "gal_per_person_summary" = gal_bins_summary,
- #                 "vehicle_stats" = veh_stats,
- #                 "metadata" = metadata)
- # openxlsx::write.xlsx(datlist, file = "data/VehicleUseExtract_2022-03-15.xlsx")
+# For David Montgomery
+# datlist <- list("gal_per_hh_day" = gal_per_hh_bins %>% mutate(took_trips = ifelse(num_trips>0, 1, 0))%>% select(-num_trips),
+#                 "gal_per_hh_summary" = gal_bins_hh_summary,
+#                 "gal_per_hh_avg" = gal_per_hh_average,
+#                 "gal_per_person_day" = gal_per_person_bins,
+#                 "gal_per_person_avg"= gal_per_person_average,
+#                 "gal_per_person_summary" = gal_bins_summary,
+#                 "vehicle_stats" = veh_stats,
+#                 "metadata" = metadata)
+# openxlsx::write.xlsx(datlist, file = "data/VehicleUseExtract_2022-03-15.xlsx")
