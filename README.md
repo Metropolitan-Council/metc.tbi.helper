@@ -49,7 +49,7 @@ Contribute to the project by making changes to your own feature branch and issui
       * household (`hh`) records;
       * vehicle (`veh`) records, including fuel efficiency data; and
       * `trip_purpose`, for working with trip purpose data. This table has been specially weighted to attribute weights to either end of non-home-based trips, and to the non-home based end of home-based trips.
-    **This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csvs to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
+  **This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csvs to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
 * `data-raw`: scripts to generate datasets. Work here if you want to add a new variable to the dataset(s) or incorporate a new dataset to the database and/or .RData object. You may need access to internal databases for this work.
   * `data-raw/_data-compile.R` is the main script that sources all numbered .R scripts in this folder. 
   * `derive-var-[variable-name].R`: derive new variables from TBI datasets. 
@@ -109,7 +109,7 @@ library(dplyr)
 library(bit64) # for looking at big integers, like the person_ids
 
 tbi_tables$veh %>%
-  left_join(tbi_tables$hh %>% select(hh_id, hh_weight, income_detailed)) %>%
+  left_join(tbi_tables$hh) %>%
   as_survey_design(weights = "hh_weight") %>%
   group_by(income_detailed) %>%
   summarize(veh_age_avg = survey_mean(veh_age, na.rm = T))
