@@ -22,6 +22,7 @@ tbidb <- ROracle::dbConnect(
 )
 
 ## Load tables ---------
+message("Loading raw data from Oracle database")
 hh <- ROracle::dbReadTable(tbidb, "TBI19_HOUSEHOLD_RAW") %>% as.data.table()
 per <- ROracle::dbReadTable(tbidb, "TBI19_PERSON_RAW") %>% as.data.table()
 trip <- ROracle::dbReadTable(tbidb, "TBI19_TRIP_RAW") %>% as.data.table()
@@ -29,6 +30,7 @@ veh <- ROracle::dbReadTable(tbidb, "TBI19_VEHICLE_RAW") %>% as.data.table()
 day <- ROracle::dbReadTable(tbidb, "TBI19_DAY_RAW") %>% as.data.table()
 
 ## Translate tables using dictionary -----------
+message("Translating tables using dictionary")
 dictionary <-
   ROracle::dbReadTable(tbidb, "TBI19_DICTIONARY") %>%
   select(-table) %>%
@@ -88,13 +90,19 @@ translate_tbi <- function(dat, dictionary) {
   return(newdat)
 }
 
+message("...person...")
 per <- translate_tbi(per, dictionary)
+message("...hh...")
 hh <- translate_tbi(hh, dictionary)
+message("...veh...")
 veh <- translate_tbi(veh, dictionary)
+message("...day...")
 day <- translate_tbi(day, dictionary)
+message("...trip...")
 trip <- translate_tbi(trip, dictionary)
 
 # Replace missing with NA -----------
+message("Replacing missing values with NA")
 # all the numeric codes for missing:
 all_missing_codes <-
   dictionary[grep("Missing", value_label), "value", with = F]
@@ -134,6 +142,7 @@ veh <- replace_survey_missing(veh)
 rm(all_missing_labels, all_missing_vector, all_missing_codes)
 
 # Set IDs as Integer64 -----------
+message("IDs as Int64")
 hh[, hh_id := as.integer64(hh_id)]
 veh[, hh_id := as.integer64(hh_id)]
 day[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
@@ -145,32 +154,6 @@ trip[, c("hh_id", "person_id", "trip_id") := lapply(.SD, as.integer64),
 per[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
 ]
-
-
-### Add vehicle ID -------
-veh <-
-  veh %>% mutate(veh_id = paste(hh_id, "_", vehicle_num, sep = ""))
-
-trip <- trip %>%
-  mutate(veh_id = case_when(
-    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ mode_type_detailed
-  )) %>%
-  mutate(veh_id = str_replace(
-    veh_id,
-    pattern = "Household vehicle ",
-    replacement = paste(hh_id, "_", sep = "")
-  )) %>%
-  mutate(veh_id = case_when(mode_type_detailed %in%
-                              c("Other vehicle in household",
-                                "Other motorcycle",
-                                "Car from work",
-                                "Friend/relative/colleague's car",
-                                "Rental car",
-                                "Carpool match (e.g., Waze Carpool)",
-                                "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
-                                "Peer-to-peer car rental (e.g., Turo, Getaround)",
-                                "Other vehicle") ~
-                              "Other Vehicle"))
 
 ## Clean up---------------
 rm(replace_survey_missing, translate_tbi, tbidb)
