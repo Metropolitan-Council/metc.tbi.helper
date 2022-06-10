@@ -12,6 +12,7 @@ here::here()
 Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
+
 ## connect to database ------------
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
@@ -35,7 +36,7 @@ dictionary <-
   as.data.table()
 
 # note: this part uses data.table syntax and functions.
-translate_using_dictionary <- function(dat, dictionary) {
+translate_tbi <- function(dat, dictionary) {
   # select the names of columns that do not need to be translated -
   # (anything column that's not in the codebook):
   dat_id_vars <-
@@ -87,11 +88,11 @@ translate_using_dictionary <- function(dat, dictionary) {
   return(newdat)
 }
 
-per <- translate_using_dictionary(per, dictionary)
-hh <- translate_using_dictionary(hh, dictionary)
-veh <- translate_using_dictionary(veh, dictionary)
-day <- translate_using_dictionary(day, dictionary)
-trip <- translate_using_dictionary(trip, dictionary)
+per <- translate_tbi(per, dictionary)
+hh <- translate_tbi(hh, dictionary)
+veh <- translate_tbi(veh, dictionary)
+day <- translate_tbi(day, dictionary)
+trip <- translate_tbi(trip, dictionary)
 
 # Replace missing with NA -----------
 # all the numeric codes for missing:
@@ -151,11 +152,25 @@ veh <-
   veh %>% mutate(veh_id = paste(hh_id, "_", vehicle_num, sep = ""))
 
 trip <- trip %>%
+  mutate(veh_id = case_when(
+    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ mode_type_detailed
+  )) %>%
   mutate(veh_id = str_replace(
-    mode_type_detailed,
+    veh_id,
     pattern = "Household vehicle ",
     replacement = paste(hh_id, "_", sep = "")
-  ))
+  )) %>%
+  mutate(veh_id = case_when(mode_type_detailed %in%
+                              c("Other vehicle in household",
+                                "Other motorcycle",
+                                "Car from work",
+                                "Friend/relative/colleague's car",
+                                "Rental car",
+                                "Carpool match (e.g., Waze Carpool)",
+                                "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
+                                "Peer-to-peer car rental (e.g., Turo, Getaround)",
+                                "Other vehicle") ~
+                              "Other Vehicle"))
 
 ## Clean up---------------
-rm(replace_survey_missing, translate_using_dictionary, tbidb)
+rm(replace_survey_missing, translate_tbi, tbidb)

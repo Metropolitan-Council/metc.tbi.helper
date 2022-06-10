@@ -35,8 +35,7 @@ per <- per %>%
     person_id, person_weight, hh_id,
     age, gender, disability, education, employment_status, student_status,
     starts_with("ethnicity"),
-    job_type, license, num_jobs, 
-    transit_freq 
+    job_type, license, num_jobs
   )
 
 veh <- veh %>%

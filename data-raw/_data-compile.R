@@ -1,62 +1,63 @@
 # Get TBI survey data from database ---------
-source("data-raw/get-survey-data.R")
+source("data-raw/01-get-survey-data.R")
+
+# Append geographic boundaries to  household, work, school, and trip -----------
+source("data-raw/02-add-geographic-boundaries.R")
+
+# Get EPA Efficiency Data -----------
+source("data-raw/03-get-epa-vehicle-efficiency-data.R")
+
+# Get DPS Vehicle Weight Data -----------
+source("data-raw/04-get-dps-vehicle-weight-data.R")
+
+# Extra variables ------
+source("data-raw/05-add-var-person-race.R")
+source("data-raw/06-add-var-hh-income-easyread.R")
+source("data-raw/07-add-var-trip-purpose.R")
+source("data-raw/08-add-var-trip-mode-group.R")
+source("data-raw/09-add-var-trip-purpose-broad.R")
+source("data-raw/10-add-var-trip-seasons.R")
+
+# Re-format time
+trip <- trip %>%
+  mutate(
+    depart_time_imputed = as.ITime(depart_time_imputed),
+    arrive_time = as.ITime(arrive_time)
+  )
+
+# Remove PII ------------------
+source("data-raw/11-remove-pii.R")
 
 # Trim columns down for manageability ----------
-source("data-raw/slim-survey-data-columns.R")
+# source("data-raw/slim-survey-data-columns.R")
 
-# Trim survey data to MPO region -----------
-source("data-raw/trim-survey-data-to-mpo.R")
+# Work on the dictionary ------------------
+source("data-raw/create-dictionary.R")
 
-# Get EPA fuel efficiency Data ----------
-source("data-raw/get-epa-vehicle-efficiency-data.R")
+# Create additional outputs for app --------------
+source("data-raw/histogram_breaks.R")
+source("data-raw/input_list.R")
+source("data-raw/missing_codes.R")
 
-# Get Vehicle Weight data ----------
-source("data-raw/get-dps-vehicle-weight-data.R")
-
-# Append Thrive Category where lat/lons exist ----------
-source("data-raw/add-thrive-to-hh-trip.R")
-
-# Append MPO boundary to trips origin/destination ----------
-source("data-raw/add-mpo-boundary-to-trips.R")
-
-# Remove PII ----------
-source("data-raw/remove-pii.R")
-
-# Create Data Dictionary ----------
-source("data-raw/create-data-dictionary.R")
-
-# Write data as RData Obj-------------------
+# Write Data -------------------------
 tbi_tables <- list(
   "day" = day,
   "per" = per,
   "hh" = hh,
   "veh" = veh,
-  "trip" = trip
+  "trip" = trip,
+  "trip_purpose" = trip_purpose
 )
 
-
+#### To RData object: -----
 usethis::use_data(tbi_tables,
                   overwrite = TRUE,
                   compress = "xz",
                   internal = FALSE
 )
 
-# Write data to Database
-tbidb <- ROracle::dbConnect(
-  dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
-)
-
-ROracle::dbWriteTable(tbidb, "tbi_19_day_public", tbi_tables$day, append = FALSE, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_trip_public", tbi_tables$trip, append = FALSE, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_hh_public", tbi_tables$hh, append = FALSE, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_veh_public", tbi_tables$veh, append = FALSE, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_per_public", tbi_tables$per, append = FALSE, overwrite = T)
-
-# code to compile dictionary, and add numeric column descriptors
+#### To Oracle Database: -----
 
 
-rm(hh, per, trip, veh, day, dictionary)
+#### To CSV: -----
 
