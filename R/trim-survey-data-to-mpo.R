@@ -1,7 +1,5 @@
 ### Toolbox ----------
-library(DBI)
-library(sf)
-library(tidyverse)
+source("data-raw/00-load-pkgs.R")
 
 if (grepl("mac", osVersion)) {
   db <- DBI::dbConnect(odbc::odbc(),
