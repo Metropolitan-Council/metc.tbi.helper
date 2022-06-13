@@ -484,4 +484,5 @@ rm(
   "work_thrive"
 )
 
+DBI::dbDisconnect(db)
 rm(db)
