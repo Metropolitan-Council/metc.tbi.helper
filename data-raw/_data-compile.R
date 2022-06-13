@@ -55,15 +55,19 @@ tbi_tables <- list(
 )
 
 #### To RData object: -----
-usethis::use_data(tbi_tables,
-  overwrite = TRUE,
-  compress = "xz",
-  internal = FALSE
+# usethis::use_data(tbi_tables,
+#   overwrite = TRUE,
+#   compress = "xz",
+#   internal = FALSE
+# )
+
+save(tbi_tables,
+     file = "data/tbi_tables.rda",
+     compression_level = "xz"
 )
 
+
 #### To Oracle Database: -----
-library(tidyr)
-library(ROracle)
 
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
