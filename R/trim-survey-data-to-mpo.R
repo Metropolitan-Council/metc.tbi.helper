@@ -69,3 +69,6 @@ trip <- trip %>%
   filter(hh_in_mpo == "in_mpo")
 
 rm(hh_sf, db, hh_ids, mpo_sf)
+
+DBI::dbDisconnect(db)
+rm(db)
