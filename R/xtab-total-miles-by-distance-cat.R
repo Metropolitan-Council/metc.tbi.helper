@@ -4,8 +4,8 @@ vmt_x_trip_distance <-
   dplyr::mutate(
     cuts = cut(
       distance,
-      breaks = histogram_breaks$distance$breaks,
-      labels =  histogram_breaks$distance$labels,
+      breaks = c(-1, 1, 3, 5, 7, 9, Inf),
+      labels =  c("0-1", "1-3", "3-5", "5-7", "7-9", "More than 9"),
       order_result = TRUE
     )
   ) %>%
@@ -24,4 +24,4 @@ vmt_x_trip_distance <-
   dplyr::ungroup()
 
 
-message("New table: trips distance x mode type (condensed)")
+message("New table: vmt_x_mode_x_trip_distance, trips distance x mode type (condensed)")
