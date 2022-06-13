@@ -229,7 +229,7 @@ hh_cbg <-
   st_drop_geometry() %>%
   rename(hh_cbg = cbg)
 
-#### Compile, write over hh table:
+#### Compile, write over hh table: -----
 hh <- hh %>%
   left_join(hh_mpo, by = "hh_id") %>%
   left_join(hh_cty, by = "hh_id") %>%
