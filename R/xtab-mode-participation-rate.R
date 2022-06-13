@@ -11,7 +11,7 @@ mode_share_ls <- list()
 
 for (a_mode_type in c("Drive", "Transit", "Walk", "Bicycle", "Other")) {
   mode_share_ls[[a_mode_type]] <-
-    tbi$trip %>%
+    tbi_tables$trip %>%
     # Find just the trips using that mode:
     filter(mode_type_cond == !!a_mode_type) %>%
     # ... and the people who made those trips:
@@ -20,13 +20,13 @@ for (a_mode_type in c("Drive", "Transit", "Walk", "Bicycle", "Other")) {
     # flag for "used that mode"
     mutate(used_mode = 1) %>%
     # Join to day table (repeated measures of mode use over time == need for day table.)
-    full_join(tbi$day %>% select(person_id, day_num, day_weight)) %>%
+    full_join(tbi_tables$day %>% select(person_id, day_num, day_weight)) %>%
     # only weekdays; only complete survey days:
     filter(day_weight > 0) %>%
     # add flag for "didn't use that mode" - 0:
     mutate(used_mode = replace(used_mode, is.na(used_mode), 0)) %>%
     # filter to adults:
-    left_join(tbi$per %>% select(person_id, age)) %>%
+    left_join(tbi_tables$per %>% select(person_id, age)) %>%
     filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
     # get survey total and proportion:
     srvyr::as_survey_design(w = day_weight) %>%
@@ -39,7 +39,7 @@ for (a_mode_type in c("Drive", "Transit", "Walk", "Bicycle", "Other")) {
 
 # have to add days with no travel:
 no_travel_share <-
-  tbi$day %>%
+  tbi_tables$day %>%
   select(person_id, day_num, day_weight, num_trips) %>%
   mutate(zero_trips = case_when(
     num_trips == 0 ~ 1,
@@ -48,7 +48,7 @@ no_travel_share <-
   # only weekdays; only complete survey days:
   filter(day_weight > 0) %>%
   # filter to adults:
-  left_join(tbi$per %>% select(person_id, age)) %>%
+  left_join(tbi_tables$per %>% select(person_id, age)) %>%
   filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
   # get survey total and proportion:
   srvyr::as_survey_design(w = day_weight) %>%
@@ -72,7 +72,7 @@ mode_share <-
 
 # Transit has its own frequency of use question:
 transit_freq_self_reported <-
-  tbi$per %>%
+  tbi_tables$per %>%
   select(person_id, person_weight, age, transit_freq) %>%
   filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
   # get rid of those who did not answer as well:

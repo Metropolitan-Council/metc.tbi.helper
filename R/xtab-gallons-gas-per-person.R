@@ -11,18 +11,18 @@ rm(packages)
 
 # data prep -------------------------------------------
 ##### 1. our universe: days lived by adults in the region -------------------------------------------
-adults <- tbi$per %>%
+adults <- tbi_tables$per %>%
   filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
   pluck("person_id")
 
-adult_days <- tbi$day %>%
+adult_days <- tbi_tables$day %>%
   filter(day_weight > 0) %>%
   filter(person_id %in% adults)
 
 
 ##### 1. weekday trips by drivers -------------------------------------------
 driver_trips <-
-  tbi$trip %>%
+  tbi_tables$trip %>%
   filter(person_id %in% adults) %>%
   filter(trip_weight > 0) %>%
   filter(vehicle_driver == "Driver")
@@ -31,8 +31,8 @@ driver_trips <-
 
 ##### 2. calculate gas consumed by drivers -------------------------------
 # median mpg for all cars in TBI
-median_mpg <- tbi$veh %>%
-  left_join(tbi$hh %>% select(hh_id, hh_weight)) %>%
+median_mpg <- tbi_tables$veh %>%
+  left_join(tbi_tables$hh %>% select(hh_id, hh_weight)) %>%
   as_survey_design(w = hh_weight) %>%
   summarize(
     median_mpg_city = survey_median(mpg_city, na.rm = T),
@@ -42,7 +42,7 @@ median_mpg <- tbi$veh %>%
 
 # how many missing mpg?
 driver_trips %>%
-  left_join(tbi$veh, by = c("hh_id", "veh_id")) %>%
+  left_join(tbi_tables$veh, by = c("hh_id", "veh_id")) %>%
   filter(is.na(mpg_city)) %>%
   nrow()
 
@@ -50,7 +50,7 @@ nrow(driver_trips)
 
 gal_per_trip <-
   driver_trips %>%
-  left_join(tbi$veh, by = c("hh_id", "veh_id")) %>%
+  left_join(tbi_tables$veh, by = c("hh_id", "veh_id")) %>%
   # apply median co2 emissions value to vehicles with missing information (probably an under-estimate).
   # only do this for non-electric cars
   mutate(
@@ -91,7 +91,7 @@ gal_per_person_day <-
 
 
 gal_per_hh_day <-
-  tbi$day %>%
+  tbi_tables$day %>%
   filter(day_weight > 0) %>%
   left_join(gal_per_trip) %>%
   group_by(hh_id, day_num) %>%
@@ -103,7 +103,7 @@ gal_per_hh_day <-
     num_trips = max(num_trips, na.rm = T),
   ) %>%
   ungroup() %>%
-  left_join(tbi$day %>% select(person_id, day_num, day_weight),
+  left_join(tbi_tables$day %>% select(person_id, day_num, day_weight),
     by = c("head_of_hh" = "person_id", "day_num" = "day_num")
   )
 
@@ -123,7 +123,7 @@ gal_per_hh_average <-
 ##### 4. #, % adults who rode as passengers -------------------------------------------
 # rode as passenger
 passenger_trips <-
-  tbi$trip %>%
+  tbi_tables$trip %>%
   filter(person_id %in% adults) %>%
   filter(mode_type %in% c("Household vehicle", "For-hire vehicle", "Other vehicle", "Smartphone ridehailing service")) %>%
   filter(vehicle_driver == "Passenger" | is.na(vehicle_driver))
@@ -143,7 +143,7 @@ passenger_hh_days <-
 ##### 4. #, % adults who used other modes -------------------------------------------
 source("R/df-lump-mode-types.R")
 other_mode_trips <-
-  tbi$trip %>%
+  tbi_tables$trip %>%
   filter(!is.na(mode_type_cond)) %>%
   filter(!mode_type_cond == "Drive") %>%
   filter(trip_weight > 0) %>%
@@ -162,8 +162,8 @@ other_mode_hh_days <-
   mutate(used_other_modes = "used other modes")
 
 ev_trips <-
-  tbi$trip %>%
-  left_join(tbi$veh) %>%
+  tbi_tables$trip %>%
+  left_join(tbi_tables$veh) %>%
   filter(fuel_type == "Electricity") %>%
   filter(trip_weight > 0) %>%
   filter(person_id %in% adults)

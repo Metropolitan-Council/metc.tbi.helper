@@ -110,7 +110,7 @@ o_purpose_category_hierarchy <-
 
 
 #### Link Trips, Select Highest Mode/Purpose ----------
-trip_linked <- tbi$trip %>%
+trip_linked <- tbi_tables$trip %>%
   arrange(trip_id) %>%
   # join to the hierarchies for mode and purpose:
   left_join(mode_type_hierarchy) %>%
@@ -188,14 +188,14 @@ trip_linked <- tbi$trip %>%
   )
 
 # missing any trip attributes?
-setdiff(names(tbi$trip), names(trip_linked))
+setdiff(names(tbi_tables$trip), names(trip_linked))
 
 # set order of columns same as in trip table
-original_names <- names(tbi$trip)[names(tbi$trip) %in% names(trip_linked)]
-new_names <- setdiff(names(trip_linked), names(tbi$trip))
+original_names <- names(tbi_tables$trip)[names(tbi_tables$trip) %in% names(trip_linked)]
+new_names <- setdiff(names(trip_linked), names(tbi_tables$trip))
 all_names <- c(original_names, new_names)
 
-tbi$trip_linked <-
+tbi_tables$trip_linked <-
   trip_linked %>%
   select(one_of(all_names))
 
