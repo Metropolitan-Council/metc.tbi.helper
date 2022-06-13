@@ -71,7 +71,7 @@ gal_per_trip <-
   )) %>%
   mutate(gal_consumed = (1 / mpg) * distance) %>%
   mutate(gal_consumed = case_when(
-    fuel_type == "Electricity" ~ 0,
+    epa_fuel_type == "Electricity" ~ 0,
     TRUE ~ gal_consumed
   )) %>%
   filter(gal_consumed > 0)
@@ -164,7 +164,7 @@ other_mode_hh_days <-
 ev_trips <-
   tbi_tables$trip %>%
   left_join(tbi_tables$veh) %>%
-  filter(fuel_type == "Electricity") %>%
+  filter(epa_fuel_type == "Electricity") %>%
   filter(trip_weight > 0) %>%
   filter(person_id %in% adults)
 
