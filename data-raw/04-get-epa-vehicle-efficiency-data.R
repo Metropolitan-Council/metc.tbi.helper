@@ -205,6 +205,7 @@ epa <- epa %>%
 epa <- epa %>% rename(epa_fuel_type = fuel_type)
 
 # Matching to Vehicle table ------------
+message("Matching EPA data to TBI vehicle table")
 veh_epa <-
   veh %>%
   mutate(
@@ -286,6 +287,7 @@ veh_epa <-
     epa_fuel_type
   )
 
+message("Matching EPA data to TBI vehicle table")
 veh <-
   veh %>%
   mutate(

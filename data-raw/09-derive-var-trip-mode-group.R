@@ -20,3 +20,5 @@ trip <-
         `Long distance passenger mode` = "Other"
       )
   )
+
+message("New variable in trip table: mode_group, that condenses mode_type_detailed (but keeps bicycles separate)")
