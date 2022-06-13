@@ -1,3 +1,6 @@
+# Load neccessary packages ------
+source("data-raw/00-load-pkgs.R")
+
 # Get TBI survey data from database ---------
 source("data-raw/01-get-survey-data.R")
 

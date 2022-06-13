@@ -1,11 +1,7 @@
 ########################################################### .
 ### TOOLBOX ----
 ########################################################### .
-suppressMessages(library(data.table, quietly = T))
-suppressMessages(library(bit64, quietly = T))
-suppressMessages(library(openxlsx, quietly = T))
-suppressMessages(library(dplyr, quietly = T))
-suppressMessages(library(keyring, quietly = T))
+source("data-raw/load_pkgs.R")
 
 ########################################################### .
 ### READ IN DATA ----
