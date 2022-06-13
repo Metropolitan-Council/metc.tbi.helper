@@ -7,7 +7,7 @@
 
 per_race <-
   per %>%
-  select(person_id, starts_with("ethnicity")) %>%
+  select(person_id, starts_with("ethnicity"), by = by = "person_id") %>%
   pivot_longer(cols = starts_with("ethnicity"), names_prefix = "ethnicity_") %>%
   filter(value == "Yes") %>%
   select(-value) %>%

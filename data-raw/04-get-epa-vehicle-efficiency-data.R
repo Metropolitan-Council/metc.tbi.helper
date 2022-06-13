@@ -297,7 +297,7 @@ veh <-
       )
   ) %>%
   left_join(veh_epa %>%
-    rename(model = model.tbi))
+    rename(model = model.tbi), by = c("year", "make", "model"))
 
 # # how many missing?
 # summary(veh)

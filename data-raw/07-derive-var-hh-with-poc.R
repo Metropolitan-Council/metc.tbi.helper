@@ -7,7 +7,7 @@
 hh_race <-
   hh %>%
   select(hh_id) %>%
-  left_join(per %>% select(hh_id, starts_with("ethnicity"))) %>%
+  left_join(per %>% select(hh_id, starts_with("ethnicity")), by = "hh_id") %>%
   select(-ethnicity_other) %>% # mostly white people
   pivot_longer(cols = starts_with("ethnicity"), names_prefix = "ethnicity_") %>%
   filter(value == "Yes") %>%

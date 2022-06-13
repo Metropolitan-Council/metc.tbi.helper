@@ -239,7 +239,8 @@ veh_dps_full <-
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
   left_join(veh_dps_best %>%
-    rename(model = model.tbi))
+    rename(model = model.tbi),
+    by = c("year", "make", "model"))
 
 veh_dps_rename <-
   veh_dps_full %>%
@@ -254,7 +255,10 @@ veh_dps_rename <-
 
 veh <-
   new_veh %>%
-  left_join(veh_dps_rename)
+  left_join(veh_dps_rename,
+            by = c("hh_id", "vehicle_num", "vehicle_name", "year",
+                   "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
+                   "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"))
 
 
 # # how many missing?
