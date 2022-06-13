@@ -1,3 +1,22 @@
+#' Create distance threshold table
+#'
+#' @param triptable table, default is `tbi_tables$trip`
+#' @param min_dist numeric, minimum trip distance. Default is `1`
+#' @param max_dist numeric, maximum trip distance. Default is `10`
+#' @param dist_interval numeric. Defautl is `1`.
+#' @param by_variable1 character. Defaults is `NULL`
+#' @param by_variable2 character. Default is `NULL`
+#'
+#' @return table
+#' @export
+#'
+#'
+#' @importFrom dplyr filter mutate select across group_by ungroup left_join summarize rename
+#' @importFrom srvyr as_survey_design survey_total
+#' @importFrom tidyselect where
+#' @importFrom rlang sym enquoquo_name
+#' @importFrom purrr pluck
+#' @importFrom magrittr extract2
 create_distance_threshold_table <-
   function(triptable = tbi_tables$trip,
            min_dist = 1,
