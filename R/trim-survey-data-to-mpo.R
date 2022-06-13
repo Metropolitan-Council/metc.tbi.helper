@@ -1,11 +1,17 @@
 ### Toolbox ----------
-library(DBI)
-library(sf)
-library(tidyverse)
+source("data-raw/00-load-pkgs.R")
 
-
-db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
-
+if (grepl("mac", osVersion)) {
+  db <- DBI::dbConnect(odbc::odbc(),
+    "GISLibrary",
+    Driver = "FreeTDS",
+    timeout = 10,
+    Uid = keyring::key_get("MetC_uid"),
+    Pwd = keyring::key_get("MetC")
+  )
+} else {
+  db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
+}
 ### Get MPO shapefile -------------
 mpo_sf <- DBI::dbGetQuery(
   db,
@@ -61,3 +67,6 @@ trip <- trip %>%
   filter(hh_in_mpo == "in_mpo")
 
 rm(hh_sf, db, hh_ids, mpo_sf)
+
+DBI::dbDisconnect(db)
+rm(db)

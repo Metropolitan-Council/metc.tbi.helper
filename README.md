@@ -3,7 +3,7 @@ This repository contains a collection of R code for working with Travel Behavior
 
 _If you came for a pretty R Data object of the TBI survey data, check out the_ `data` _folder!_
 
-Other things you might find useful in here include  R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxillary datasets & geographic information to the datasets, and more. 
+Other things you might find useful in here include R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxiliary datasets & geographic information to the datasets, and more. 
 
 This repository is in active development, and anyone can contribute 🤝. One day, this might (should?) be an R package.
 
@@ -25,7 +25,7 @@ Contribute to the project by making changes to your own feature branch and issui
     * fix an issue - [please name your branch with the issue number](https://deepsource.io/blog/git-branch-naming-conventions/)
 * Commit changes related to your feature and push them to GitHub.
 * You can push changes to your feature branch at any time.
-* So that anyone can build your reports, make sure you set your `keyring` keys to the MTS Oracle database to match those in the  `keyring_template.R` script. For database passwords, contact @ashleyasmus.
+* So that anyone within the Met Council can build your reports, make sure you set your `keyring` keys to the MTS Oracle database to match those in the `R/keyring_template.R`. For database passwords, contact @ashleyasmus.
 * When you're ready to have your work reviewed you create a pull-request on GitHub.
 * You can issue a pull-request and request a review of work-in-progress if you want guidance on code or content.
 * Make changes or respond to comments in your pull-request reviews.
@@ -34,7 +34,7 @@ Contribute to the project by making changes to your own feature branch and issui
   * To remove deleted feature branches from your local repository run `git remote prune origin`.
   * Do not attempt to push additional commits to a merged pull-request.
   Instead, start a new feature branch and issue a new pull request.
-* Remember to update and branch off of `main` whenever you start a new feature, e.g., `git checkout main; git pull origin main; git checkout -b aa-new-feature`.
+* Remember to update and branch off of `main` whenever you start a new feature, e.g., `git checkout main; git pull origin main; git checkout -b a-new-feature`.
 
 
 ## Organization
@@ -50,7 +50,7 @@ Contribute to the project by making changes to your own feature branch and issui
       * vehicle (`veh`) records, including fuel efficiency data; and
       * `trip_purpose`, for working with trip purpose data. This table has been specially weighted to attribute weights to either end of non-home-based trips, and to the non-home based end of home-based trips.
 
-**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csvs to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
+**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csv's to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
 
 * `data-raw`: scripts to generate datasets. Work here if you want to add a new variable to the dataset(s) or incorporate a new dataset to the database and/or .RData object. You may need access to internal databases for this work.
   * `data-raw/_data-compile.R` is the main script that sources all numbered .R scripts in this folder. 
@@ -62,7 +62,7 @@ Contribute to the project by making changes to your own feature branch and issui
 * Note that there are no folders for specific TBI-related projects/analyses. These should live in their own GitHub repositories, and source code from this repository.
 
 ## Using this code in other projects
-One day, this repository might be an R project. For now, you can source data, metadata and R scripts in two ways.
+One day, this repository might be an R package. For now, you can source data, metadata and R scripts in two ways.
 
 (1) Clone this repository to your machine _(Preferred method)_
   This method is preferred, though it will require you to do periodic pulls from the `main` branch to your machine.

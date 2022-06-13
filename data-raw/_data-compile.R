@@ -1,3 +1,6 @@
+# Load neccessary packages ------
+source("data-raw/00-load-pkgs.R")
+
 # Get TBI survey data from database ---------
 source("data-raw/01-get-survey-data.R")
 
@@ -52,15 +55,19 @@ tbi_tables <- list(
 )
 
 #### To RData object: -----
-usethis::use_data(tbi_tables,
-  overwrite = TRUE,
-  compress = "xz",
-  internal = FALSE
+# usethis::use_data(tbi_tables,
+#   overwrite = TRUE,
+#   compress = "xz",
+#   internal = FALSE
+# )
+
+save(tbi_tables,
+     file = "data/tbi_tables.rda",
+     compress = "xz"
 )
 
+
 #### To Oracle Database: -----
-library(tidyr)
-library(ROracle)
 
 tbidb <- ROracle::dbConnect(
   dbDriver("Oracle"),
@@ -69,9 +76,11 @@ tbidb <- ROracle::dbConnect(
   password = keyring::key_get("mts_planning_data_pw")
 )
 
-ROracle::dbWriteTable(tbidb, "tbi_19_day_public", day, append = F, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_trip_public", trip, append = F, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_hh_public", hh, append = F, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_veh_public", veh, append = F, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_per_public", per, append = F, overwrite = T)
-ROracle::dbWriteTable(tbidb, "tbi_19_dictionary_public", dictionary, append = F, overwrite = T)
+ROracle::dbWriteTable(tbidb, "tbi_19_day_public", day, append = FALSE, overwrite = TRUE)
+ROracle::dbWriteTable(tbidb, "tbi_19_trip_public", trip, append = FALSE, overwrite = TRUE)
+ROracle::dbWriteTable(tbidb, "tbi_19_hh_public", hh, append = FALSE, overwrite = TRUE)
+ROracle::dbWriteTable(tbidb, "tbi_19_veh_public", veh, append = FALSE, overwrite = TRUE)
+ROracle::dbWriteTable(tbidb, "tbi_19_per_public", per, append = FALSE, overwrite = TRUE)
+ROracle::dbWriteTable(tbidb, "tbi_19_dictionary_public", dictionary, append = FALSE, overwrite = TRUE)
+
+DBI::dbDisconnect(tbidb)

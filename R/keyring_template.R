@@ -7,3 +7,11 @@ keyring::key_set("mts_planning_database_string")
 
 keyring::key_set("mts_planning_data_pw")
 # type this in, NO QUOTES!
+
+# If you are on Mac, you need these additional values
+
+keyring::key_set("MetC") # your MetC pwd
+
+keyring::key_set("MetC_uid") # your MetC user id. should be "mc\\uid"
+# if you are having difficulty getting the "\\" to behave, try
+keyring::key_set_with_value(service = "MetC_uid", password = "mc\\{your_uid}")

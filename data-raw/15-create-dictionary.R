@@ -1,8 +1,5 @@
 # # Packages -------------
-# packages <- list("bit64", "tidyverse", "data.table", "DBI", "ROracle", "keyring", "here")
-# invisible(lapply(packages, library, character.only = TRUE))
-# rm(packages)
-#
+# source("data-raw/00-load-pkgs.R")
 #
 # # Set wd-------------
 # here::here()
