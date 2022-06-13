@@ -1,13 +1,18 @@
-library(dplyr)
-library(stringr)
+# Packages -------------
+source("data-raw/00-load-pkgs.R")
+# Set wd-------------
+here::here()
 
 # Read from online -----------
+message("Downloading fuel economy data from EPA website")
 # https://www.fueleconomy.gov/feg/download.shtml
 epa_raw <-
   read.csv("https://www.fueleconomy.gov/feg/epadata/vehicles.csv")
 # see README for documentation/metadata
 
 # Trim Columns ----------------
+message("Rearranging EPA data")
+
 epa <- epa_raw %>%
   select(
     make,
