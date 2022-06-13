@@ -4,14 +4,12 @@ veh <-
 
 trip <- trip %>%
   mutate(veh_id = case_when(
-    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ mode_type_detailed
+    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~
+      paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
   )) %>%
-  mutate(veh_id = str_replace(
-    veh_id,
-    pattern = "Household vehicle ",
-    replacement = paste(hh_id, "_", sep = "")
-  )) %>%
-  mutate(veh_id = case_when(mode_type_detailed %in%
+  mutate(veh_id = case_when(
+    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ veh_id,
+    mode_type_detailed %in%
     c(
       "Other vehicle in household",
       "Other motorcycle",
@@ -23,4 +21,5 @@ trip <- trip %>%
       "Peer-to-peer car rental (e.g., Turo, Getaround)",
       "Other vehicle"
     ) ~
-    "Other Vehicle"))
+    "Other Vehicle",
+    TRUE ~ veh_id))
