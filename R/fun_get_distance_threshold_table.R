@@ -7,8 +7,8 @@ create_distance_threshold_table <-
            by_variable2 = NULL) {
 
     # No xtab variables -----------
-    if(missing(by_variable1) & missing(by_variable2)){
-    ## Threshold Calculations -------------------
+    if (missing(by_variable1) & missing(by_variable2)) {
+      ## Threshold Calculations -------------------
       distlist <- list()
       for (this_distance in seq(from = min_dist, to = max_dist, by = dist_interval)) {
         # For the whole metro:
@@ -19,13 +19,17 @@ create_distance_threshold_table <-
           # clean up:
           droplevels() %>%
           # big N sample size - for the whole data frame:
-          dplyr::mutate(total_N = length(hh_id),
-                        # raw sample size - number of people, trips, households, days
-                        total_N_hh = length(unique(hh_id))) %>% # total number of households in sample
+          dplyr::mutate(
+            total_N = length(hh_id),
+            # raw sample size - number of people, trips, households, days
+            total_N_hh = length(unique(hh_id))
+          ) %>% # total number of households in sample
           srvyr::as_survey_design(weights = trip_weight) %>%
-          dplyr::group_by(total_N,
-                          total_N_hh,
-                          help_text) %>%
+          dplyr::group_by(
+            total_N,
+            total_N_hh,
+            help_text
+          ) %>%
           dplyr::summarize(
             group_N = length(hh_id),
             # raw sample size - number of people, trips, households, days (by group)
@@ -37,7 +41,6 @@ create_distance_threshold_table <-
           dplyr::mutate(distance_cutoff = !!this_distance) %>%
           dplyr::ungroup() %>%
           dplyr::mutate(dplyr::across(tidyselect:::where(is.numeric), round, digits = 5))
-
       }
 
       threshold_dat <-
@@ -48,7 +51,7 @@ create_distance_threshold_table <-
     }
 
     # One Way Table Method -----------
-    if(!missing(by_variable1) & missing(by_variable2)){
+    if (!missing(by_variable1) & missing(by_variable2)) {
       jointable_1 <-
         tbi_dict %>%
         dplyr::filter(variable == by_variable1) %>%
@@ -84,8 +87,6 @@ create_distance_threshold_table <-
           )) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
           dplyr::rename(!!rlang::enquo(by_variable1) := cuts)
-
-
       } else if (vartype1 == "ITime") {
         brks <- histogram_breaks[[by_variable1]]$breaks
         brks_labs <- histogram_breaks[[by_variable1]]$labels
@@ -102,8 +103,6 @@ create_distance_threshold_table <-
           ) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
           dplyr::rename(!!rlang::enquo(by_variable1) := cuts)
-
-
       } else {
         tab_1 <- tab_0
       }
@@ -120,14 +119,18 @@ create_distance_threshold_table <-
           # clean up:
           droplevels() %>%
           # big N sample size - for the whole data frame:
-          dplyr::mutate(total_N = length(hh_id),
-                        # raw sample size - number of people, trips, households, days
-                        total_N_hh = length(unique(hh_id))) %>% # total number of households in sample
+          dplyr::mutate(
+            total_N = length(hh_id),
+            # raw sample size - number of people, trips, households, days
+            total_N_hh = length(unique(hh_id))
+          ) %>% # total number of households in sample
           srvyr::as_survey_design(weights = trip_weight) %>%
-          dplyr::group_by(total_N,
-                          total_N_hh,
-                          help_text,
-                          get(by_variable1)) %>%
+          dplyr::group_by(
+            total_N,
+            total_N_hh,
+            help_text,
+            get(by_variable1)
+          ) %>%
           dplyr::summarize(
             group_N = length(hh_id),
             # raw sample size - number of people, trips, households, days (by group)
@@ -141,7 +144,6 @@ create_distance_threshold_table <-
           dplyr::mutate(dplyr::across(tidyselect:::where(is.numeric), round, digits = 5)) %>%
           # rename the column back to the original name - it gets weird for some reason
           dplyr::rename(!!rlang::quo_name(by_variable1) := `get(by_variable1)`)
-
       }
 
       threshold_dat <-
@@ -153,7 +155,7 @@ create_distance_threshold_table <-
 
 
     # Two Way Table Method ------------
-    else if(!missing(by_variable1) & !missing(by_variable2)){
+    else if (!missing(by_variable1) & !missing(by_variable2)) {
       jointable_1 <-
         tbi_dict %>%
         dplyr::filter(variable == by_variable1) %>%
@@ -203,8 +205,6 @@ create_distance_threshold_table <-
           )) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
           dplyr::rename(!!rlang::enquo(by_variable1) := cuts)
-
-
       } else if (vartype1 == "ITime") {
         brks <- histogram_breaks[[by_variable1]]$breaks
         brks_labs <- histogram_breaks[[by_variable1]]$labels
@@ -221,8 +221,6 @@ create_distance_threshold_table <-
           ) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
           dplyr::rename(!!rlang::enquo(by_variable1) := cuts)
-
-
       } else {
         tab_1 <- tab_0
       }
@@ -242,8 +240,6 @@ create_distance_threshold_table <-
           )) %>%
           dplyr::select(-rlang::sym(by_variable2)) %>%
           dplyr::rename(!!rlang::enquo(by_variable2) := cuts)
-
-
       } else if (vartype2 == "ITime") {
         brks <- histogram_breaks[[vartype2]]$breaks
         brks_labs <- histogram_breaks[[vartype2]]$labels
@@ -260,7 +256,6 @@ create_distance_threshold_table <-
           ) %>%
           dplyr::select(-rlang::sym(vartype2)) %>%
           dplyr::rename(!!rlang::enquo(vartype2) := cuts)
-
       } else {
         tab_2 <- tab_1
       }
@@ -276,15 +271,19 @@ create_distance_threshold_table <-
           # clean up:
           droplevels() %>%
           # big N sample size - for the whole data frame:
-          dplyr::mutate(total_N = length(hh_id),
-                        # raw sample size - number of people, trips, households, days
-                        total_N_hh = length(unique(hh_id))) %>% # total number of households in sample
+          dplyr::mutate(
+            total_N = length(hh_id),
+            # raw sample size - number of people, trips, households, days
+            total_N_hh = length(unique(hh_id))
+          ) %>% # total number of households in sample
           srvyr::as_survey_design(weights = trip_weight) %>%
-          dplyr::group_by(total_N,
-                          total_N_hh,
-                          help_text,
-                          get(by_variable1),
-                          get(by_variable2)) %>%
+          dplyr::group_by(
+            total_N,
+            total_N_hh,
+            help_text,
+            get(by_variable1),
+            get(by_variable2)
+          ) %>%
           dplyr::summarize(
             group_N = length(hh_id),
             # raw sample size - number of people, trips, households, days (by group)
@@ -299,7 +298,6 @@ create_distance_threshold_table <-
           # rename the column back to the original name - it gets weird for some reason
           dplyr::rename(!!rlang::quo_name(by_variable1) := `get(by_variable1)`) %>%
           dplyr::rename(!!rlang::quo_name(by_variable2) := `get(by_variable2)`)
-
       }
 
       threshold_dat <-
@@ -308,6 +306,4 @@ create_distance_threshold_table <-
 
       return(threshold_dat)
     }
-
-
   }

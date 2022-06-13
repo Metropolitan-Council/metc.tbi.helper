@@ -56,13 +56,14 @@ school_sf <- per %>%
 ### Get Shapefiles -------------
 message("Downloading Shapefiles from GIS Library")
 
-if(grepl("mac", osVersion)){
+if (grepl("mac", osVersion)) {
   db <- DBI::dbConnect(odbc::odbc(),
-                       "GISLibrary",
-                       Driver = "FreeTDS",
-                       timeout = 10,
-                       Uid = keyring::key_get("MetC_uid"),
-                       Pwd = keyring::key_get("MetC"))
+    "GISLibrary",
+    Driver = "FreeTDS",
+    timeout = 10,
+    Uid = keyring::key_get("MetC_uid"),
+    Pwd = keyring::key_get("MetC")
+  )
 } else {
   db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
 }

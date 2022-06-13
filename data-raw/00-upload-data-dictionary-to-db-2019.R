@@ -36,7 +36,7 @@ per <-
     "per.csv"
   ))
 
-trip <-  fread(paste0(
+trip <- fread(paste0(
   keyring::key_get("tbirawdirectory"),
   "trip.csv"
 ))
@@ -147,25 +147,39 @@ ROracle::dbWriteTable(
 # codebooks:
 hh_codes <-
   data.table(read.xlsx(
-    paste0(keyring::key_get("tbirawdirectory"),
-           "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "hh"))
+    paste0(
+      keyring::key_get("tbirawdirectory"),
+      "TBI Wave 1 Dataset Codebook.xlsx"
+    ),
+    sheet = "hh"
+  ))
 veh_codes <-
-  data.table(read.xlsx(paste0(keyring::key_get("tbirawdirectory"),
-                              "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "vehicle"))
+  data.table(read.xlsx(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "TBI Wave 1 Dataset Codebook.xlsx"
+  ), sheet = "vehicle"))
 per_codes <-
-  data.table(read.xlsx(paste0(keyring::key_get("tbirawdirectory"),
-                              "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "person"))
+  data.table(read.xlsx(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "TBI Wave 1 Dataset Codebook.xlsx"
+  ), sheet = "person"))
 day_codes <-
-  data.table(read.xlsx(paste0(keyring::key_get("tbirawdirectory"),
-                              "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "day"))
+  data.table(read.xlsx(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "TBI Wave 1 Dataset Codebook.xlsx"
+  ), sheet = "day"))
 trip_codes <-
-  data.table(read.xlsx(paste0(keyring::key_get("tbirawdirectory"),
-                              "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "trip"))
+  data.table(read.xlsx(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "TBI Wave 1 Dataset Codebook.xlsx"
+  ), sheet = "trip"))
 # no codebook for location
 
 variable_names <-
-  data.table(read.xlsx(paste0(keyring::key_get("tbirawdirectory"),
-                              "TBI Wave 1 Dataset Codebook.xlsx"), sheet = "summary"))
+  data.table(read.xlsx(paste0(
+    keyring::key_get("tbirawdirectory"),
+    "TBI Wave 1 Dataset Codebook.xlsx"
+  ), sheet = "summary"))
 
 
 lapply(
