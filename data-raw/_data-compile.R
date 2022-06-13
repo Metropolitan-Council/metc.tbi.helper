@@ -67,20 +67,3 @@ save(tbi_tables,
 )
 
 
-#### To Oracle Database: -----
-
-tbidb <- ROracle::dbConnect(
-  dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
-)
-
-ROracle::dbWriteTable(tbidb, "tbi_19_day_public", day, append = FALSE, overwrite = TRUE)
-ROracle::dbWriteTable(tbidb, "tbi_19_trip_public", trip, append = FALSE, overwrite = TRUE)
-ROracle::dbWriteTable(tbidb, "tbi_19_hh_public", hh, append = FALSE, overwrite = TRUE)
-ROracle::dbWriteTable(tbidb, "tbi_19_veh_public", veh, append = FALSE, overwrite = TRUE)
-ROracle::dbWriteTable(tbidb, "tbi_19_per_public", per, append = FALSE, overwrite = TRUE)
-ROracle::dbWriteTable(tbidb, "tbi_19_dictionary_public", dictionary, append = FALSE, overwrite = TRUE)
-
-DBI::dbDisconnect(tbidb)
