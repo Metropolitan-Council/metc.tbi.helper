@@ -235,6 +235,7 @@ hh <- hh %>%
   left_join(hh_cty, by = "hh_id") %>%
   left_join(hh_ctu, by = "hh_id") %>%
   left_join(hh_cbg, by = "hh_id") %>%
+  left_join(hh_thrive, by = "hh_id") %>%
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
 ### Append Geographic Info to Trip Origin & Destination ----------
