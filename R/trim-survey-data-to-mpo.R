@@ -3,9 +3,17 @@ library(DBI)
 library(sf)
 library(tidyverse)
 
-
-db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
-
+if (grepl("mac", osVersion)) {
+  db <- DBI::dbConnect(odbc::odbc(),
+    "GISLibrary",
+    Driver = "FreeTDS",
+    timeout = 10,
+    Uid = keyring::key_get("MetC_uid"),
+    Pwd = keyring::key_get("MetC")
+  )
+} else {
+  db <- DBI::dbConnect(odbc::odbc(), "GISLibrary")
+}
 ### Get MPO shapefile -------------
 mpo_sf <- DBI::dbGetQuery(
   db,
