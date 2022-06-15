@@ -47,3 +47,7 @@ data-raw/database-connect-string.R
 *.xlsx
 
 *.html
+
+*.
+
+!.gitignore
