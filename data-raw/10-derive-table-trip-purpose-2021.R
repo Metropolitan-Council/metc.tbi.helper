@@ -57,14 +57,15 @@ trip_type <- linked_trips %>%
   mutate(
     trip_type = case_when(
       o_purpose_category %in% homecats |
-        d_purpose_category %in% homecats ~ "home-based",
-      TRUE ~ "non-home-based"
+        d_purpose_category %in% homecats ~ "Home-based",
+      o_purpose_category %in% nonhomecats |
+        d_purpose_category %in% nonhomecats ~ "Non-home-based"
     )
   )
 
 #### Home-based trip purpose = NOT home ----------------
 homebasedtrips <- trip_type %>%
-  filter(trip_type == "home-based") %>%
+  filter(trip_type == "Home-based") %>%
   mutate(
     purpose_category = case_when(
       # when coming FROM home, the purpose is the destination
@@ -84,43 +85,36 @@ homebasedtrips <- trip_type %>%
     -o_purpose,
     -d_purpose_category,
     -d_purpose
-  ) %>%
-  mutate(trip_type = "Home-based")
+  )
 
 ### Trip Weight Adjustment: 50% for each half of the trip ----------------
-nonhomebasedtrips_o <-
+nonhomebasedtrips_1 <-
   trip_type %>%
-  filter(trip_type == "non-home-based") %>%
+  filter(trip_type == "Non-home-based") %>%
   pivot_longer(
     cols = c("o_purpose_category", "d_purpose_category"),
     values_to = "purpose_category"
   ) %>%
   select(-name) %>%
-  mutate(trip_purpose_weight = 0.5 * trip_purpose_weight) %>%
-  mutate(trip_type = "Non-Home-based")
+  select(purpose_category)
 
-nonhomebasedtrips_d <-
+nonhomebasedtrips_2 <-
   trip_type %>%
-  filter(trip_type == "non-home-based") %>%
+  filter(trip_type == "Non-home-based") %>%
   pivot_longer(
     cols = c("o_purpose", "d_purpose"),
     values_to = "purpose"
   ) %>%
   select(-name) %>%
   mutate(trip_purpose_weight = 0.5 * trip_purpose_weight) %>%
-  mutate(trip_type = "Non-Home-based")
+  select(trip_id, trip_type, person_id, hh_id, trip_purpose_weight, purpose)
 
+nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)
 
 
 #### Merge home-based and non-homebased trips ------------
-trip_purpose21 <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
-  select(-trip_type) %>%
-  select(
-    -d_purpose_category,
-    -d_purpose,
-    -o_purpose_category,
-    -o_purpose
-  )
+trip_purpose21 <- bind_rows(homebasedtrips, nonhomebasedtrips) %>%
+  select(-trip_type)
 
 rm(
   homebasedtrips,
