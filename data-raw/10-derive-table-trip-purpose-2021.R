@@ -41,6 +41,7 @@ linked_trips <-
 homecats <- c("Overnight", "Home")
 nonhomecats <- c(
   "Work",
+  "Work related",
   "School",
   "Shopping",
   "Social/Recreation",
