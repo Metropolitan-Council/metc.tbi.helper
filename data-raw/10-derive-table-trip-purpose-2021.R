@@ -1,6 +1,8 @@
-### Fix "Change Mode" -----
+
+  ### Fix "Change Mode" -----
 linked_trips <-
-  trip21
+  trip21 %>%
+  rename(trip_purpose_weight = trip_weight)
   # mutate(linked_trip_num = row_number())
   # mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
   # select(-linked_trip_num) %>%
@@ -8,11 +10,11 @@ linked_trips <-
   # summarize(
   #   o_purpose_category_imputed = first(o_purpose_category_imputed),
   #   o_purpose_imputed = first(o_purpose_imputed),
-  #   d_purpose_category = first(d_purpose_category),
-  #   d_purpose = first(d_purpose),
-  #   d_purpose_category_imputed = first(d_purpose_category_imputed),
-  #   d_purpose_imputed = first(d_purpose_imputed),
-  #   trip_purpose_weight = first(trip_weight)
+  #   d_purpose_category = last(d_purpose_category),
+  #   d_purpose = last(d_purpose),
+  #   d_purpose_category_imputed = last(d_purpose_category_imputed),
+  #   d_purpose_imputed = last(d_purpose_imputed),
+  #   trip_purpose_weight = last(trip_weight)
   # )
 
 # add linked trip id to trip table for crosstabs:
@@ -25,36 +27,37 @@ linked_trips <-
 #   filter(o_purpose_category_imputed == "Change mode")
 
 # get rid of these
-linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
+# linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
 
 # linked_trips %>%
 #   filter(trip_purpose_weight > 0) %>%
 #   filter(d_purpose_category_imputed == "Change mode")
 
 # get rid of these
-linked_trips <- linked_trips %>% filter(!d_purpose_category_imputed %in% c("Change mode"))
+# linked_trips <- linked_trips %>% filter(!d_purpose_category_imputed %in% c("Change mode"))
 
 
 ### Trip Purpose Table ------------
-homecats <- c("Spent the night at non-home location", "Home")
+homecats <- c("Overnight", "Home")
 nonhomecats <- c(
   "Work",
   "School",
-  "Shop",
+  "Shopping",
   "Social/Recreation",
   "Meal",
-  "Errand/Other",
-  "Work-related",
+  "Errand",
+  "Other",
   "Escort",
-  "School-related"
+  "School related"
   # "Change mode"
+  # "Not imputable"
 )
 
 trip_type <- linked_trips %>%
   mutate(
     trip_type = case_when(
-      o_purpose_category_imputed %in% homecats |
-        d_purpose_category_imputed %in% homecats ~ "home-based",
+      o_purpose_category %in% homecats |
+        d_purpose_category %in% homecats ~ "home-based",
       TRUE ~ "non-home-based"
     )
   )
@@ -65,22 +68,22 @@ homebasedtrips <- trip_type %>%
   mutate(
     purpose_category = case_when(
       # when coming FROM home, the purpose is the destination
-      o_purpose_category_imputed %in% homecats ~ as.character(d_purpose_category_imputed),
+      o_purpose_category %in% homecats ~ as.character(d_purpose_category),
       # when going TO home, the purpose is the origin:
-      d_purpose_category_imputed %in% homecats ~ as.character(o_purpose_category_imputed)
+      d_purpose_category %in% homecats ~ as.character(o_purpose_category)
     ),
     purpose = case_when(
       # when coming FROM home, the purpose is the destination
-      o_purpose_category_imputed %in% homecats ~ as.character(d_purpose_imputed),
+      o_purpose_category %in% homecats ~ as.character(d_purpose),
       # when going TO home, the purpose is the origin:
-      d_purpose_category_imputed %in% homecats ~ as.character(o_purpose_imputed)
+      d_purpose_category %in% homecats ~ as.character(o_purpose)
     )
   ) %>%
   select(
-    -o_purpose_category_imputed,
-    -o_purpose_imputed,
-    -d_purpose_category_imputed,
-    -d_purpose_imputed
+    -o_purpose_category,
+    -o_purpose,
+    -d_purpose_category,
+    -d_purpose
   ) %>%
   mutate(trip_type = "Home-based")
 
@@ -89,7 +92,7 @@ nonhomebasedtrips_o <-
   trip_type %>%
   filter(trip_type == "non-home-based") %>%
   pivot_longer(
-    cols = c("o_purpose_category_imputed", "d_purpose_category_imputed"),
+    cols = c("o_purpose_category", "d_purpose_category"),
     values_to = "purpose_category"
   ) %>%
   select(-name) %>%
@@ -100,7 +103,7 @@ nonhomebasedtrips_d <-
   trip_type %>%
   filter(trip_type == "non-home-based") %>%
   pivot_longer(
-    cols = c("o_purpose_imputed", "d_purpose_imputed"),
+    cols = c("o_purpose", "d_purpose"),
     values_to = "purpose"
   ) %>%
   select(-name) %>%
@@ -110,15 +113,13 @@ nonhomebasedtrips_d <-
 
 
 #### Merge home-based and non-homebased trips ------------
-trip_purpose <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
+trip_purpose21 <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
   select(-trip_type) %>%
   select(
-    -d_purpose_category_imputed,
-    -d_purpose_imputed,
     -d_purpose_category,
     -d_purpose,
-    -o_purpose_category_imputed,
-    -o_purpose_imputed
+    -o_purpose_category,
+    -o_purpose
   )
 
 rm(
