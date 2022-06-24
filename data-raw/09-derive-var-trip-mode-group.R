@@ -24,6 +24,7 @@ trip19 <-
 
 
 trip21 <-
+  trip21 %>%
   mutate(mode_type_chr = as.character(mode_type)) %>%
   mutate(mode_type_chr = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type_chr)) %>%
   mutate(
