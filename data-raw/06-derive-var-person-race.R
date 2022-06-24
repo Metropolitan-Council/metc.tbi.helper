@@ -29,7 +29,7 @@ per_race19 <-
   unique()
 
 per19 <- per19 %>%
-  left_join(per_race19)
+  left_join(per_race19, by = "person_id")
 
 rm(per_race19)
 
@@ -66,8 +66,8 @@ per_race_detailed21 <-
   unique()
 
 per21 <- per21 %>%
-  left_join(per_race_broad21) %>%
-  left_join(per_race_detailed21)
+  left_join(per_race_broad21, by = "person_id") %>%
+  left_join(per_race_detailed21, by = "person_id")
 
 
 
