@@ -132,9 +132,9 @@ epa_fix <- epa_sel %>%
   mutate(model = case_when(grepl(pattern = "F150", model) & make == "Ford" ~ "F-150", TRUE ~ model)) %>%
   mutate(model = case_when(grepl(pattern = "F250", model) & make == "Ford" ~ "F-250", TRUE ~ model)) %>%
   mutate(model = case_when(grepl(pattern = "F350", model) & make == "Ford" ~ "F-350", TRUE ~ model)) %>%
-  mutate(model = case_when(grepl(pattern = "F450", model) & make == "Ford" ~ "F-450", TRUE ~ model))
-
-
+  mutate(model = case_when(grepl(pattern = "F450", model) & make == "Ford" ~ "F-450", TRUE ~ model)) %>%
+  mutate(make = case_when(grepl(pattern = "Liberty", model) & make == "Jeep" ~ "Chrysler", TRUE ~ make)) %>%
+  mutate(model = case_when(model == "Ram" & make == "Ram Pickup" & year == 2012 ~ "1500", TRUE ~ model))
 
 # Set numeric columns as such, re-code character NULLS to NA:
 my_num_columns <- c(
