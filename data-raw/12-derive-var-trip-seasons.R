@@ -10,9 +10,12 @@ getSeason <- function(input.date) {
   return(cuts)
 }
 
-day <- day %>% mutate(travel_date_season = getSeason(travel_date))
+day19 <- day19 %>% mutate(travel_date_season = getSeason(travel_date))
+day21 <- day21 %>% mutate(travel_date_season = getSeason(travel_date))
 
-trip <- trip %>%
+trip19 <- trip19 %>%
+  mutate(trip_season = getSeason(travel_date))
+trip21 <- trip21 %>%
   mutate(trip_season = getSeason(travel_date))
 
 rm(getSeason)
