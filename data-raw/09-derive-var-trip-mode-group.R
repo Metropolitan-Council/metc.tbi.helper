@@ -30,20 +30,20 @@ trip21 <-
   mutate(
     mode_group =
       recode_factor(mode_type_chr,
-                    `Vehicle` = "Drive",
-                    `Carshare` = "Drive",
-                    `Taxi` = "Drive",
-                    `Smartphone-app ride-hailing service` = "Drive",
-                    `Transit` = "Transit",
-                    `Bicycle or e-bicycle` = "Bicycle",
-                    `Bike-share` = "Bicycle",
-                    `Scooter-share` = "Other",
-                    `Walk` = "Walk",
-                    Other = "Other",
-                    `School bus` = "Other",
-                    `Ferry` = "Other",
-                    `Shuttle` = "Other",
-                    `Long distance passenger mode` = "Other"
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `Taxi` = "Drive",
+        `Smartphone-app ride-hailing service` = "Drive",
+        `Transit` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Bike-share` = "Bicycle",
+        `Scooter-share` = "Other",
+        `Walk` = "Walk",
+        Other = "Other",
+        `School bus` = "Other",
+        `Ferry` = "Other",
+        `Shuttle` = "Other",
+        `Long distance passenger mode` = "Other"
       )
   ) %>%
   select(-mode_type_chr)

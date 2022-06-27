@@ -207,15 +207,16 @@ epa <- epa_coalesce %>%
 message("Matching EPA data to TBI vehicle table")
 
 get_veh_epa <- function(veh) {
-
   veh_epa <-
     veh %>%
-    mutate(model =
-             case_when(
-               make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
-                 str_to_title(model),
-               TRUE ~ model
-             )) %>%
+    mutate(
+      model =
+        case_when(
+          make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
+            str_to_title(model),
+          TRUE ~ model
+        )
+    ) %>%
     mutate(year = as.character(year)) %>%
     mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
     # Lightweight dataset of unique vehicles in the TBI -------
@@ -278,11 +279,11 @@ get_veh_epa <- function(veh) {
           n_matches == 1 ~ paste0("Used value for: ", patternMatchModelList),
         pattern_match == TRUE &
           n_matches > 1 ~ paste0(
-            "Used median value of these ",
-            n_matches,
-            " models: ",
-            patternMatchModelList
-          )
+          "Used median value of these ",
+          n_matches,
+          " models: ",
+          patternMatchModelList
+        )
       )
     ) %>%
     # get rid of anything where there is no match at all (pattern or exact)
@@ -301,20 +302,22 @@ get_veh_epa <- function(veh) {
   message("Matching EPA data to TBI vehicle table")
   final_dat <-
     veh %>%
-    mutate(model =
-             case_when(
-               make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
-                 str_to_title(model),
-               TRUE ~ model
-             )) %>%
+    mutate(
+      model =
+        case_when(
+          make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
+            str_to_title(model),
+          TRUE ~ model
+        )
+    ) %>%
     mutate(year = as.character(year)) %>%
     mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
     left_join(veh_epa_best %>%
-                rename(model = model.tbi),
-              by = c("year", "make", "model"))
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
+    )
 
   return(final_dat)
-
 }
 
 veh19 <- get_veh_epa(veh19)

@@ -40,7 +40,8 @@ per_race_broad21 <-
   filter(value == "Selected") %>%
   select(-value) %>%
   left_join(dictionary21 %>% select(variable, description) %>% unique(),
-            by = c("name" = "variable")) %>%
+    by = c("name" = "variable")
+  ) %>%
   mutate(description = gsub(pattern = "Race/Ethnicity -- ", replacement = "", x = description)) %>%
   group_by(person_id) %>%
   add_tally(name = "num_races") %>%
@@ -56,7 +57,8 @@ per_race_detailed21 <-
   filter(value == "Selected") %>%
   select(-value) %>%
   left_join(dictionary21 %>% select(variable, description) %>% unique(),
-            by = c("name" = "variable")) %>%
+    by = c("name" = "variable")
+  ) %>%
   mutate(description = gsub(pattern = "Race/Ethnicity ", replacement = "", x = description)) %>%
   group_by(person_id) %>%
   add_tally(name = "num_races") %>%

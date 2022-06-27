@@ -14,7 +14,6 @@ linked_trips <-
     d_purpose = last(d_purpose),
     d_purpose_category_imputed = last(d_purpose_category_imputed),
     d_purpose_imputed = last(d_purpose_imputed),
-
     trip_purpose_weight = first(trip_weight)
   )
 

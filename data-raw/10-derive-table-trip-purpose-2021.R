@@ -1,23 +1,25 @@
 
-  ### Fix "Change Mode" -----
+### Fix "Change Mode" -----
 linked_trips <-
   trip21 %>%
   rename(trip_purpose_weight = trip_weight) %>%
-  select(trip_id, person_id, hh_id,
-         o_purpose_category, o_purpose,
-         d_purpose_category, d_purpose,
-         trip_purpose_weight)
-  # mutate(linked_trip_num = row_number())
-  # mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
-  # select(-linked_trip_num) %>%
-  # group_by(linked_trip_id, person_id, hh_id) %>%
-  # summarize(
-  #   o_purpose_category = first(o_purpose_category),
-  #   o_purpose = first(o_purpose),
-  #   d_purpose_category = last(d_purpose_category),
-  #   d_purpose = last(d_purpose),
-  #   trip_purpose_weight = last(trip_weight)
-  # )
+  select(
+    trip_id, person_id, hh_id,
+    o_purpose_category, o_purpose,
+    d_purpose_category, d_purpose,
+    trip_purpose_weight
+  )
+# mutate(linked_trip_num = row_number())
+# mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
+# select(-linked_trip_num) %>%
+# group_by(linked_trip_id, person_id, hh_id) %>%
+# summarize(
+#   o_purpose_category = first(o_purpose_category),
+#   o_purpose = first(o_purpose),
+#   d_purpose_category = last(d_purpose_category),
+#   d_purpose = last(d_purpose),
+#   trip_purpose_weight = last(trip_weight)
+# )
 
 # add linked trip id to trip table for crosstabs:
 # trip21 <- trip21 %>%

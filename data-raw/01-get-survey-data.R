@@ -128,7 +128,8 @@ all_missing_codes <-
   rbind(
     dictionary19[grep("Missing", value_label), "value", with = F],
     dictionary21[grep("Missing", value_label), "value", with = F],
-    use.names = T)
+    use.names = T
+  )
 
 all_missing_codes <- unique(all_missing_codes$value)
 
@@ -137,7 +138,8 @@ all_missing_labels <-
   rbind(
     dictionary19[grep("Missing", value_label), "value_label", with = F],
     dictionary21[grep("Missing", value_label), "value_label", with = F],
-    use.names = T)
+    use.names = T
+  )
 
 
 # both as character:
@@ -187,21 +189,21 @@ day19[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
 ]
 day21[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
-    .SDcols = c("hh_id", "person_id")
+  .SDcols = c("hh_id", "person_id")
 ]
 
 trip19[, c("hh_id", "person_id", "trip_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id", "trip_id")
 ]
 trip21[, c("hh_id", "person_id", "trip_id") := lapply(.SD, as.integer64),
-     .SDcols = c("hh_id", "person_id", "trip_id")
+  .SDcols = c("hh_id", "person_id", "trip_id")
 ]
 
 per19[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
 ]
 per21[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
-      .SDcols = c("hh_id", "person_id")
+  .SDcols = c("hh_id", "person_id")
 ]
 
 ## Clean up---------------

@@ -238,7 +238,8 @@ veh_dps_full19 <-
   mutate(make = toupper(make), model = toupper(model)) %>%
   left_join(veh_dps_best19 %>%
     rename(model = model.tbi),
-    by = c("year", "make", "model"))
+  by = c("year", "make", "model")
+  )
 
 veh_dps_rename19 <-
   veh_dps_full19 %>%
@@ -254,9 +255,12 @@ veh_dps_rename19 <-
 veh19 <-
   new_veh19 %>%
   left_join(veh_dps_rename19,
-            by = c("hh_id", "vehicle_num", "vehicle_name", "year",
-                   "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
-                   "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"))
+    by = c(
+      "hh_id", "vehicle_num", "vehicle_name", "year",
+      "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
+      "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"
+    )
+  )
 
 
 ## 2021: -----
@@ -288,14 +292,14 @@ new_veh21 <- veh21 %>%
 veh_dps21 <-
   new_veh21 %>%
   # Lightweight dataset of unique vehicles in the TBI -------
-select(make, model, year) %>%
+  select(make, model, year) %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
   unique() %>%
   # join by make and year -- ignore model, match across all of them
   left_join(dps_median %>% mutate(year = as.character(year)),
-            by = c("make", "year"),
-            suffix = c(".tbi", ".dps")
+    by = c("make", "year"),
+    suffix = c(".tbi", ".dps")
   ) %>%
   # now find where model (from TBI) is *in* the modelf name from EPA using grepl
   rowwise() %>%
@@ -358,13 +362,14 @@ veh_dps_best21 <-
 veh_dps_full21 <-
   new_veh21 %>%
   # Lightweight dataset of unique vehicles in the TBI -------
-# select(make, model, year) %>%
-# unique() %>%
-mutate(make_original = make, model_original = model) %>%
+  # select(make, model, year) %>%
+  # unique() %>%
+  mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
   left_join(veh_dps_best21 %>%
-              rename(model = model.tbi),
-            by = c("year", "make", "model"))
+    rename(model = model.tbi),
+  by = c("year", "make", "model")
+  )
 
 veh_dps_rename21 <-
   veh_dps_full21 %>%
@@ -380,9 +385,12 @@ veh_dps_rename21 <-
 veh21 <-
   new_veh21 %>%
   left_join(veh_dps_rename21,
-            by = c("hh_id", "vehicle_num", "make_model_other", "year",
-                   "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
-                   "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"))
+    by = c(
+      "hh_id", "vehicle_num", "make_model_other", "year",
+      "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
+      "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"
+    )
+  )
 
 rm(
   "dps",

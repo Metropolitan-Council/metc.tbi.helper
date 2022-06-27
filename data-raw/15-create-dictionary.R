@@ -59,8 +59,8 @@ full_dictionary <- tbi21$dictionary %>%
   # join to our missing variables:
   full_join(missing_vars) %>%
   mutate(category = "")
-  # remove survey metadata fields:
-  # filter(!category %in% c("Survey metadata"))tbi21$
+# remove survey metadata fields:
+# filter(!category %in% c("Survey metadata"))tbi21$
 
 write.csv(full_dictionary, "data-raw/full_dictionary_to_fill_2021.csv")
 
