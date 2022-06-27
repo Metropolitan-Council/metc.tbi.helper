@@ -41,7 +41,8 @@ veh21 <- veh21 %>%
 
 hh21 <-
   hh21 %>%
-  select(-home_lat, -home_lon)
+  select(-contains("lat")) %>%
+  select(-contains("lon"))
 
 trip21 <-
   trip21 %>%
@@ -50,6 +51,8 @@ trip21 <-
   select(-d_purpose_other)
 
 per21 <- per21 %>%
+  select(-school_lat, -school_lon) %>%
+  select(-work_lat, -work_lon) %>%
   select(-ethnicity_other_specify) %>%
   select(-race_black_african_other, -race_asian_other, -race_hispanic_other, -language_at_home_other) %>%
   select(-ev_typical_charge_other)
