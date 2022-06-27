@@ -1,8 +1,6 @@
-
-
 ## connect to database ------------
 tbidb <- ROracle::dbConnect(
-  dbDriver("Oracle"),
+  DBI::dbDriver("Oracle"),
   dbname = keyring::key_get("mts_planning_database_string"),
   username = "mts_planning_data",
   password = keyring::key_get("mts_planning_data_pw")
@@ -118,10 +116,26 @@ dps <- dps %>%
       )
   )
 
+# Calculate Median Values for DPS data ----------------
+dps_median <-
+  dps %>%
+  group_by(make, model, year) %>%
+  summarize(
+    weight_unladen = median(weight_unladen, na.rm = T),
+    class_vehicle = paste0(unique(class_vehicle), collapse = "/"),
+    type_vehicle = paste0(unique(type_vehicle), collapse = "/"),
+    combo_body_class = paste0(unique(combo_body_class), collapse = "/")
+  ) %>%
+  ungroup() %>%
+  group_by(make, model, year) %>%
+  add_tally() %>%
+  ungroup()
 
 
+
+## 2019: -----
 # Tiny tweaks to TBI Vehicle Table ---------------------
-new_veh <- veh %>%
+new_veh19 <- veh19 %>%
   mutate(model = case_when(
     make == "Scion" ~ paste("Scion", model),
     TRUE ~ model
@@ -145,31 +159,15 @@ new_veh <- veh %>%
   )
 
 
-# Calculate Median Values for DPS data ----------------
-dps_median <-
-  dps %>%
-  group_by(make, model, year) %>%
-  summarize(
-    weight_unladen = median(weight_unladen, na.rm = T),
-    class_vehicle = paste0(unique(class_vehicle), collapse = "/"),
-    type_vehicle = paste0(unique(type_vehicle), collapse = "/"),
-    combo_body_class = paste0(unique(combo_body_class), collapse = "/")
-  ) %>%
-  ungroup() %>%
-  group_by(make, model, year) %>%
-  add_tally() %>%
-  ungroup()
-
-
-veh_dps <-
-  new_veh %>%
+veh_dps19 <-
+  new_veh19 %>%
   # Lightweight dataset of unique vehicles in the TBI -------
   select(make, model, year) %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
   unique() %>%
   # join by make and year -- ignore model, match across all of them
-  left_join(dps_median,
+  left_join(dps_median %>% mutate(year = as.character(year)),
     by = c("make", "year"),
     suffix = c(".tbi", ".dps")
   ) %>%
@@ -193,8 +191,8 @@ veh_dps <-
 
 
 # choose the BEST match for the vehicle/DPS tables: -----------------
-veh_dps_best <-
-  veh_dps %>%
+veh_dps_best19 <-
+  veh_dps19 %>%
   group_by(make, model.tbi, year) %>%
   # find the best match (will sort from true to false on exact, then true to false on pattern)
   arrange(desc(exact_match), desc(pattern_match)) %>%
@@ -231,19 +229,20 @@ veh_dps_best <-
     dps_tbi_veh_match_notes
   )
 
-veh_dps_full <-
-  new_veh %>%
+veh_dps_full19 <-
+  new_veh19 %>%
   # Lightweight dataset of unique vehicles in the TBI -------
   # select(make, model, year) %>%
   # unique() %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
-  left_join(veh_dps_best %>%
+  left_join(veh_dps_best19 %>%
     rename(model = model.tbi),
-    by = c("year", "make", "model"))
+  by = c("year", "make", "model")
+  )
 
-veh_dps_rename <-
-  veh_dps_full %>%
+veh_dps_rename19 <-
+  veh_dps_full19 %>%
   select(
     hh_id, vehicle_num, vehicle_name, make_original, model_original, year, fuel,
     veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, epa_fuel_type,
@@ -253,31 +252,165 @@ veh_dps_rename <-
 
 
 
-veh <-
-  new_veh %>%
-  left_join(veh_dps_rename,
-            by = c("hh_id", "vehicle_num", "vehicle_name", "year",
-                   "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
-                   "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"))
+veh19 <-
+  new_veh19 %>%
+  left_join(veh_dps_rename19,
+    by = c(
+      "hh_id", "vehicle_num", "vehicle_name", "year",
+      "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
+      "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"
+    )
+  )
 
 
-# # how many missing?
-# summary(veh)
-# # about 1026                cars missing (9% of total)
-#
-#
-# remainingproblems <- test %>%
-#   filter(is.na(weight_unladen)) %>%
-#   filter(!make == "") %>%
-#   filter(!make == "Other") %>%
-#   filter(!model == "Other") %>%
-#   group_by(make, model)  %>%
-#   tally()  %>%
-#   ungroup() %>%
-#   arrange(desc(n))
-#
-# View(remainingproblems)
+## 2021: -----
+# Tiny tweaks to TBI Vehicle Table ---------------------
+new_veh21 <- veh21 %>%
+  mutate(model = case_when(
+    make == "Scion" ~ paste("Scion", model),
+    TRUE ~ model
+  )) %>%
+  mutate(make = case_when(make == "Scion" ~ "Toyota", TRUE ~ make)) %>%
+  mutate(
+    model =
+      case_when(
+        make == "Mercedes-Benz" ~
+          gsub(pattern = "-Class", "", model),
+        TRUE ~ model
+      )
+  ) %>%
+  mutate(
+    model =
+      case_when(
+        make == "Lexus" ~
+          paste(substr(model, start = 1, stop = 2)),
+        TRUE ~ model
+      )
+  )
 
-rm(veh_dps, veh_dps_best, veh_dps_full, dps, new_veh, dps_median, veh_dps_rename)
+
+veh_dps21 <-
+  new_veh21 %>%
+  # Lightweight dataset of unique vehicles in the TBI -------
+  select(make, model, year) %>%
+  mutate(make_original = make, model_original = model) %>%
+  mutate(make = toupper(make), model = toupper(model)) %>%
+  unique() %>%
+  # join by make and year -- ignore model, match across all of them
+  left_join(dps_median %>% mutate(year = as.character(year)),
+    by = c("make", "year"),
+    suffix = c(".tbi", ".dps")
+  ) %>%
+  # now find where model (from TBI) is *in* the modelf name from EPA using grepl
+  rowwise() %>%
+  mutate(
+    exact_match = ifelse(model.tbi == model.dps, TRUE, FALSE),
+    pattern_match = grepl(model.tbi, model.dps) # will be true if the characters in model.x are in model.y
+  ) %>%
+  # get just the matches:
+  filter(pattern_match == TRUE | exact_match == TRUE) %>%
+  group_by(make, model.tbi, year) %>%
+  mutate(
+    patternMatchMedianWt = median(weight_unladen, na.rm = T),
+    patternMatchClassN = length(unique(class_vehicle)),
+    patternMatchClassList = paste0(class_vehicle, collapse = ","),
+    patternMatchModelList = paste0(model.dps, collapse = ","),
+    n_matches = length(model.dps)
+  ) %>%
+  ungroup()
+
+
+# choose the BEST match for the vehicle/DPS tables: -----------------
+veh_dps_best21 <-
+  veh_dps21 %>%
+  group_by(make, model.tbi, year) %>%
+  # find the best match (will sort from true to false on exact, then true to false on pattern)
+  arrange(desc(exact_match), desc(pattern_match)) %>%
+  slice_head(n = 1) %>%
+  # if there is an exact match, prioritize that first
+  mutate(
+    weight_unladen = case_when(
+      exact_match == TRUE ~ weight_unladen,
+      # otherwise, go ahead and use the median co2 value from all the pattern matches
+      pattern_match == TRUE ~ patternMatchMedianWt
+    )
+  ) %>%
+  mutate(
+    class_vehicle = case_when(
+      exact_match == TRUE ~ class_vehicle,
+      # otherwise, go ahead and use the median co2 value from all the pattern matches
+      pattern_match == TRUE ~ patternMatchClassList
+    )
+  ) %>%
+  mutate(dps_tbi_veh_match_notes = case_when(
+    exact_match == TRUE ~ "Exact match",
+    # otherwise, go ahead and use the median co2 value from all the pattern matches
+    pattern_match == TRUE & n_matches == 1 ~ paste0("Used value for: ", patternMatchModelList),
+    pattern_match == TRUE & n_matches > 1 ~ paste0("Used median value of these ", n_matches, " models: ", patternMatchModelList)
+  )) %>%
+  # get rid of anything where there is no match at all (pattern or exact)
+  filter(!is.na(weight_unladen)) %>%
+  select(
+    make,
+    model.tbi,
+    year,
+    weight_unladen,
+    class_vehicle,
+    dps_tbi_veh_match_notes
+  )
+
+veh_dps_full21 <-
+  new_veh21 %>%
+  # Lightweight dataset of unique vehicles in the TBI -------
+  # select(make, model, year) %>%
+  # unique() %>%
+  mutate(make_original = make, model_original = model) %>%
+  mutate(make = toupper(make), model = toupper(model)) %>%
+  left_join(veh_dps_best21 %>%
+    rename(model = model.tbi),
+  by = c("year", "make", "model")
+  )
+
+veh_dps_rename21 <-
+  veh_dps_full21 %>%
+  select(
+    hh_id, vehicle_num, make_model_other, make_original, model_original, year, fuel,
+    veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, epa_fuel_type,
+    weight_unladen, class_vehicle, dps_tbi_veh_match_notes
+  ) %>%
+  rename(make = make_original, model = model_original)
+
+
+
+veh21 <-
+  new_veh21 %>%
+  left_join(veh_dps_rename21,
+    by = c(
+      "hh_id", "vehicle_num", "make_model_other", "year",
+      "make", "model", "fuel", "veh_id", "co2_gpm", "mpg_city",
+      "mpg_highway", "epa_tbi_veh_match_notes", "epa_fuel_type"
+    )
+  )
+
+rm(
+  "dps",
+  "dps_median",
+  "missingC1500",
+  "missingC2500",
+  "missingJeep",
+  "missingSilv",
+  "missingSub",
+  "new_veh19",
+  "new_veh21",
+  "veh_dps_best19",
+  "veh_dps_best21",
+  "veh_dps_full19",
+  "veh_dps_full21",
+  "veh_dps_rename19",
+  "veh_dps_rename21",
+  "veh_dps19",
+  "veh_dps21"
+)
+
+DBI::dbDisconnect(tbidb)
 rm(tbidb)
-rm(missingC1500, missingC2500, missingJeep, missingSilv, missingSub)

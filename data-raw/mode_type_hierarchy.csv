@@ -1,0 +1,64 @@
+mode_type_detailed,mode_type_value
+Walk (or jog/wheelchair),1
+Skateboard or rollerblade,43
+Standard bicycle,2
+Borrowed bicycle,3
+Other rented bicycle,4
+Electric bicycle,82
+Bike-share - standard bicycle,69
+Bike-share - electric bicycle,70
+"Moped-share (e.g., Scoot)",73
+Segway,74
+"Scooter-share (e.g., Bird, Lime)",83
+"Regular taxi (e.g., Yellow Cab)",36
+"Other hired car service (e.g., black car, limo)",60
+"Uber, Lyft, or other smartphone-app ride service",49
+Other,5
+Golf cart,44
+ATV or snowmobile,45
+Medical transportation service,63
+Other,75
+Personal scooter or moped (not shared),77
+"Other boat (e.g., kayak)",80
+Snowmobile,81
+Veterans transportation service,109
+Non-emergency medical transportation service,176
+Household vehicle 1,6
+Household vehicle 2,7
+Household vehicle 3,8
+Household vehicle 4,9
+Household vehicle 5,10
+Household vehicle 6,11
+Household vehicle 7,12
+Household vehicle 8,13
+Other vehicle in household,16
+Car rental,17
+Other car,22
+Work vehicle,33
+Friend’s vehicle,34
+Other motorcycle in household,47
+Other motorcycle (not my household’s),54
+Carshare service,18
+Peer-to-peer car rental,59
+"Carpool match (e.g., Waze Carpool)",76
+School bus,24
+Vanpool,21
+Other private shuttle/bus,26
+Paratransit/Dial-a-Ride,27
+University/college shuttle/bus,38
+Employer-provided shuttle/bus,62
+Boat/ferry,32
+Vehicle ferry (took vehicle on board),79
+Local fixed-route bus,23
+Other bus,28
+Light rail,39
+Other rail,42
+Express/commuter bus,55
+Bus rapid transit,61
+Tribal transit,110
+Metro Mobility,171
+Northstar,172
+SouthWest Prime or MVTA Connect,201
+Intercity bus,25
+Airplane/helicopter,31
+Intercity rail,41

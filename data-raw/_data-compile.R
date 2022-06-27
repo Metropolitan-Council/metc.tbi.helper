@@ -1,4 +1,4 @@
-# Load neccessary packages ------
+# Load necessary packages ------
 source("data-raw/00-load-pkgs.R")
 
 # Get TBI survey data from database ---------
@@ -18,52 +18,61 @@ source("data-raw/05-get-dps-vehicle-weight-data.R")
 
 # Extra variables ------
 source("data-raw/06-derive-var-person-race.R")
-source("data-raw/07-derive-var-hh-with-poc.R")
 source("data-raw/08-derive-var-hh-income-easyread.R")
 source("data-raw/09-derive-var-trip-mode-group.R")
-source("data-raw/10-derive-table-trip-purpose.R")
+source("data-raw/10-derive-table-trip-purpose-2019.R")
+source("data-raw/10-derive-table-trip-purpose-2021.R")
 source("data-raw/11-derive-var-trip-purpose-broad.R")
 source("data-raw/12-derive-var-trip-seasons.R")
 
-
-
 # Re-format time
-trip <- trip %>%
+trip19 <- trip19 %>%
   mutate(
     depart_time_imputed = as.ITime(depart_time_imputed),
     arrive_time = as.ITime(arrive_time)
   )
 
-# Trim columns down for manageability ----------
-# source("data-raw/13-slim-survey-data-columns.R")
+trip21 <- trip21 %>%
+  mutate(
+    depart_time = as.ITime(depart_time),
+    arrive_time = as.ITime(arrive_time)
+  )
 
 # Remove PII ------------------
 source("data-raw/14-remove-pii.R")
 
 # Work on the dictionary ------------------
-source("data-raw/15-create-dictionary.R")
+# source("data-raw/15-create-dictionary.R")
+dictionary19 <- read.csv("final_dictionary_2019.csv")
+# dictionary21 <- read.csv("final_dictionary_2021.csv")
 
 # Write Data -------------------------
-tbi_tables <- list(
-  "day" = day,
-  "per" = per,
-  "hh" = hh,
-  "veh" = veh,
-  "trip" = trip,
-  "trip_purpose" = trip_purpose,
-  "dictionary" = dictionary
+tbi19 <- list(
+  "day" = day19,
+  "per" = per19,
+  "hh" = hh19,
+  "veh" = veh19,
+  "trip" = trip19,
+  "trip_purpose" = trip_purpose19,
+  "dictionary" = dictionary19
 )
 
-#### To RData object: -----
-# usethis::use_data(tbi_tables,
-#   overwrite = TRUE,
-#   compress = "xz",
-#   internal = FALSE
-# )
-
-save(tbi_tables,
-     file = "data/tbi_tables.rda",
-     compress = "xz"
+tbi21 <- list(
+  "day" = day21,
+  "per" = per21,
+  "hh" = hh21,
+  "veh" = veh21,
+  "trip" = trip21,
+  "trip_purpose" = trip_purpose21,
+  "dictionary" = dictionary21
 )
 
+save(tbi19,
+  file = "data/tbi19.rda",
+  compress = "xz"
+)
 
+save(tbi21,
+  file = "data/tbi21.rda",
+  compress = "xz"
+)

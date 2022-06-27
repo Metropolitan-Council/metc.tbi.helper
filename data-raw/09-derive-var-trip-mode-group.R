@@ -1,24 +1,52 @@
-trip <-
-  trip %>%
-  mutate(mode_type = as.character(mode_type)) %>%
-  mutate(mode_type = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type)) %>%
+trip19 <-
+  trip19 %>%
+  mutate(mode_type_chr = as.character(mode_type)) %>%
+  mutate(mode_type_chr = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type_chr)) %>%
   mutate(
     mode_group =
-      recode_factor(mode_type,
+      recode_factor(mode_type_chr,
         `Household vehicle` = "Drive",
-        `School bus` = "Other",
         `Other vehicle` = "Drive",
+        `For-hire vehicle` = "Drive",
+        `Smartphone ridehailing service` = "Drive",
         `Public bus` = "Transit",
-        `Walk` = "Walk",
-        `Bicycle` = "Bicycle",
         `Rail` = "Transit",
+        `Bicycle` = "Bicycle",
+        `Walk` = "Walk",
         `Other bus` = "Other",
         Other = "Other",
-        `Smartphone ridehailing service` = "Drive",
-        `For-hire vehicle` = "Drive",
         `Micromobility` = "Other",
+        `Long distance passenger mode` = "Other",
+        `School bus` = "Other"
+      )
+  ) %>%
+  select(-mode_type_chr)
+
+
+trip21 <-
+  trip21 %>%
+  mutate(mode_type_chr = as.character(mode_type)) %>%
+  mutate(mode_type_chr = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type_chr)) %>%
+  mutate(
+    mode_group =
+      recode_factor(mode_type_chr,
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `Taxi` = "Drive",
+        `Smartphone-app ride-hailing service` = "Drive",
+        `Transit` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Bike-share` = "Bicycle",
+        `Scooter-share` = "Other",
+        `Walk` = "Walk",
+        Other = "Other",
+        `School bus` = "Other",
+        `Ferry` = "Other",
+        `Shuttle` = "Other",
         `Long distance passenger mode` = "Other"
       )
-  )
+  ) %>%
+  select(-mode_type_chr)
+
 
 message("New variable in trip table: mode_group, that condenses mode_type_detailed (but keeps bicycles separate)")

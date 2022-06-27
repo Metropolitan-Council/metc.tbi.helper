@@ -1,34 +1,39 @@
 ### Fix "Change Mode" -----
 linked_trips <-
-  trip %>%
+  trip19 %>%
   mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
   select(-linked_trip_num) %>%
   group_by(linked_trip_id, person_id, hh_id) %>%
   summarize(
+    # First origin
     o_purpose_category_imputed = first(o_purpose_category_imputed),
     o_purpose_imputed = first(o_purpose_imputed),
-    d_purpose_category = first(d_purpose_category),
-    d_purpose = first(d_purpose),
-    d_purpose_category_imputed = first(d_purpose_category_imputed),
-    d_purpose_imputed = first(d_purpose_imputed),
+
+    # Last destination
+    d_purpose_category = last(d_purpose_category),
+    d_purpose = last(d_purpose),
+    d_purpose_category_imputed = last(d_purpose_category_imputed),
+    d_purpose_imputed = last(d_purpose_imputed),
     trip_purpose_weight = first(trip_weight)
   )
 
 # add linked trip id to trip table for crosstabs:
-trip <- trip %>%
+trip19 <- trip19 %>%
   mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num))
 
-# any "Change mode" trips remaining?
+# any "Change mode" destination trips remaining?
 # linked_trips %>%
 #   filter(trip_purpose_weight > 0) %>%
-#   filter(o_purpose_category_imputed == "Change mode")
+#   filter(o_purpose_category_imputed == "Change mode") %>%
+#   nrow()
 
 # get rid of these
 linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
 
 # linked_trips %>%
 #   filter(trip_purpose_weight > 0) %>%
-#   filter(d_purpose_category_imputed == "Change mode")
+#   filter(d_purpose_category_imputed == "Change mode") %>%
+#   nrow()
 
 # get rid of these
 linked_trips <- linked_trips %>% filter(!d_purpose_category_imputed %in% c("Change mode"))
@@ -109,7 +114,7 @@ nonhomebasedtrips_d <-
 
 
 #### Merge home-based and non-homebased trips ------------
-trip_purpose <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
+trip_purpose19 <- bind_rows(homebasedtrips, nonhomebasedtrips_o, nonhomebasedtrips_d) %>%
   select(-trip_type) %>%
   select(
     -d_purpose_category_imputed,

@@ -13,7 +13,7 @@ epa_raw <-
 # Trim Columns ----------------
 message("Rearranging EPA data")
 
-epa <- epa_raw %>%
+epa_sel <- epa_raw %>%
   select(
     make,
     model,
@@ -40,7 +40,7 @@ epa <- epa_raw %>%
   )
 
 # Fix up model/makes to ease matching to vehicle dataset ------------------
-epa <- epa %>%
+epa_fix <- epa_sel %>%
   mutate(
     model =
       case_when(
@@ -132,9 +132,9 @@ epa <- epa %>%
   mutate(model = case_when(grepl(pattern = "F150", model) & make == "Ford" ~ "F-150", TRUE ~ model)) %>%
   mutate(model = case_when(grepl(pattern = "F250", model) & make == "Ford" ~ "F-250", TRUE ~ model)) %>%
   mutate(model = case_when(grepl(pattern = "F350", model) & make == "Ford" ~ "F-350", TRUE ~ model)) %>%
-  mutate(model = case_when(grepl(pattern = "F450", model) & make == "Ford" ~ "F-450", TRUE ~ model))
-
-
+  mutate(model = case_when(grepl(pattern = "F450", model) & make == "Ford" ~ "F-450", TRUE ~ model)) %>%
+  mutate(make = case_when(grepl(pattern = "Liberty", model) & make == "Jeep" ~ "Chrysler", TRUE ~ make)) %>%
+  mutate(model = case_when(model == "Ram" & make == "Ram Pickup" & year == 2012 ~ "1500", TRUE ~ model))
 
 # Set numeric columns as such, re-code character NULLS to NA:
 my_num_columns <- c(
@@ -152,8 +152,8 @@ my_num_columns <- c(
   "highwayA08"
 )
 
-epa <-
-  epa %>%
+epa_fix2 <-
+  epa_fix %>%
   # make -1 and NULL into proper NAs
   mutate(across(
     !!(my_num_columns),
@@ -176,7 +176,7 @@ epa <-
   ))
 
 # Average by make, model, year - multiple styles/engine types for the same car: -------------
-epa <- epa %>%
+epa_avg <- epa_fix2 %>%
   group_by(make, model, year) %>%
   summarise(across(
     !!(my_num_columns),
@@ -186,7 +186,7 @@ epa <- epa %>%
   ) %>% # take the median emissions value for the Make/Model/year
   ungroup()
 
-epa <- epa %>%
+epa_coalesce <- epa_avg %>%
   mutate(
     co2_gpm = coalesce(co2, co2TailpipeGpm, co2A, co2TailpipeAGpm),
     mpg_city = coalesce(city08U, city08, cityA08U, cityA08),
@@ -196,126 +196,150 @@ epa <- epa %>%
   select(make, model, year, co2_gpm, mpg_city, mpg_highway, fuel_type)
 
 # Fix up for electric vehicles
-epa <- epa %>%
+epa <- epa_coalesce %>%
   mutate(co2_gpm = ifelse(fuel_type == "Electricity", 0, co2_gpm)) %>%
   mutate(mpg_city = ifelse(fuel_type == "Electricity", Inf, mpg_city)) %>%
-  mutate(mpg_highway = ifelse(fuel_type == "Electricity", Inf, mpg_highway))
-
-# Rename fuel type: EPA fuel type
-epa <- epa %>% rename(epa_fuel_type = fuel_type)
+  mutate(mpg_highway = ifelse(fuel_type == "Electricity", Inf, mpg_highway)) %>%
+  # Rename fuel type: EPA fuel type
+  rename(epa_fuel_type = fuel_type)
 
 # Matching to Vehicle table ------------
 message("Matching EPA data to TBI vehicle table")
-veh_epa <-
-  veh %>%
-  mutate(
-    model =
-      case_when(
-        make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
-          str_to_title(model),
-        TRUE ~ model
+
+get_veh_epa <- function(veh) {
+  veh_epa <-
+    veh %>%
+    mutate(
+      model =
+        case_when(
+          make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
+            str_to_title(model),
+          TRUE ~ model
+        )
+    ) %>%
+    mutate(year = as.character(year)) %>%
+    mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
+    # Lightweight dataset of unique vehicles in the TBI -------
+    select(make, model, year) %>%
+    unique() %>%
+    # join by make and year -- ignore model, match across all of them
+    left_join(
+      epa %>% mutate(year = as.character(year)),
+      by = c("make", "year"),
+      suffix = c(".tbi", ".epa")
+    ) %>%
+    # now find where model (from TBI) is *in* the modelf name from EPA using grepl
+    rowwise() %>%
+    mutate(
+      exact_match = ifelse(model.tbi == model.epa, TRUE, FALSE),
+      pattern_match = grepl(model.tbi, model.epa) # will be true if the characters in model.x are in model.y
+    ) %>%
+    # get just the matches:
+    filter(pattern_match == TRUE | exact_match == TRUE) %>%
+    mutate(
+      patternMatchMedianCo2 = median(co2_gpm, na.rm = T),
+      patternMatchMedianCity = median(mpg_city, na.rm = T),
+      patternMatchMedianHighway = median(mpg_highway, na.rm = T),
+      patternMatchModelList = paste0(model.epa, collapse = ","),
+      n_matches = length(model.epa)
+    ) %>%
+    ungroup()
+
+
+  # choose the BEST match for the vehicle/EPA tables:
+  veh_epa_best <-
+    veh_epa %>%
+    group_by(make, model.tbi, year) %>%
+    # find the best match (will sort from true to false on exact, then true to false on pattern)
+    arrange(desc(exact_match), desc(pattern_match)) %>%
+    slice_head(n = 1) %>%
+    # if there is an exact match, prioritize that first
+    mutate(
+      co2_gpm = case_when(
+        exact_match == TRUE ~ co2_gpm,
+        # otherwise, go ahead and use the median co2 value from all the pattern matches
+        pattern_match == TRUE ~ patternMatchMedianCo2
+      ),
+      mpg_city = case_when(
+        exact_match == TRUE ~ mpg_city,
+        # otherwise, go ahead and use the median co2 value from all the pattern matches
+        pattern_match == TRUE ~ patternMatchMedianCity
+      ),
+      mpg_highway = case_when(
+        exact_match == TRUE ~ mpg_highway,
+        # otherwise, go ahead and use the median co2 value from all the pattern matches
+        pattern_match == TRUE ~ patternMatchMedianHighway
       )
-  ) %>%
-  # Lightweight dataset of unique vehicles in the TBI -------
-  select(make, model, year) %>%
-  unique() %>%
-  # join by make and year -- ignore model, match across all of them
-  left_join(epa,
-    by = c("make", "year"),
-    suffix = c(".tbi", ".epa")
-  ) %>%
-  # now find where model (from TBI) is *in* the modelf name from EPA using grepl
-  rowwise() %>%
-  mutate(
-    exact_match = ifelse(model.tbi == model.epa, TRUE, FALSE),
-    pattern_match = grepl(model.tbi, model.epa) # will be true if the characters in model.x are in model.y
-  ) %>%
-  # get just the matches:
-  filter(pattern_match == TRUE | exact_match == TRUE) %>%
-  group_by(make, model.tbi, year) %>%
-  mutate(
-    patternMatchMedianCo2 = median(co2_gpm, na.rm = T),
-    patternMatchMedianCity = median(mpg_city, na.rm = T),
-    patternMatchMedianHighway = median(mpg_highway, na.rm = T),
-    patternMatchModelList = paste0(model.epa, collapse = ","),
-    n_matches = length(model.epa)
-  ) %>%
-  ungroup()
-
-
-# choose the BEST match for the vehicle/EPA tables:
-veh_epa <-
-  veh_epa %>%
-  group_by(make, model.tbi, year) %>%
-  # find the best match (will sort from true to false on exact, then true to false on pattern)
-  arrange(desc(exact_match), desc(pattern_match)) %>%
-  slice_head(n = 1) %>%
-  # if there is an exact match, prioritize that first
-  mutate(
-    co2_gpm = case_when(
-      exact_match == TRUE ~ co2_gpm,
-      # otherwise, go ahead and use the median co2 value from all the pattern matches
-      pattern_match == TRUE ~ patternMatchMedianCo2
-    ),
-    mpg_city = case_when(
-      exact_match == TRUE ~ mpg_city,
-      # otherwise, go ahead and use the median co2 value from all the pattern matches
-      pattern_match == TRUE ~ patternMatchMedianCity
-    ),
-    mpg_highway = case_when(
-      exact_match == TRUE ~ mpg_highway,
-      # otherwise, go ahead and use the median co2 value from all the pattern matches
-      pattern_match == TRUE ~ patternMatchMedianHighway
+    ) %>%
+    mutate(
+      epa_tbi_veh_match_notes = case_when(
+        exact_match == TRUE ~ "Exact match",
+        # otherwise, go ahead and use the median co2 value from all the pattern matches
+        pattern_match == TRUE &
+          n_matches == 1 ~ paste0("Used value for: ", patternMatchModelList),
+        pattern_match == TRUE &
+          n_matches > 1 ~ paste0(
+          "Used median value of these ",
+          n_matches,
+          " models: ",
+          patternMatchModelList
+        )
+      )
+    ) %>%
+    # get rid of anything where there is no match at all (pattern or exact)
+    filter(!is.na(co2_gpm)) %>%
+    select(
+      make,
+      model.tbi,
+      year,
+      co2_gpm,
+      mpg_city,
+      mpg_highway,
+      epa_tbi_veh_match_notes,
+      epa_fuel_type
     )
-  ) %>%
-  mutate(epa_tbi_veh_match_notes = case_when(
-    exact_match == TRUE ~ "Exact match",
-    # otherwise, go ahead and use the median co2 value from all the pattern matches
-    pattern_match == TRUE & n_matches == 1 ~ paste0("Used value for: ", patternMatchModelList),
-    pattern_match == TRUE & n_matches > 1 ~ paste0("Used median value of these ", n_matches, " models: ", patternMatchModelList)
-  )) %>%
-  # get rid of anything where there is no match at all (pattern or exact)
-  filter(!is.na(co2_gpm)) %>%
-  select(
-    make,
-    model.tbi,
-    year,
-    co2_gpm,
-    mpg_city,
-    mpg_highway,
-    epa_tbi_veh_match_notes,
-    epa_fuel_type
-  )
 
-message("Matching EPA data to TBI vehicle table")
-veh <-
-  veh %>%
-  mutate(
-    model =
-      case_when(
-        make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
-          str_to_title(model),
-        TRUE ~ model
-      )
-  ) %>%
-  left_join(veh_epa %>%
-    rename(model = model.tbi), by = c("year", "make", "model"))
+  message("Matching EPA data to TBI vehicle table")
+  final_dat <-
+    veh %>%
+    mutate(
+      model =
+        case_when(
+          make == "BMW" & grepl(pattern = "^[[:digit:]] series", model) ~
+            str_to_title(model),
+          TRUE ~ model
+        )
+    ) %>%
+    mutate(year = as.character(year)) %>%
+    mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
+    left_join(veh_epa_best %>%
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
+    )
+
+  return(final_dat)
+}
+
+veh19 <- get_veh_epa(veh19)
+veh21 <- get_veh_epa(veh21)
+
 
 # # how many missing?
 # summary(veh)
 # # about 973 cars missing (4% of total)
 #
 #
-# remainingproblems <- veh %>%
+# remainingproblems <- veh_epa_final %>%
 #   filter(is.na(co2_gpm)) %>%
 #   filter(!make == "") %>%
-#   filter(!model == "Other") %>%
-#   group_by(make, model)  %>%
+#   # filter(!model == "Other") %>%
+#   filter(!make == "Motorcycle") %>%
+#   group_by(vehicle_name, make, model, year)  %>%
 #   tally()  %>%
 #   ungroup() %>%
 #   arrange(desc(n))
-#
+# #
 # View(remainingproblems)
 
 
-rm(epa_raw, epa, veh_epa, my_num_columns)
+rm(epa_raw, epa_sel, epa_fix, my_num_columns, epa_fix2, epa_avg, epa_coalesce, epa, get_veh_epa)
