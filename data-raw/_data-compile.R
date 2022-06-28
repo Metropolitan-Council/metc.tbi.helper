@@ -46,7 +46,7 @@ source("data-raw/14-remove-pii.R")
 dictionary19 <- read.csv("final_dictionary_2019.csv")
 # dictionary21 <- read.csv("final_dictionary_2021.csv")
 
-# Write Data -------------------------
+# Put data in lists -------------------------
 tbi19 <- list(
   "day" = day19,
   "per" = per19,
@@ -67,6 +67,20 @@ tbi21 <- list(
   "dictionary" = dictionary21
 )
 
+# Remove non-ASCII characters -----
+remove_nonascii <-
+  function(dat) {
+    dat %>%
+      mutate(across(where(is.character), function(x) stringi::stri_trans_general(x, "latin-ascii")))
+  }
+
+tbi21 <- tbi21 %>%
+  lapply(remove_nonascii)
+
+tbi19 <- tbi19 %>%
+  lapply(remove_nonascii)
+
+# Write data as rda -------------------------
 save(tbi19,
   file = "data/tbi19.rda",
   compress = "xz"
