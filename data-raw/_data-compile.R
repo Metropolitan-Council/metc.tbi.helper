@@ -83,10 +83,10 @@ tbi19 <- tbi19 %>%
 # Write data as rda -------------------------
 save(tbi19,
   file = "data/tbi19.rda",
-  compress = "xz"
+  compress = T
 )
 
 save(tbi21,
   file = "data/tbi21.rda",
-  compress = "xz"
+  compress = T
 )
