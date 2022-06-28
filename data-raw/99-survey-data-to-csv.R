@@ -17,6 +17,6 @@ load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/mai
 
 # Write 2021 data ----
 for(i in names(tbi21)){
-  write.csv(tbi19[[i]], paste0(directory_to_save, i, "-2021", ".csv"), row.names = F)
+  write.csv(tbi21[[i]], paste0(directory_to_save, i, "-2021", ".csv"), row.names = F)
 }
 
