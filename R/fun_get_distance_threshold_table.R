@@ -1,6 +1,6 @@
 #' Create distance threshold table
 #'
-#' @param triptable table, default is `tbi_tables$trip`
+#' @param triptable table, default is `tbi19$trip`
 #' @param min_dist numeric, minimum trip distance. Default is `1`
 #' @param max_dist numeric, maximum trip distance. Default is `10`
 #' @param dist_interval numeric. Defautl is `1`.
@@ -18,7 +18,7 @@
 #' @importFrom purrr pluck
 #' @importFrom magrittr extract2
 create_distance_threshold_table <-
-  function(triptable = tbi_tables$trip,
+  function(triptable = tbi19$trip,
            min_dist = 1,
            max_dist = 10,
            dist_interval = 1,
@@ -79,14 +79,14 @@ create_distance_threshold_table <-
         magrittr::extract2(1)
 
       vartype1 <-
-        tbi_tables[[jointable_1]] %>%
+        tbi19[[jointable_1]] %>%
         select(sym(by_variable1)) %>%
         summarize_all(class) %>%
         purrr::pluck(1)
 
 
       tab_0 <- triptable %>%
-        dplyr::left_join(tbi_tables[[jointable_1]]) %>%
+        dplyr::left_join(tbi19[[jointable_1]]) %>%
         dplyr::filter(!(get(by_variable1) %in% missing_codes)) %>%
         dplyr::select(sym(by_variable1), hh_id, person_id, trip_id, distance, trip_weight)
 
@@ -183,7 +183,7 @@ create_distance_threshold_table <-
         magrittr::extract2(1)
 
       vartype1 <-
-        tbi_tables[[jointable_1]] %>%
+        tbi19[[jointable_1]] %>%
         select(sym(by_variable1)) %>%
         summarize_all(class) %>%
         purrr::pluck(1)
@@ -196,14 +196,14 @@ create_distance_threshold_table <-
         magrittr::extract2(1)
 
       vartype2 <-
-        tbi_tables[[jointable_2]] %>%
+        tbi19[[jointable_2]] %>%
         select(sym(by_variable2)) %>%
         summarize_all(class) %>%
         purrr::pluck(1)
 
       tab_0 <- triptable %>%
-        dplyr::left_join(tbi_tables[[jointable_1]]) %>%
-        dplyr::left_join(tbi_tables[[jointable_2]]) %>%
+        dplyr::left_join(tbi19[[jointable_1]]) %>%
+        dplyr::left_join(tbi19[[jointable_2]]) %>%
         dplyr::filter(!(get(by_variable1) %in% missing_codes)) %>%
         dplyr::filter(!(get(by_variable2) %in% missing_codes)) %>%
         dplyr::select(sym(by_variable1), sym(by_variable2), hh_id, person_id, trip_id, distance, trip_weight)

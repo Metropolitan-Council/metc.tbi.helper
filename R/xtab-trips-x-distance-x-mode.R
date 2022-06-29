@@ -1,6 +1,6 @@
 
 trips_x_distance_x_mode <-
-  tbi_tables$trip %>%
+  tbi19$trip %>%
   dplyr::mutate(
     cuts = cut(
       distance,

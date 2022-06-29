@@ -28,15 +28,15 @@ co2_x_trip_distance <-
 
 message("New table: co2_x_trip_distance")
 
-thrive_population <- tbi_tables$hh %>%
+thrive_population <- tbi19$hh %>%
   select(hh_id, thriveCatBroad) %>%
-  left_join(tbi_tables$per %>% select(hh_id, person_id, person_weight)) %>%
+  left_join(tbi19$per %>% select(hh_id, person_id, person_weight)) %>%
   group_by(thriveCatBroad) %>%
   summarize(thrivePop = sum(person_weight))
 
 co2_x_trip_dist_thrive <-
   drive_trips %>%
-  left_join(tbi_tables$hh %>% select(hh_id, thriveCatBroad)) %>%
+  left_join(tbi19$hh %>% select(hh_id, thriveCatBroad)) %>%
   dplyr::mutate(
     cuts = cut(
       distance,
