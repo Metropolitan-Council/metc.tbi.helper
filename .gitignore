@@ -38,11 +38,8 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-tbi-vehicle-use-analysis.Rproj
-
-R/database-connect-string.R
-
-data-raw/database-connect-string.R
+# Ignore CSV files in data folder if people output them
+data/*.csv
 
 *.xlsx
 
