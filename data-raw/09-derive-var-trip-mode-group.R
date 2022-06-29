@@ -1,6 +1,7 @@
 trip19 <-
   trip19 %>%
   mutate(mode_type_chr = as.character(mode_type)) %>%
+  filter(grepl("bicy|bike", mode_type_detailed, ignore.case = T)) %>%
   mutate(mode_type_chr = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type_chr)) %>%
   mutate(
     mode_group =
