@@ -1,8 +1,8 @@
 
 
 veh_stats <-
-  tbi_tables$veh %>%
-  left_join(tbi_tables$hh) %>%
+  tbi19$veh %>%
+  left_join(tbi19$hh) %>%
   select(hh_id, hh_weight, income_broad, thriveCategory, thriveCatBroad, thriveCatBroader, weight_unladen, veh_age, mpg_highway, mpg_city)
 
 
@@ -30,12 +30,12 @@ veh_thrive <-
   ))
 
 veh_thrive_trip <-
-  tbi_tables$trip %>%
+  tbi19$trip %>%
   filter(vehicle_driver == "Driver") %>%
   filter(grepl("vehicle|car", x = mode_type_detailed)) %>%
   select(trip_id, hh_id, trip_weight, veh_id) %>%
-  left_join(tbi_tables$veh) %>%
-  left_join(tbi_tables$hh) %>%
+  left_join(tbi19$veh) %>%
+  left_join(tbi19$hh) %>%
   select(
     trip_id,
     hh_id,
