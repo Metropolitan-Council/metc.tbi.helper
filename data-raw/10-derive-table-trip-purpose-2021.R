@@ -58,7 +58,7 @@ nonhomecats <- c(
   # "Not imputable"
 )
 
-trip_type <- linked_trips %>%
+linked_trips <- linked_trips %>%
   mutate(
     trip_type = case_when(
       o_purpose_category %in% homecats |
@@ -69,7 +69,7 @@ trip_type <- linked_trips %>%
   )
 
 #### Home-based trip purpose = NOT home ----------------
-homebasedtrips <- trip_type %>%
+homebasedtrips <- linked_trips %>%
   filter(trip_type == "Home-based") %>%
   mutate(
     purpose_category = case_when(
@@ -94,7 +94,7 @@ homebasedtrips <- trip_type %>%
 
 ### Trip Weight Adjustment: 50% for each half of the trip ----------------
 nonhomebasedtrips_1 <-
-  trip_type %>%
+  linked_trips %>%
   filter(trip_type == "Non-home-based") %>%
   pivot_longer(
     cols = c("o_purpose_category", "d_purpose_category"),
@@ -104,7 +104,7 @@ nonhomebasedtrips_1 <-
   select(purpose_category)
 
 nonhomebasedtrips_2 <-
-  trip_type %>%
+  linked_trips %>%
   filter(trip_type == "Non-home-based") %>%
   pivot_longer(
     cols = c("o_purpose", "d_purpose"),
@@ -123,9 +123,11 @@ trip_purpose21 <- bind_rows(homebasedtrips, nonhomebasedtrips) %>%
 
 rm(
   homebasedtrips,
-  nonhomebasedtrips_o,
-  nonhomebasedtrips_d,
-  trip_type,
+  nonhomebasedtrips_1,
+  nonhomebasedtrips_2,
+  nonhomebasedtrips,
+  # nonhomebasedtrips_o,
+  # nonhomebasedtrips_d,
   homecats,
   linked_trips,
   nonhomecats
