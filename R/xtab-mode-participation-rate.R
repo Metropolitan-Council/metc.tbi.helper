@@ -1,74 +1,58 @@
-# packages-------------------------------------------
-packages <- list("bit64", "dplyr", "ggplot2", "plotly", "srvyr", "councilR", "sysfonts", "showtext", "purrr")
-invisible(lapply(packages, library, character.only = TRUE))
-rm(packages)
+# Load necessary packages ------
+source("data-raw/00-load-pkgs.R")
+library(srvyr)
 
-tbi <- readRDS("data/tbi_extract.RData")
+# data -----
+load("data/tbi19.rda")
+load("data/tbi21.rda")
 
-source("R/df-lump-mode-types.R")
-
-mode_share_ls <- list()
-
-for (a_mode_type in c("Drive", "Transit", "Walk", "Bicycle", "Other")) {
-  mode_share_ls[[a_mode_type]] <-
-    tbi19$trip %>%
-    # Find just the trips using that mode:
-    filter(mode_type_cond == !!a_mode_type) %>%
-    # ... and the people who made those trips:
-    select(person_id, day_num) %>%
-    unique() %>%
-    # flag for "used that mode"
-    mutate(used_mode = 1) %>%
-    # Join to day table (repeated measures of mode use over time == need for day table.)
-    full_join(tbi19$day %>% select(person_id, day_num, day_weight)) %>%
-    # only weekdays; only complete survey days:
-    filter(day_weight > 0) %>%
-    # add flag for "didn't use that mode" - 0:
-    mutate(used_mode = replace(used_mode, is.na(used_mode), 0)) %>%
-    # filter to adults:
-    left_join(tbi19$per %>% select(person_id, age)) %>%
-    filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
-    # get survey total and proportion:
-    srvyr::as_survey_design(w = day_weight) %>%
-    group_by(used_mode) %>%
-    summarize(
-      total = survey_total(),
-      pct = 100 * survey_prop()
-    )
+# create one data frame from both surveys -----
+get_modetable <- function(surveyobj, year) {
+  surveyobj$day %>%
+    select(hh_id, person_id, day_num, day_weight, num_trips) %>%
+    left_join(surveyobj$hh %>% select(hh_id, sample_segment), by = "hh_id") %>%
+    left_join(surveyobj$trip %>% select(person_id, hh_id, day_num, mode_group),
+              by = c("person_id", "day_num", "hh_id")) %>%
+    mutate(svy_year = !!year) %>%
+    unique()
 }
 
-# have to add days with no travel:
-no_travel_share <-
-  tbi19$day %>%
-  select(person_id, day_num, day_weight, num_trips) %>%
-  mutate(zero_trips = case_when(
-    num_trips == 0 ~ 1,
-    num_trips > 0 ~ 0
-  )) %>%
-  # only weekdays; only complete survey days:
-  filter(day_weight > 0) %>%
-  # filter to adults:
-  left_join(tbi19$per %>% select(person_id, age)) %>%
-  filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
-  # get survey total and proportion:
-  srvyr::as_survey_design(w = day_weight) %>%
-  group_by(zero_trips) %>%
-  summarize(
-    total = survey_total(),
-    pct = 100 * survey_prop()
-  ) %>%
-  filter(zero_trips == 1) %>%
-  select(-zero_trips) %>%
-  mutate(Mode = "No travel")
+modetab <- base::rbind(
+  get_modetable(tbi19, year = "2018-2019"),
+  get_modetable(tbi21, year = "2021")
+)
 
-mode_share <-
-  rbindlist(mode_share_ls, use.names = T, idcol = "Mode") %>%
-  filter(used_mode == 1) %>%
-  select(-used_mode) %>%
-  bind_rows(no_travel_share) %>%
-  # round off the numbers to reasonable levels:
-  mutate(across(c(total, total_se), round, -2)) %>%
-  mutate(across(c(pct, pct_se), round, 1))
+# mode share calculation ----
+mode_participation_ls <- list()
+
+for (a_mode_type in list("Drive", "Transit", "Walk", "Bicycle", "Other")) {
+  dt <- copy(modetab)
+  dt[,used_mode := fcase(num_trips == 0, "No travel",
+                              num_trips > 0 & a_mode_type %in% unique(mode_group), "Used mode",
+                              num_trips > 0 & !(a_mode_type %in% unique(mode_group)), "Used other modes"),
+            by = list(person_id, day_num, day_weight)][ , mode_group := NULL]
+  mode_participation_ls[[a_mode_type]] <- unique(dt)
+}
+
+mode_participation <-
+  rbindlist(mode_participation_ls, use.names = T, idcol = "mode_group")
+
+mode_part_pct <-
+mode_participation %>%
+  as_survey_design(w = day_weight, strata = sample_segment) %>%
+  group_by(svy_year, mode_group, used_mode) %>%
+  summarize(pct = survey_prop())
+
+mode_part_pct %>%
+  filter(used_mode == "Used mode") %>%
+  ggplot(mode_part_pct,
+       aes(x = svy_year, y = pct)) +
+  geom_col() +
+  facet_wrap(~mode_group, scales = "free_y") +
+  theme_council_open()
+
+
+
 
 # Transit has its own frequency of use question:
 transit_freq_self_reported <-
