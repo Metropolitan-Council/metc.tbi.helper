@@ -1,47 +1,17 @@
 # Travel Behavior Inventory Survey Helper
 This repository contains a collection of R code for working with Travel Behavior Inventory Household Survey data. 
 
-_If you came for a pretty R Data object of the TBI survey data, check out the_ `data` _folder!_
+_If you came for a pretty R Data object of the 2019 or 2021 TBI survey data, check out the_ `data` _folder!_
 
 Other things you might find useful in here include R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxiliary datasets & geographic information to the datasets, and more. 
 
-This repository is in active development, and anyone can contribute 🤝. One day, this might (should?) be an R package.
+This repository is in active development, and anyone can contribute 🤝. See the CONTRIBUTING page on the right to learn more. One day, this will be an R package.
 
-## Contributing
-This project uses a [feature-branch](https://deepsource.io/blog/git-branch-naming-conventions/) naming convention and workflow.
-
-`main` is the main branch (not `master`), base your work off of `main`.
-Contribute to the project by making changes to your own feature branch and issuing pull-requests when you're ready to integrate into the `main` branch:
-
-* Pull the `main` branch; `git pull`, and if necessary `git checkout main` to switch to `main`
-* Create a feature branch and check out your branch, e.g., `git checkout -b aa-xtab-vmt-by-race`
-  * You can use your initials to prefix a feature branch, e.g.,
-  `aa-xtab-vmt-by-race`.
-  * Your feature branch should do one thing only, for example: 
-    * create a new crosstab, 
-    * create a new function,
-    * create a new custom variable,  
-    * integrate a new dataset, or
-    * fix an issue - [please name your branch with the issue number](https://deepsource.io/blog/git-branch-naming-conventions/)
-* Commit changes related to your feature and push them to GitHub.
-* You can push changes to your feature branch at any time.
-* So that anyone within the Met Council can build your reports, make sure you set your `keyring` keys to the MTS Oracle database to match those in the `R/keyring_template.R`. For database passwords, contact @ashleyasmus.
-* When you're ready to have your work reviewed you create a pull-request on GitHub.
-* You can issue a pull-request and request a review of work-in-progress if you want guidance on code or content.
-* Make changes or respond to comments in your pull-request reviews.
-  * New commits pushed to your branch will update the pull-request.
-* When your pull request is approved the approver will merge your branch into main and may delete your branch from GitHub.
-  * To remove deleted feature branches from your local repository run `git remote prune origin`.
-  * Do not attempt to push additional commits to a merged pull-request.
-  Instead, start a new feature branch and issue a new pull request.
-* Remember to update and branch off of `main` whenever you start a new feature, e.g., `git checkout main; git pull origin main; git checkout -b a-new-feature`.
-
-
-## Organization
+## Organization: what's here
 
 * `metadata`: Read the documentation 💘 
 * `data`: compiled datasets generated from raw TBI data, that live in the Council's Oracle database.
-  * `tbi_tables.rda` is a compressed `list` object containing:
+  * `tbi19.rda` and `tbi21.rda` are compressed `list` objects for each survey containing:
       * `dictionary` of variable names, values, survey questions, and logic;
       * person-level records (`per`);
       * `day` records, for analyzing daily trends;
@@ -50,7 +20,7 @@ Contribute to the project by making changes to your own feature branch and issui
       * vehicle (`veh`) records, including fuel efficiency data; and
       * `trip_purpose`, for working with trip purpose data. This table has been specially weighted to attribute weights to either end of non-home-based trips, and to the non-home based end of home-based trips.
 
-**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-get-compiled-survey-data.R`, and add the .csv's to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database (see @ashleyasmus for write access).
+**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-survey-data-to-csv.R`, and add the .csv's to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database first (see @ashleyasmus for write access).
 
 * `data-raw`: scripts to generate datasets. Work here if you want to add a new variable to the dataset(s) or incorporate a new dataset to the database and/or .RData object. You may need access to internal databases for this work.
   * `data-raw/_data-compile.R` is the main script that sources all numbered .R scripts in this folder. 
@@ -93,18 +63,14 @@ Data will need to be sourced with the R package `devtools`:
 
 ```r
 library(devtools)
-source_url(
-  paste0(
-    "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/", 
-    "data/tbi_tables.rda"
-  )
-)
+load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+                "tbi21.rda")))
 ```
 
 
 ## Creating a custom crosstab
 
-We use the `tidyverse`-friendly package `srvyr` to create weighted summaries and crosstabs from the TBI data. A simple example, calculating average vehicle age by household income, follows:
+We generally use the `tidyverse`-friendly package `srvyr` to create weighted summaries and crosstabs from the TBI data. A simple example, calculating average vehicle age by household income, follows:
 
 ```r
 library(dplyr)
@@ -112,7 +78,7 @@ library(bit64) # for looking at big integers, like the person_ids
 
 tbi_tables$veh %>%
   left_join(tbi_tables$hh) %>%
-  as_survey_design(weights = "hh_weight") %>%
+  as_survey_design(weights = "hh_weight", strata = "sample_segment") %>%
   group_by(income_detailed) %>%
   summarize(veh_age_avg = survey_mean(veh_age, na.rm = T))
 
