@@ -59,12 +59,14 @@ source(
 )
 ```
 
-Data will need to be sourced with the R package `devtools`:
+Data can be sourced by simply loading from URL:
 
 ```r
-library(devtools)
 load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
                 "tbi21.rda")))
+                
+load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+                "tbi19.rda")))
 ```
 
 
