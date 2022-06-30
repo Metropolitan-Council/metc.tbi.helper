@@ -1,7 +1,15 @@
 # Travel Behavior Inventory Survey Helper
 This repository contains a collection of R code for working with Travel Behavior Inventory Household Survey data. 
 
-_If you came for a pretty R Data object of the 2019 or 2021 TBI survey data, check out the_ `data` _folder!_
+_If you came for a pretty R Data object of the 2019 or 2021 TBI survey data, check out the_ `data` _folder or source from URL:_
+
+```r
+load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+                "tbi21.rda")))
+                
+load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+                "tbi19.rda")))
+```
 
 Other things you might find useful in here include R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxiliary datasets & geographic information to the datasets, and more. 
 
@@ -58,17 +66,6 @@ source(
   )
 )
 ```
-
-Data can be sourced by simply loading from URL:
-
-```r
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi21.rda")))
-                
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi19.rda")))
-```
-
 
 ## Creating a custom crosstab
 
