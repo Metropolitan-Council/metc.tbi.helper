@@ -1,36 +1,33 @@
 # 2019 -------
 veh19 <-
-  veh19 %>% mutate(veh_id = paste(hh_id, "_", vehicle_num, sep = ""))
+  veh19 %>% mutate(veh_id = paste0(hh_id, "_", vehicle_num))
 
 trip19 <- trip19 %>%
   mutate(veh_id = case_when(
     grepl(pattern = "Household vehicle", x = mode_type_detailed) ~
       paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
-  )) %>%
-  mutate(veh_id = case_when(
-    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ veh_id,
-    mode_type_detailed %in%
-      c(
-        "Other vehicle in household",
-        "Other motorcycle",
-        "Car from work",
-        "Friend/relative/colleague's car",
-        "Rental car",
-        "Carpool match (e.g., Waze Carpool)",
-        "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
-        "Peer-to-peer car rental (e.g., Turo, Getaround)",
-        "Other vehicle"
-      ) ~
-      "Other Vehicle",
-    TRUE ~ veh_id
   ))
 
 # 2021 ----
-## Mode type detailed for 2021 dataset ----
 veh21 <-
-  veh21 %>% mutate(veh_id = paste(hh_id, "_", str_extract(vehicle_num, "[0-9]+"), sep = ""))
+  veh21 %>% mutate(veh_id = paste0(hh_id, "_",
+                                   str_extract(vehicle_num, "[0-9]+")))
 
-mode_type_hierarchy <- read.csv("data-raw/mode_type_hierarchy.csv")
+## Mode type detailed for 2021 dataset ----
+mode_type_hierarchy <- read.csv("data-raw/mode_type_hierarchy.csv") %>%
+  mutate(mode_type_detailed = recode(mode_type_detailed,
+                                     "Standard bicycle" = "Standard bicycle (my household's)",
+                                     "Friend’s vehicle" = "Friend's vehicle",
+                                     "Bus rapid transit" = "Bus rapid transit (e.g., A Line, C Line, Red Line)",
+                                     "Electric bicycle" = "Electric bicycle (my household's)",
+                                     "Intercity bus" = "Intercity bus (e.g., BoltBus, Greyhound)",
+                                     "Other private shuttle/bus" = "Other private shuttle/bus (e.g., Bellair Charters, Airporter Shuttle)",
+                                     "Carshare service" = "Carshare service (e.g., Zipcar)",
+                                     "Borrowed bicycle" = "Borrowed bicycle (e.g., a friend's)",
+                                     "Paratransit/Dial-a-Ride" = "Paratransit/Dial-A-Ride",
+                                     "Intercity rail" = "Intercity rail (e.g., Amtrak)",
+                                     "Peer-to-peer car rental" = "Peer-to-peer car rental (e.g., Turo)",
+                                     "Other motorcycle (not my household’s)" = "Other motorcycle (not my household's)"))
 
 mode_type_detailed21 <-
   trip21 %>%
@@ -51,21 +48,4 @@ trip21 <- trip21 %>%
   mutate(veh_id = case_when(
     grepl(pattern = "Household vehicle", x = mode_type_detailed) ~
       paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
-  )) %>%
-  mutate(veh_id = case_when(
-    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~ veh_id,
-    mode_type_detailed %in%
-      c(
-        "Other vehicle in household",
-        "Other motorcycle",
-        "Car from work",
-        "Friend/relative/colleague's car",
-        "Rental car",
-        "Carpool match (e.g., Waze Carpool)",
-        "Carshare service (e.g., HOURCAR, Car2Go, Zipcar, Maven)",
-        "Peer-to-peer car rental (e.g., Turo, Getaround)",
-        "Other vehicle"
-      ) ~
-      "Other Vehicle",
-    TRUE ~ veh_id
   ))
