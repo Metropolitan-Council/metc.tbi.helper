@@ -49,6 +49,8 @@ source('R/fun_selectall_pivot.R')
 hh_deliver_dat21 <-
   selectall_pivot(tbi21, "day", "delivery") %>%
   # filter(hh_id %in% some_hhs$hh_id) %>% # TEST LINE
+  # only get weekdays (day_weight > 0) %>%
+  filter(day_weight > 0) %>%
   group_by(hh_id, day_num, variable) %>%
   summarize(value = max(as.numeric(value), na.rm = T, na.omit = T)) %>%
   ungroup() %>%
@@ -60,6 +62,8 @@ hh_deliver_dat21 <-
 ## 2019 ----
 hh_deliver_dat19 <-
   selectall_pivot(tbi19, "day", "delivery") %>%
+  # only get weekdays (day_weight > 0) %>%
+  filter(day_weight > 0) %>%
   # difference in categories in 2019:
   mutate(variable = recode(variable, "delivery_food" = "delivery_grocery_or_food")) %>%
   group_by(hh_id, day_num, variable) %>%
