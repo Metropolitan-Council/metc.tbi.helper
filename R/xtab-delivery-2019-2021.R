@@ -37,7 +37,12 @@ hh_day_weight <- bind_rows(hh_day_weight19,
                            hh_day_weight21)
 
 # Delivery Data ----
-source('R/fun_selectall_pivot.R')
+source(
+  paste0(
+    "https://raw.githubusercontent.com/Metropolitan-Council/metc.tbi.helper/main/",
+    "R/fun_selectall_pivot.R"
+  )
+)
 
 ## 2021 ----
 # tbi21$day %>%
