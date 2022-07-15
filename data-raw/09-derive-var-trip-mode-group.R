@@ -24,10 +24,17 @@ trip19 <-
   select(-mode_type_chr)
 
 
+trip19 %>%
+  select(mode_group, mode_type, mode_type_detailed) %>%
+  filter(!is.na(mode_type) & !is.na(mode_type_detailed)) %>%
+  unique()
+
+
 trip21 <-
   trip21 %>%
   mutate(mode_type_chr = as.character(mode_type)) %>%
-  mutate(mode_type_chr = ifelse(grepl("bicy", mode_type_detailed), "Bicycle", mode_type_chr)) %>%
+  mutate(mode_type_chr = ifelse(grepl("bicy|bike", mode_type_detailed, ignore.case = T),
+                                "Bicycle", mode_type_chr)) %>%
   mutate(
     mode_group =
       recode_factor(mode_type_chr,
@@ -36,6 +43,7 @@ trip21 <-
         `Taxi` = "Drive",
         `Smartphone-app ride-hailing service` = "Drive",
         `Transit` = "Transit",
+        `Bicycle` = "Bicycle",
         `Bicycle or e-bicycle` = "Bicycle",
         `Bike-share` = "Bicycle",
         `Scooter-share` = "Other",

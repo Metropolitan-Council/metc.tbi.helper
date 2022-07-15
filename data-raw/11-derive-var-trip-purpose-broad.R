@@ -59,41 +59,35 @@ trip_purpose19 <- trip_purpose19 %>%
 trip21 <- trip21 %>%
   mutate(
     d_purpose_category_broad =
-      recode_factor(
-        d_purpose_category_imputed,
-        `Overnight` = "Home",
-        `Home` = "Home",
-        Work = "Work",
-        `Work related` = "Work",
-        School = "School",
-        `School related` = "School",
-        `Escort` = "Maintenance",
-        `Errand` = "Maintenance",
-        `Shopping` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational",
-        `Other` = "Other",
-        `Change mode` = "Other",
-        `Not imputable` = "Not imputable"
+      recode_factor(d_purpose_category_imputed,
+                    `Home` = "Home",
+                    `Spent the night at non-home location` = "Home",
+                    Work = "Work",
+                    `Work-related` = "Work",
+                    School = "School",
+                    `School-related` = "School",
+                    `Escort` = "Maintenance",
+                    `Errand/Other` = "Maintenance",
+                    `Shop` = "Maintenance",
+                    Meal = "Social/Recreational",
+                    `Social/Recreation` = "Social/Recreational"
       )
   ) %>%
   mutate(
     o_purpose_category_broad =
-      recode_factor(o_purpose_category_imputed,
-        `Overnight` = "Home",
+      recode_factor(
+        o_purpose_category_imputed,
         `Home` = "Home",
+        `Spent the night at non-home location` = "Home",
         Work = "Work",
-        `Work related` = "Work",
+        `Work-related` = "Work",
         School = "School",
-        `School related` = "School",
+        `School-related` = "School",
         `Escort` = "Maintenance",
-        `Errand` = "Maintenance",
-        `Shopping` = "Maintenance",
+        `Errand/Other` = "Maintenance",
+        `Shop` = "Maintenance",
         Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational",
-        `Other` = "Other",
-        `Change mode` = "Other",
-        `Not imputable` = "Not imputable"
+        `Social/Recreation` = "Social/Recreational"
       )
   )
 
@@ -102,19 +96,16 @@ trip_purpose21 <- trip_purpose21 %>%
   mutate(
     purpose_category_broad =
       recode_factor(purpose_category,
-        `Overnight` = "Home",
-        `Home` = "Home",
-        Work = "Work",
-        `Work related` = "Work",
-        School = "School",
-        `School related` = "School",
-        `Escort` = "Maintenance",
-        `Errand` = "Maintenance",
-        `Shopping` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational",
-        `Other` = "Other",
-        `Change mode` = "Other",
-        `Not imputable` = "Not imputable"
+                    `Home` = "Home",
+                    `Spent the night at non-home location` = "Home",
+                    Work = "Work",
+                    `Work-related` = "Work",
+                    School = "School",
+                    `School-related` = "School",
+                    `Escort` = "Maintenance",
+                    `Errand/Other` = "Maintenance",
+                    `Shop` = "Maintenance",
+                    Meal = "Social/Recreational",
+                    `Social/Recreation` = "Social/Recreational"
       )
   )
