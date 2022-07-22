@@ -9,6 +9,7 @@ source("data-raw/02-derive-var-vehicle-id.R")
 
 # Append geographic boundaries to  household, work, school, and trip -----------
 source("data-raw/03-get-geographic-boundaries.R")
+source("data-raw/get-taz-housing-job-popln-density.R")
 
 # Get EPA Efficiency Data -----------
 source("data-raw/04-get-epa-vehicle-efficiency-data.R")
