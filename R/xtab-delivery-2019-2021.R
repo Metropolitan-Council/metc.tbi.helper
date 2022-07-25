@@ -82,6 +82,7 @@ hh_deliver_dat19 <-
 ## Combine 2019 & 2021 Data ----
 deliver_dat <- bind_rows(hh_deliver_dat21,
                          hh_deliver_dat19 %>% mutate(day_num = as.factor(day_num))) %>%
+  # join to our speciality household day weight table (day weights for hhs, Mon-Thu)
   left_join(hh_day_weight)
 
 # Survey Summary ----
