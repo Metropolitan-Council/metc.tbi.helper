@@ -9,9 +9,8 @@ trip19 <- trip19 %>%
   ))
 
 # 2021 ----
-# veh21 <-
-#   veh21 %>% mutate(veh_id = paste0(hh_id, "_",
-#                                    str_extract(vehicle_num, "[0-9]+")))
+veh21 <-
+  veh21 %>% rename(veh_id = vehicle_id)
 
 ## Mode type detailed for 2021 dataset ----
 # mode_type_hierarchy <- read.csv("data-raw/mode_type_hierarchy.csv") %>%

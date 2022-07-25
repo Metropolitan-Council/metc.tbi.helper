@@ -1,5 +1,5 @@
 # Packages -------------
-source("data-raw/00-load-pkgs.R")
+# source("data-raw/00-load-pkgs.R")
 ### List of Counties ----------
 county_list <-
   c(
@@ -347,7 +347,7 @@ hh21 <- hh21 %>%
   left_join(hh21_ctu, by = "hh_id") %>%
   left_join(hh21_cbg, by = "hh_id") %>%
   left_join(hh21_thrive, by = "hh_id") %>%
-  left_join(hh21_taz, by = "hh_id")
+  left_join(hh21_taz, by = "hh_id") %>%
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
 ### Append Geographic Info to Trip Origin & Destination ----------
