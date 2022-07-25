@@ -2,43 +2,40 @@
 ### Fix "Change Mode" -----
 linked_trips <-
   trip21 %>%
-  rename(trip_purpose_weight = trip_weight) %>%
-  select(
-    trip_id, person_id, hh_id,
-    o_purpose_category, o_purpose,
-    d_purpose_category, d_purpose,
-    trip_purpose_weight
-  )
-# mutate(linked_trip_num = row_number())
-# mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
-# select(-linked_trip_num) %>%
-# group_by(linked_trip_id, person_id, hh_id) %>%
-# summarize(
-#   o_purpose_category = first(o_purpose_category),
-#   o_purpose = first(o_purpose),
-#   d_purpose_category = last(d_purpose_category),
-#   d_purpose = last(d_purpose),
-#   trip_purpose_weight = last(trip_weight)
-# )
+  # mutate(linked_trip_id = paste0(person_id, "_", linked_trip_id)) %>%
+  # select(-linked_trip_num) %>%
+  group_by(linked_trip_id, person_id, hh_id) %>%
+  summarize(
+    # First origin
+    o_purpose_category = first(o_purpose_category),
+    o_purpose = first(o_purpose),
+
+    # Last destination
+    d_purpose_category = last(d_purpose_category),
+    d_purpose = last(d_purpose),
+    # trip weight:
+    trip_purpose_weight = first(trip_weight)
+  ) %>%
+  ungroup()
 
 # add linked trip id to trip table for crosstabs:
 # trip21 <- trip21 %>%
 #   mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num))
 
 # any "Change mode" trips remaining?
-# linked_trips %>%
-#   filter(trip_purpose_weight > 0) %>%
-#   filter(o_purpose_category_imputed == "Change mode")
+linked_trips %>%
+  filter(trip_purpose_weight > 0) %>%
+  filter(o_purpose_category == "Change mode")
 
 # get rid of these
-# linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
+linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
 
-# linked_trips %>%
-#   filter(trip_purpose_weight > 0) %>%
-#   filter(d_purpose_category_imputed == "Change mode")
+linked_trips %>%
+  filter(trip_purpose_weight > 0) %>%
+  filter(d_purpose_category == "Change mode")
 
 # get rid of these
-# linked_trips <- linked_trips %>% filter(!d_purpose_category_imputed %in% c("Change mode"))
+linked_trips <- linked_trips %>% filter(!d_purpose_category %in% c("Change mode"))
 
 
 ### Trip Purpose Table ------------
@@ -112,7 +109,7 @@ nonhomebasedtrips_2 <-
   ) %>%
   select(-name) %>%
   mutate(trip_purpose_weight = 0.5 * trip_purpose_weight) %>%
-  select(trip_id, trip_type, person_id, hh_id, trip_purpose_weight, purpose)
+  select(linked_trip_id, trip_type, person_id, hh_id, trip_purpose_weight, purpose)
 
 nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)
 
