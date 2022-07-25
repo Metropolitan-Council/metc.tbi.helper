@@ -23,16 +23,16 @@ linked_trips <-
 #   mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num))
 
 # any "Change mode" trips remaining?
-linked_trips %>%
-  filter(trip_purpose_weight > 0) %>%
-  filter(o_purpose_category == "Change mode")
+# linked_trips %>%
+#   filter(trip_purpose_weight > 0) %>%
+#   filter(o_purpose_category == "Change mode")
 
 # get rid of these
-linked_trips <- linked_trips %>% filter(!o_purpose_category_imputed %in% c("Change mode"))
+linked_trips <- linked_trips %>% filter(!o_purpose_category %in% c("Change mode"))
 
-linked_trips %>%
-  filter(trip_purpose_weight > 0) %>%
-  filter(d_purpose_category == "Change mode")
+# linked_trips %>%
+#   filter(trip_purpose_weight > 0) %>%
+#   filter(d_purpose_category == "Change mode")
 
 # get rid of these
 linked_trips <- linked_trips %>% filter(!d_purpose_category %in% c("Change mode"))
