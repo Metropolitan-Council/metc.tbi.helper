@@ -31,6 +31,8 @@ per_race19 <-
 per19 <- per19 %>%
   left_join(per_race19, by = "person_id")
 
+
+
 rm(per_race19)
 
 per_race_broad21 <-
