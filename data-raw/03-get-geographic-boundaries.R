@@ -217,6 +217,20 @@ cbg_sf <- DBI::dbGetQuery(
   select(GEOID10) %>%
   rename(cbg = GEOID10)
 
+##### TAZs (2010): ----
+taz_sf <- DBI::dbGetQuery(
+  db,
+  "SELECT *, SHAPE.STAsText() as geometry FROM GISLibrary.DBO.TAZ2010;"
+) %>%
+  st_as_sf(wkt = "geometry", crs = 26915) %>%
+  st_transform(crs = 4326) %>%
+  st_make_valid() %>%
+  mutate(taz_pop_per_acre = POPTOTAL/ACRES,
+         taz_housing_units_per_acre = HUTOTAL/ACRES,
+         taz_jobs_per_acre = TOTAL_EMP/ACRES) %>%
+  mutate(taz = as.integer64(CensusTAZ)) %>%
+  select(taz, taz_pop_per_acre, taz_housing_units_per_acre, taz_jobs_per_acre)
+
 ### Household geographic Info ----------
 message("Appending geographic boundaries to household locations")
 ##### MPO: ----
@@ -305,6 +319,18 @@ hh21_cbg <-
   st_drop_geometry() %>%
   rename(hh_cbg = cbg)
 
+##### TAZ: ----
+hh19_taz <-
+  st_join(hh19_sf, taz_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(hh_taz = taz)
+
+hh21_taz <-
+  st_join(hh21_sf, taz_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(hh_taz = taz)
+
+
 #### Compile, write over hh table: -----
 hh19 <- hh19 %>%
   left_join(hh19_mpo, by = "hh_id") %>%
@@ -312,6 +338,7 @@ hh19 <- hh19 %>%
   left_join(hh19_ctu, by = "hh_id") %>%
   left_join(hh19_cbg, by = "hh_id") %>%
   left_join(hh19_thrive, by = "hh_id") %>%
+  left_join(hh19_taz, by = "hh_id") %>%
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
 hh21 <- hh21 %>%
@@ -320,6 +347,7 @@ hh21 <- hh21 %>%
   left_join(hh21_ctu, by = "hh_id") %>%
   left_join(hh21_cbg, by = "hh_id") %>%
   left_join(hh21_thrive, by = "hh_id") %>%
+  left_join(hh21_taz, by = "hh_id")
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
 ### Append Geographic Info to Trip Origin & Destination ----------
@@ -708,6 +736,7 @@ rm(
   "ctu_sf",
   "cty_sf",
   "mpo_sf",
+  "taz_sf",
   "mn_cty_sf",
   "wi_cty_sf",
   "thrive_sf",
@@ -717,12 +746,14 @@ rm(
   "hh19_mpo",
   "hh19_sf",
   "hh19_thrive",
+  "hh19_taz",
   "hh21_cbg",
   "hh21_ctu",
   "hh21_cty",
   "hh21_mpo",
   "hh21_sf",
   "hh21_thrive",
+  "hh21_taz",
   "school19_cbg",
   "school19_ctu",
   "school19_cty",
