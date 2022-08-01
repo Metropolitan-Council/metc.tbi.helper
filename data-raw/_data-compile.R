@@ -18,10 +18,10 @@ source("data-raw/05-get-dps-vehicle-weight-data.R")
 
 # Extra variables ------
 source("data-raw/06-derive-var-person-race.R")
-source("data-raw/08-derive-var-hh-income-easyread.R")
-source("data-raw/09-derive-var-trip-mode-group.R")
-source("data-raw/10-derive-table-trip-purpose-2019.R")
-source("data-raw/10-derive-table-trip-purpose-2021.R")
+source("data-raw/07-derive-var-hh-income-easyread.R")
+source("data-raw/08-derive-var-trip-mode-group.R")
+source("data-raw/09-derive-var-trip-distance-adjusted.R")
+source("data-raw/10-derive-table-trip-purpose.R")
 source("data-raw/11-derive-var-trip-purpose-broad.R")
 source("data-raw/12-derive-var-trip-seasons.R")
 
