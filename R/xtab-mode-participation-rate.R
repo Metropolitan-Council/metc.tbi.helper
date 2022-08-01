@@ -1,62 +1,108 @@
 # Load necessary packages ------
 source("data-raw/00-load-pkgs.R")
 
+
 # data -----
 load("data/tbi19.rda")
 load("data/tbi21.rda")
 
-# create one data frame from both surveys -----
-get_modetable <- function(surveyobj, year) {
-  modes <-
-    surveyobj$trip %>%
-    select(mode_group, mode_type, mode_type_detailed) %>%
-    filter(!is.na(mode_type) & !is.na(mode_type_detailed)) %>%
-    unique()
+modes19 <-
+  tbi19$trip %>%
+  select(mode_group, mode_type, mode_type_detailed) %>%
+  filter(!is.na(mode_type) & !is.na(mode_type_detailed)) %>%
+  unique()
 
-  dt <-
-    surveyobj$day %>%
-    select(hh_id, person_id, day_num, day_weight, num_trips) %>%
-    left_join(surveyobj$hh %>% select(hh_id, sample_segment), by = "hh_id") %>%
-    left_join(
-      surveyobj$trip %>% select(person_id, trip_id, day_num, mode_1, mode_2, mode_3),
-      by = c("person_id", "day_num")
-    ) %>%
-    unique() %>%
-    pivot_longer(
-      cols = c("mode_1", "mode_2", "mode_3"),
-      names_to = "mode_num",
-      values_to = "mode_type_detailed"
-    ) %>%
-    unique() %>%
-    filter(!is.na(mode_type_detailed)) %>%
-    mutate(
-      mode_type_detailed =  recode_factor(
-        mode_type_detailed,
-        "Bike share (electric bicycle)" = "Bike-share (electric bicycle)",
-        "Bike share (regular bicycle)" = "Bike-share (regular bicycle)",
-        "Dial-a-Ride (e.g., Transit Link)" = "Dial-A-Ride (e.g., Transit Link)",
-        "HH vehicle 1 " =  "Household vehicle 1",
-        "HH vehicle 2 " =  "Household vehicle 2",
-        "HH vehicle 3" =  "Household vehicle 3",
-        "HH vehicle 4" =  "Household vehicle 4",
-        "HH vehicle 5" =  "Household vehicle 5",
-        "HH vehicle 6 " =  "Household vehicle 6",
-        "Other motorcycle/moped/scooter" = "Other motorcycle",
-        "Other scooter or similar" =  "Other scooter or moped",
-        "Scooter: Personal scooter or moped (not shared)" =  "Personal scooter or moped (not shared)",
-        "Uber, Lyft, or other smartphone-app car service" = "Uber, Lyft, or other smartphone-app ride service",
-        "Walk, jog, or roll using a mobility device" =  "Walk, jog, or roll using a wheelchair"
-      )
-    ) %>%
-    left_join(modes, by = "mode_type_detailed") %>%
-    mutate(svy_year = year)
+modes21 <-
+  read.csv("data-raw/mode_type_hierarchy.csv") %>%
+  mutate(
+    mode_type_detailed =  recode_factor(
+      mode_type_detailed,
+      "Standard bicycle" = "Standard bicycle (my household's)",
+      "Friend’s vehicle" = "Friend's vehicle",
+      "Bus rapid transit" = "Bus rapid transit (e.g., A Line, C Line, Red Line)",
+      "Electric bicycle" = "Electric bicycle (my household's)",
+      "Intercity bus" = "Intercity bus (e.g., BoltBus, Greyhound)",
+      "Other private shuttle/bus" = "Other private shuttle/bus (e.g., Bellair Charters, Airporter Shuttle",
+      "Carshare service" = "Carshare service (e.g., Zipcar)",
+      "Borrowed bicycle" = "Borrowed bicycle (e.g., a friend's)",
+      "Metro Mobility" = "Paratransit/Dial-A-Ride",
+      "Other motorcycle (not my household’s)" = "Other motorcycle (not my household's)",
+      "Intercity rail" = "Intercity rail (e.g., Amtrak)",
+      "Peer-to-peer car rental" = "Peer-to-peer car rental (e.g., Turo)"
+    )
+  ) %>%
+  mutate(mode_type_chr = as.character(mode_type)) %>%
+  mutate(
+    mode_group =
+      recode_factor(mode_type_chr,
+                    `Vehicle` = "Drive",
+                    `Carshare` = "Drive",
+                    `Taxi` = "Drive",
+                    `Smartphone-app ride-hailing service` = "Drive",
+                    `Smartphone-app ridehailing service` = "Drive",
+                    `Transit` = "Transit",
+                    `Bicycle` = "Bicycle",
+                    `Bicycle or e-bicycle` = "Bicycle",
+                    `Bike-share` = "Bicycle",
+                    `Scooter-share` = "Other",
+                    `Walk` = "Walk",
+                    Other = "Other",
+                    `School bus` = "Other",
+                    `Ferry` = "Other",
+                    `Shuttle` = "Other",
+                    `Long distance passenger mode` = "Other"
+      )) %>%
+  select(-mode_type_chr, -mode_type_value)
 
-  dt
-}
+
+
+modetab19 <-
+  tbi19$day %>%
+  select(hh_id, person_id, day_num, day_weight, num_trips) %>%
+  left_join(tbi19$hh %>% select(hh_id, sample_segment), by = "hh_id") %>%
+  left_join(
+    tbi19$trip %>% select(person_id, trip_id, day_num, mode_1, mode_2, mode_3),
+    by = c("person_id", "day_num")
+  ) %>%
+  unique() %>%
+  pivot_longer(
+    cols = c("mode_1", "mode_2", "mode_3"),
+    names_to = "mode_num",
+    values_to = "mode_type_detailed"
+  ) %>%
+  unique() %>%
+  filter(!is.na(mode_type_detailed)) %>%
+
+  left_join(modes19, by = "mode_type_detailed") %>%
+  mutate(svy_year = "2018-2019")
+
+
+modetab21 <-
+  tbi21$day %>%
+  select(hh_id, person_id, day_num, day_weight, num_trips) %>%
+  left_join(tbi21$hh %>% select(hh_id, sample_segment), by = "hh_id") %>%
+  left_join(
+    tbi21$trip %>% select(person_id, trip_id, day_num, mode_1, mode_2, mode_3),
+    by = c("person_id", "day_num")
+  ) %>%
+  unique() %>%
+  pivot_longer(
+    cols = c("mode_1", "mode_2", "mode_3"),
+    names_to = "mode_num",
+    values_to = "mode_type_detailed"
+  ) %>%
+  unique() %>%
+  filter(!is.na(mode_type_detailed)) %>%
+  left_join(modes21, by = "mode_type_detailed") %>%
+  mutate(svy_year = "2021")
+
+modetab21 %>% filter(is.na(mode_group)) %>%
+  select(mode_type_detailed) %>%
+  unique()
+
 
 modetab <- base::rbind(
-  get_modetable(tbi19, year = "2018-2019"),
-  get_modetable(tbi21, year = "2021")
+  modetab19, modetab21
 )
 
 # mode share calculation ----
@@ -80,36 +126,9 @@ mode_participation %>%
   group_by(svy_year, mode_group, used_mode) %>%
   summarize(pct = survey_prop())
 
-mode_part_pctb4 %>%
+mode_part_pct%>%
   filter(used_mode == "Used mode") %>%
   ggplot(aes(x = svy_year, y = pct)) +
   geom_col() +
   facet_wrap(~mode_group, scales = "free_y") +
-  councilR::theme_council_open()
-
-# Self-reported participation rate
-
-
-# Transit has its own frequency of use question:
-transit_freq_self_reported <-
-  tbi19$per %>%
-  select(person_id, person_weight, age, transit_freq) %>%
-  filter(!age %in% c("Under 5", "5-15", "16-17")) %>%
-  # get rid of those who did not answer as well:
-  filter(!is.na(transit_freq)) %>%
-  srvyr::as_survey_design(w = person_weight) %>%
-  group_by(transit_freq) %>%
-  summarize(
-    total = survey_total(),
-    pct = 100 * survey_prop()
-  ) %>%
-  # round off the numbers to reasonable levels:
-  mutate(across(c(total, total_se), round, -2)) %>%
-  mutate(across(c(pct, pct_se), round, 1))
-
-
-# For Eric
-datlist <- list(
-  "transit_frequency_selfreported" = transit_freq_self_reported,
-  "mode_partn_rate_from_trips" = mode_share
-)
+  theme_minimal()
