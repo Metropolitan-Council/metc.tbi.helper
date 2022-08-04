@@ -10,7 +10,7 @@ trip19 <-
 
 trip21 <-
   trip21 %>%
-  left_join(tbi21$hh %>% select(hh_id, participation_group), by=c("hh_id")) %>%
+  left_join(hh21 %>% select(hh_id, participation_group), by=c("hh_id")) %>%
   mutate(survey_group = word(participation_group,-1)) %>%
   mutate(distance_adj =
            ifelse(
