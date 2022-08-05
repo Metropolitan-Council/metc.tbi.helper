@@ -48,3 +48,5 @@ data/*.csv
 *.
 
 !.gitignore
+
+.talismanrc
