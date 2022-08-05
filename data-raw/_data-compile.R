@@ -45,7 +45,7 @@ source("data-raw/14-remove-pii.R")
 # source("data-raw/15-create-dictionary.R")
 dictionary19 <- read.csv("data-raw/final_dictionary_2019.csv")
 dictionary21 <- read.csv("data-raw/final_dictionary_2021.csv")
-dictionary21 <- dictionary21 %>% rename(variable_label = description)
+# dictionary21 <- dictionary21 %>% rename(variable_label = description)
 
 # Put data in lists -------------------------
 tbi19 <- list(
