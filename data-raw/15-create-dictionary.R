@@ -70,7 +70,7 @@ dictionary21 <- read.csv("data-raw/full_dictionary_filled.csv")
 
 dictionary21 <- dictionary21 %>%
   filter(!category %in% c("Survey metadata", "PII")) %>%
-  rename( 'which_table' = 'ï..which_table')
+  rename("which_table" = "ï..which_table")
 
 ## Clean up---------------
 # rm(db_dictionary, full_dictionary)

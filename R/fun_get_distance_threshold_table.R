@@ -24,7 +24,6 @@ create_distance_threshold_table <-
            dist_interval = 1,
            by_variable1 = NULL,
            by_variable2 = NULL) {
-
     # No xtab variables -----------
     if (missing(by_variable1) & missing(by_variable2)) {
       ## Threshold Calculations -------------------
@@ -101,7 +100,7 @@ create_distance_threshold_table <-
           dplyr::mutate(cuts = cut(
             get(by_variable1),
             breaks = brks,
-            labels =  brks_labs,
+            labels = brks_labs,
             order_result = TRUE
           )) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
@@ -115,7 +114,7 @@ create_distance_threshold_table <-
             cuts = cut(
               get(by_variable1),
               breaks = brks,
-              labels =  brks_labs,
+              labels = brks_labs,
               order_result = TRUE,
               include.lowest = TRUE
             )
@@ -219,7 +218,7 @@ create_distance_threshold_table <-
           dplyr::mutate(cuts = cut(
             get(by_variable1),
             breaks = brks,
-            labels =  brks_labs,
+            labels = brks_labs,
             order_result = TRUE
           )) %>%
           dplyr::select(-rlang::sym(by_variable1)) %>%
@@ -233,7 +232,7 @@ create_distance_threshold_table <-
             cuts = cut(
               get(by_variable1),
               breaks = brks,
-              labels =  brks_labs,
+              labels = brks_labs,
               order_result = TRUE,
               include.lowest = TRUE
             )
@@ -254,7 +253,7 @@ create_distance_threshold_table <-
           dplyr::mutate(cuts = cut(
             get(by_variable2),
             breaks = brks,
-            labels =  brks_labs,
+            labels = brks_labs,
             order_result = TRUE
           )) %>%
           dplyr::select(-rlang::sym(by_variable2)) %>%
@@ -268,7 +267,7 @@ create_distance_threshold_table <-
             cuts = cut(
               get(vartype2),
               breaks = brks,
-              labels =  brks_labs,
+              labels = brks_labs,
               order_result = TRUE,
               include.lowest = TRUE
             )

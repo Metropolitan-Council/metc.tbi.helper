@@ -6,7 +6,7 @@ co2_x_trip_distance <-
     cuts = cut(
       distance,
       breaks = histogram_breaks$distance$breaks,
-      labels =  histogram_breaks$distance$labels,
+      labels = histogram_breaks$distance$labels,
       order_result = TRUE
     )
   ) %>%
@@ -41,7 +41,7 @@ co2_x_trip_dist_thrive <-
     cuts = cut(
       distance,
       breaks = c(-10, 5, Inf),
-      labels =  c("less than 5", "5 or more"),
+      labels = c("less than 5", "5 or more"),
       order_result = TRUE
     )
   ) %>%

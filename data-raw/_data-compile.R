@@ -1,4 +1,5 @@
 # Load necessary packages ------
+source("data-raw/_db_connect.R")
 source("data-raw/00-load-pkgs.R")
 
 # Get TBI survey data from database ---------
@@ -72,7 +73,12 @@ tbi21 <- list(
 remove_nonascii <-
   function(dat) {
     dat %>%
-      mutate(across(where(is.character), function(x) stringi::stri_trans_general(x, "latin-ascii")))
+      mutate(across(
+        where(is.character),
+        function(x) {
+          stringi::stri_trans_general(x, "latin-ascii")
+        }
+      ))
   }
 
 tbi21 <- tbi21 %>%

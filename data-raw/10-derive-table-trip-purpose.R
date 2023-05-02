@@ -114,9 +114,11 @@ nonhomebasedtrips_2 <-
     values_to = "purpose"
   ) %>%
   select(-name) %>%
-  mutate(trip_purpose_weight = 0.5 * trip_purpose_weight,
-         distance = 0.5 * distance,
-         distance_adj = 0.5 * distance_adj) %>%
+  mutate(
+    trip_purpose_weight = 0.5 * trip_purpose_weight,
+    distance = 0.5 * distance,
+    distance_adj = 0.5 * distance_adj
+  ) %>%
   select(linked_trip_id, trip_type, person_id, hh_id, trip_purpose_weight, purpose, distance, distance_adj)
 
 nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)
@@ -250,9 +252,11 @@ nonhomebasedtrips_2 <-
     values_to = "purpose"
   ) %>%
   select(-name) %>%
-  mutate(trip_purpose_weight = 0.5 * trip_purpose_weight,
-         distance = 0.5 * distance,
-         distance_adj = 0.5 * distance_adj) %>%
+  mutate(
+    trip_purpose_weight = 0.5 * trip_purpose_weight,
+    distance = 0.5 * distance,
+    distance_adj = 0.5 * distance_adj
+  ) %>%
   select(linked_trip_id, trip_type, person_id, hh_id, trip_purpose_weight, purpose, distance, distance_adj)
 
 nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)

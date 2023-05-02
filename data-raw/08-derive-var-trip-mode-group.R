@@ -4,7 +4,8 @@ trip19 <-
   trip19 %>%
   mutate(mode_type_chr = as.character(mode_type)) %>%
   mutate(mode_type_chr = ifelse(grepl("bicy|bike", mode_type_detailed, ignore.case = T),
-                                "Bicycle/Scooter", mode_type_chr)) %>%
+    "Bicycle/Scooter", mode_type_chr
+  )) %>%
   mutate(
     mode_group =
       recode_factor(mode_type_chr,
@@ -36,7 +37,7 @@ trip21 <-
   trip21 %>%
   mutate(
     mode_group =
-      recode_factor(mode_type ,
+      recode_factor(mode_type,
         `Vehicle` = "Drive",
         `Carshare` = "Drive",
         `Taxi` = "Drive",

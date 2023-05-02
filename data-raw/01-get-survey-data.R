@@ -10,38 +10,42 @@ Sys.setenv(ORA_SDTZ = "America/Chicago")
 
 
 ## connect to database ------------
-tbidb <- ROracle::dbConnect(
-  DBI::dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
-)
+tbidb <- db_connect()
+
+
+##
+# tbidb <- ROracle::dbConnect(
+#   DBI::dbDriver("Oracle"),
+#   dbname = keyring::key_get("mts_planning_database_string"),
+#   username = "mts_planning_data",
+#   password = keyring::key_get("mts_planning_data_pw")
+# )
 
 ## Load tables ---------
-message("Loading raw data from Oracle database")
-hh19 <- ROracle::dbReadTable(tbidb, "TBI19_HOUSEHOLD_RAW") %>% as.data.table()
-per19 <- ROracle::dbReadTable(tbidb, "TBI19_PERSON_RAW") %>% as.data.table()
-trip19 <- ROracle::dbReadTable(tbidb, "TBI19_TRIP_RAW") %>% as.data.table()
-veh19 <- ROracle::dbReadTable(tbidb, "TBI19_VEHICLE_RAW") %>% as.data.table()
-day19 <- ROracle::dbReadTable(tbidb, "TBI19_DAY_RAW") %>% as.data.table()
+message("Loading raw data from SQL database")
+hh19 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_HOUSEHOLD_RAW") %>% as.data.table()
+per19 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_PERSON_RAW") %>% as.data.table()
+trip19 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_TRIP_RAW") %>% as.data.table()
+veh19 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_VEHICLE_RAW") %>% as.data.table()
+day19 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_DAY_RAW") %>% as.data.table()
 
-hh21 <- ROracle::dbReadTable(tbidb, "TBI21_HOUSEHOLD_RAW") %>% as.data.table()
-per21 <- ROracle::dbReadTable(tbidb, "TBI21_PERSON_RAW") %>% as.data.table()
-trip21 <- ROracle::dbReadTable(tbidb, "TBI21_TRIP_RAW") %>% as.data.table()
-veh21 <- ROracle::dbReadTable(tbidb, "TBI21_VEHICLE_RAW") %>% as.data.table()
-day21 <- ROracle::dbReadTable(tbidb, "TBI21_DAY_RAW") %>% as.data.table()
+hh21 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_HOUSEHOLD_RAW") %>% as.data.table()
+per21 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_PERSON_RAW") %>% as.data.table()
+trip21 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_TRIP_RAW") %>% as.data.table()
+veh21 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_VEHICLE_RAW") %>% as.data.table()
+day21 <- DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_DAY_RAW") %>% as.data.table()
 
 ## Translate tables using dictionary -----------
 message("Translating tables using dictionary")
 
 dictionary19 <-
-  ROracle::dbReadTable(tbidb, "TBI19_DICTIONARY") %>%
+  DBI::dbGetQuery(tbidb, "SELECT * FROM TBI19_DICTIONARY") %>%
   select(-table) %>%
   unique() %>%
   as.data.table()
 
 dictionary21 <-
-  ROracle::dbReadTable(tbidb, "TBI21_DICTIONARY") %>%
+  DBI::dbGetQuery(tbidb, "SELECT * FROM TBI21_DICTIONARY") %>%
   select(-table) %>%
   unique() %>%
   as.data.table()

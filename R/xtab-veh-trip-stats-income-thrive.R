@@ -1,5 +1,3 @@
-
-
 veh_stats <-
   tbi19$veh %>%
   left_join(tbi19$hh) %>%

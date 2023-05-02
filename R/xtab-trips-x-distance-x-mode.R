@@ -1,11 +1,10 @@
-
 trips_x_distance_x_mode <-
   tbi19$trip %>%
   dplyr::mutate(
     cuts = cut(
       distance,
       breaks = c(-1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, Inf),
-      labels =  c("0-1", "1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10", "More than 10"),
+      labels = c("0-1", "1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10", "More than 10"),
       order_result = TRUE
     )
   ) %>%

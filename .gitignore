@@ -50,3 +50,5 @@ data/*.csv
 !.gitignore
 
 .talismanrc
+
+data-raw/_db_connect.R

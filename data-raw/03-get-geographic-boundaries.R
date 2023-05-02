@@ -225,9 +225,11 @@ taz_sf <- DBI::dbGetQuery(
   st_as_sf(wkt = "geometry", crs = 26915) %>%
   st_transform(crs = 4326) %>%
   st_make_valid() %>%
-  mutate(taz_pop_per_acre = POPTOTAL/ACRES,
-         taz_housing_units_per_acre = HUTOTAL/ACRES,
-         taz_jobs_per_acre = TOTAL_EMP/ACRES) %>%
+  mutate(
+    taz_pop_per_acre = POPTOTAL / ACRES,
+    taz_housing_units_per_acre = HUTOTAL / ACRES,
+    taz_jobs_per_acre = TOTAL_EMP / ACRES
+  ) %>%
   mutate(taz = as.integer64(CensusTAZ)) %>%
   select(taz, taz_pop_per_acre, taz_housing_units_per_acre, taz_jobs_per_acre)
 

@@ -1,4 +1,3 @@
-
 transpo_barriers <-
   per21 %>%
   select(person_id, person_weight, starts_with("transportation_barriers")) %>%

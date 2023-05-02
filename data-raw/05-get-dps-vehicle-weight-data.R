@@ -1,14 +1,9 @@
 ## connect to database ------------
-tbidb <- ROracle::dbConnect(
-  DBI::dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
-)
+tbidb <- db_connect()
 
 
 ## Load tables ---------
-dps <- ROracle::dbReadTable(tbidb, "DPS_VEHICLE_WEIGHTS")
+dps <- DBI::dbGetQuery(tbidb, "SELECT * FROM DPS_VEHICLE_WEIGHTS") %>% as.data.table()
 # remove NA make, model, year
 dps <-
   dps %>%
@@ -236,9 +231,10 @@ veh_dps_full19 <-
   # unique() %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
-  left_join(veh_dps_best19 %>%
-    rename(model = model.tbi),
-  by = c("year", "make", "model")
+  left_join(
+    veh_dps_best19 %>%
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
   )
 
 veh_dps_rename19 <-
@@ -366,9 +362,10 @@ veh_dps_full21 <-
   # unique() %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
-  left_join(veh_dps_best21 %>%
-    rename(model = model.tbi),
-  by = c("year", "make", "model")
+  left_join(
+    veh_dps_best21 %>%
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
   )
 
 veh_dps_rename21 <-

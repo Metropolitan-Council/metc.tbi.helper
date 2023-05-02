@@ -9,10 +9,12 @@ hh_day_weight21 <- tbi21$hh %>%
   # select necessary variables; use "contains" to get all day-of-week completion columns
   select(hh_id, hh_weight, sample_segment, contains("complete_")) %>%
   # pivot the data frame to "long" format so we can ...
-  pivot_longer(cols = contains("complete"),
-               names_prefix = "complete_",
-               names_to = "day",
-               values_to = "complete") %>%
+  pivot_longer(
+    cols = contains("complete"),
+    names_prefix = "complete_",
+    names_to = "day",
+    values_to = "complete"
+  ) %>%
   # ... get just the completed weekdays (Mon-Thu):
   filter(day %in% c("mon", "tue", "wed", "thu")) %>%
   filter(complete == "Complete") %>%
@@ -21,7 +23,7 @@ hh_day_weight21 <- tbi21$hh %>%
   summarize(num_hh_days_week = n()) %>%
   ungroup() %>%
   # hh day weight is the hh weight divided by weekdays of that hh
-  mutate(hh_day_weight = hh_weight/num_hh_days_week)
+  mutate(hh_day_weight = hh_weight / num_hh_days_week)
 
 ## 2019 ----
 # 2019 household weight is easier, because we already have a num_hh_days_week column:
@@ -30,11 +32,13 @@ hh_day_weight19 <- tbi19$hh %>%
   select(hh_id, hh_weight, num_hh_days_week, sample_segment) %>%
   filter(num_hh_days_week > 0) %>%
   # hh day weight is the hh weight divided by weekdays of that hh
-  mutate(hh_day_weight = hh_weight/num_hh_days_week)
+  mutate(hh_day_weight = hh_weight / num_hh_days_week)
 
 ## Combine 2019 & 2021 data frames ----
-hh_day_weight <- bind_rows(hh_day_weight19,
-                           hh_day_weight21)
+hh_day_weight <- bind_rows(
+  hh_day_weight19,
+  hh_day_weight21
+)
 
 # Delivery Data ----
 source(
@@ -60,8 +64,9 @@ hh_deliver_dat21 <-
   summarize(value = max(as.numeric(value), na.rm = T, na.omit = T)) %>%
   ungroup() %>%
   mutate(value = factor(value,
-                        levels = c(1, 2),
-                        labels = c("Not selected", "Selected"))) %>%
+    levels = c(1, 2),
+    labels = c("Not selected", "Selected")
+  )) %>%
   mutate(year = "2021")
 
 ## 2019 ----
@@ -75,19 +80,22 @@ hh_deliver_dat19 <-
   summarize(value = max(as.numeric(value), na.rm = T, na.omit = T)) %>%
   ungroup() %>%
   mutate(value = factor(value,
-                        levels = c(1, 2),
-                        labels = c("Not selected", "Selected"))) %>%
+    levels = c(1, 2),
+    labels = c("Not selected", "Selected")
+  )) %>%
   mutate(year = "2019")
 
 ## Combine 2019 & 2021 Data ----
-deliver_dat <- bind_rows(hh_deliver_dat21,
-                         hh_deliver_dat19 %>% mutate(day_num = as.factor(day_num))) %>%
+deliver_dat <- bind_rows(
+  hh_deliver_dat21,
+  hh_deliver_dat19 %>% mutate(day_num = as.factor(day_num))
+) %>%
   # join to our speciality household day weight table (day weights for hhs, Mon-Thu)
   left_join(hh_day_weight)
 
 # Survey Summary ----
 deliver_prop <-
-deliver_dat %>%
+  deliver_dat %>%
   filter(!is.na(hh_day_weight)) %>%
   mutate(my_strata = paste0(year, "_", sample_segment)) %>%
   # weights are hh day weight, strata are sample segment & year
@@ -101,11 +109,7 @@ deliver_prop %>%
   filter(value == "Selected") %>%
   ggplot(aes(x = year, y = prop, fill = year)) +
   geom_col() +
-  geom_errorbar(aes(ymin = prop - prop_se, ymax = prop + prop_se), width= 0) +
+  geom_errorbar(aes(ymin = prop - prop_se, ymax = prop + prop_se), width = 0) +
   facet_wrap(~variable, scales = "free_y") +
   scale_y_continuous(labels = scales::percent_format()) +
   theme_minimal()
-
-
-
-

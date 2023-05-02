@@ -157,13 +157,13 @@ epa_fix2 <-
   # make -1 and NULL into proper NAs
   mutate(across(
     !!(my_num_columns),
-    ~ na_if(., "-1")
+    ~ na_if(., -1)
   )) %>%
   # make -1 and NULL into proper NAs
-  mutate(across(
-    !!(my_num_columns),
-    ~ na_if(., "NULL")
-  )) %>%
+  # mutate(across(
+  #   !!(my_num_columns),
+  #   ~ na_if(., NULL)
+  # )) %>%
   # make the column numeric
   mutate(across(
     !!(my_num_columns),
@@ -178,11 +178,12 @@ epa_fix2 <-
 # Average by make, model, year - multiple styles/engine types for the same car: -------------
 epa_avg <- epa_fix2 %>%
   group_by(make, model, year) %>%
-  summarise(across(
-    !!(my_num_columns),
-    ~ median(., na.rm = T)
-  ),
-  fuelType = first(fuelType)
+  summarise(
+    across(
+      !!(my_num_columns),
+      ~ median(., na.rm = T)
+    ),
+    fuelType = first(fuelType)
   ) %>% # take the median emissions value for the Make/Model/year
   ungroup()
 
@@ -312,9 +313,10 @@ get_veh_epa <- function(veh) {
     ) %>%
     mutate(year = as.character(year)) %>%
     mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
-    left_join(veh_epa_best %>%
-      rename(model = model.tbi),
-    by = c("year", "make", "model")
+    left_join(
+      veh_epa_best %>%
+        rename(model = model.tbi),
+      by = c("year", "make", "model")
     )
 
   return(final_dat)

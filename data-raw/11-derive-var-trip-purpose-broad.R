@@ -60,18 +60,18 @@ trip21 <- trip21 %>%
   mutate(
     d_purpose_category_broad =
       recode_factor(d_purpose_category,
-                    `Home` = "Home",
-                    `Overnight` = "Home",
-                    Work = "Work",
-                    `Work related` = "Work",
-                    School = "School",
-                    `School related` = "School",
-                    `Escort` = "Maintenance",
-                    `Errand` = "Maintenance",
-                    `Other` = "Maintenance",
-                    `Shopping` = "Maintenance",
-                    Meal = "Social/Recreational",
-                    `Social/Recreation` = "Social/Recreational"
+        `Home` = "Home",
+        `Overnight` = "Home",
+        Work = "Work",
+        `Work related` = "Work",
+        School = "School",
+        `School related` = "School",
+        `Escort` = "Maintenance",
+        `Errand` = "Maintenance",
+        `Other` = "Maintenance",
+        `Shopping` = "Maintenance",
+        Meal = "Social/Recreational",
+        `Social/Recreation` = "Social/Recreational"
       )
   ) %>%
   mutate(
@@ -98,17 +98,17 @@ trip_purpose21 <- trip_purpose21 %>%
   mutate(
     purpose_category_broad =
       recode_factor(purpose_category,
-                    `Home` = "Home",
-                    `Overnight` = "Home",
-                    Work = "Work",
-                    `Work related` = "Work",
-                    School = "School",
-                    `School related` = "School",
-                    `Escort` = "Maintenance",
-                    `Errand` = "Maintenance",
-                    `Other` = "Maintenance",
-                    `Shopping` = "Maintenance",
-                    Meal = "Social/Recreational",
-                    `Social/Recreation` = "Social/Recreational"
+        `Home` = "Home",
+        `Overnight` = "Home",
+        Work = "Work",
+        `Work related` = "Work",
+        School = "School",
+        `School related` = "School",
+        `Escort` = "Maintenance",
+        `Errand` = "Maintenance",
+        `Other` = "Maintenance",
+        `Shopping` = "Maintenance",
+        Meal = "Social/Recreational",
+        `Social/Recreation` = "Social/Recreational"
       )
   )

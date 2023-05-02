@@ -15,7 +15,7 @@ modes19 <-
 modes21 <-
   read.csv("data-raw/mode_type_hierarchy.csv") %>%
   mutate(
-    mode_type_detailed =  recode_factor(
+    mode_type_detailed = recode_factor(
       mode_type_detailed,
       "Standard bicycle" = "Standard bicycle (my household's)",
       "Friend’s vehicle" = "Friend's vehicle",
@@ -35,23 +35,24 @@ modes21 <-
   mutate(
     mode_group =
       recode_factor(mode_type_chr,
-                    `Vehicle` = "Drive",
-                    `Carshare` = "Drive",
-                    `Taxi` = "Drive",
-                    `Smartphone-app ride-hailing service` = "Drive",
-                    `Smartphone-app ridehailing service` = "Drive",
-                    `Transit` = "Transit",
-                    `Bicycle` = "Bicycle",
-                    `Bicycle or e-bicycle` = "Bicycle",
-                    `Bike-share` = "Bicycle",
-                    `Scooter-share` = "Other",
-                    `Walk` = "Walk",
-                    Other = "Other",
-                    `School bus` = "Other",
-                    `Ferry` = "Other",
-                    `Shuttle` = "Other",
-                    `Long distance passenger mode` = "Other"
-      )) %>%
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `Taxi` = "Drive",
+        `Smartphone-app ride-hailing service` = "Drive",
+        `Smartphone-app ridehailing service` = "Drive",
+        `Transit` = "Transit",
+        `Bicycle` = "Bicycle",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Bike-share` = "Bicycle",
+        `Scooter-share` = "Other",
+        `Walk` = "Walk",
+        Other = "Other",
+        `School bus` = "Other",
+        `Ferry` = "Other",
+        `Shuttle` = "Other",
+        `Long distance passenger mode` = "Other"
+      )
+  ) %>%
   select(-mode_type_chr, -mode_type_value)
 
 
@@ -72,7 +73,6 @@ modetab19 <-
   ) %>%
   unique() %>%
   filter(!is.na(mode_type_detailed)) %>%
-
   left_join(modes19, by = "mode_type_detailed") %>%
   mutate(svy_year = "2018-2019")
 
@@ -96,7 +96,8 @@ modetab21 <-
   left_join(modes21, by = "mode_type_detailed") %>%
   mutate(svy_year = "2021")
 
-modetab21 %>% filter(is.na(mode_group)) %>%
+modetab21 %>%
+  filter(is.na(mode_group)) %>%
   select(mode_type_detailed) %>%
   unique()
 
@@ -110,10 +111,13 @@ mode_participation_ls <- list()
 
 for (a_mode_type in list("Drive", "Transit", "Walk", "Bicycle", "Other")) {
   dt <- data.table(modetab)
-  dt[,used_mode := fcase(num_trips == 0, "No travel",
-                              num_trips > 0 & a_mode_type %in% unique(mode_group), "Used mode",
-                              num_trips > 0 & !(a_mode_type %in% unique(mode_group)), "Used other modes"),
-            by = list(person_id, day_num, day_weight)][ , mode_group := NULL]
+  dt[, used_mode := fcase(
+    num_trips == 0, "No travel",
+    num_trips > 0 & a_mode_type %in% unique(mode_group), "Used mode",
+    num_trips > 0 & !(a_mode_type %in% unique(mode_group)), "Used other modes"
+  ),
+  by = list(person_id, day_num, day_weight)
+  ][, mode_group := NULL]
   mode_participation_ls[[a_mode_type]] <- unique(dt)
 }
 
@@ -121,12 +125,12 @@ mode_participation <-
   rbindlist(mode_participation_ls, use.names = T, idcol = "mode_group")
 
 mode_part_pct <-
-mode_participation %>%
+  mode_participation %>%
   as_survey_design(w = day_weight, strata = sample_segment) %>%
   group_by(svy_year, mode_group, used_mode) %>%
   summarize(pct = survey_prop())
 
-mode_part_pct%>%
+mode_part_pct %>%
   filter(used_mode == "Used mode") %>%
   ggplot(aes(x = svy_year, y = pct)) +
   geom_col() +

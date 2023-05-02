@@ -1,4 +1,3 @@
-
 veh_occ_income_thrive <-
   tbi19$trip %>%
   # driving trip only:
