@@ -1,7 +1,10 @@
 ### Linked Trip Table -----------
 # Links trips created by more than one mode (e.g., bus and walk)
 
-dictionary <- read.csv("data/metadata_table.csv")
+# dictionary <- read.csv("data/metadata_table.csv")
+dictionary <- tbi21$dictionary
+
+dictionary[, str_subset(variable, "pur")]
 
 missing_codes <- dictionary %>%
   filter(grepl("missing", value_label, ignore.case = T)) %>%
@@ -14,9 +17,8 @@ missing_codes <- dictionary %>%
 ## Create a mode hierarchy -----------
 get_hierarchy <- function(myvar) {
   value_col_name <- paste0(myvar, "_id")
-
   dictionary %>%
-    filter(variable == !!myvar & !value %in% missing_codes) %>%
+    filter(variable == myvar & !value %in% missing_codes) %>%
     select(value, value_label) %>%
     mutate(value = as.numeric(value)) %>%
     arrange(abs(value)) %>%
@@ -35,12 +37,12 @@ mode_type_hierarchy <-
   arrange(abs(mode_type_id)) %>%
   mutate(mode_type_id = 1:length(unique(mode_type)))
 
+
 mode_type_detailed_hierarchy <-
   get_hierarchy("mode_type_detailed")
 
 
 #### destination purpose --------
-
 d_purpose_hierarchy <-
   get_hierarchy("d_purpose_imputed") %>%
   # put change mode last:

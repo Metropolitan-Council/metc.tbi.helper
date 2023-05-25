@@ -1,8 +1,5 @@
-library(srvyr)
-library(councilR)
-library(showtext)
+source("R/table-transpo-barriers.R")
 showtext::showtext_auto()
-
 
 barrierdat <-
   tbi21$transpo_barriers %>%
