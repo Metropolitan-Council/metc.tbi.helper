@@ -53,4 +53,6 @@ data/*.csv
 
 data-raw/_db_connect.R
 
-*.DS_Store
+.DS_Store
+
+**/.DS_Store
