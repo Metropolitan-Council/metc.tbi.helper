@@ -1,5 +1,5 @@
 # Load necessary packages ------
-source("data-raw/_db_connect.R")
+source("R/_db_connect.R")
 source("data-raw/00-load-pkgs.R")
 
 # Get TBI survey data from database ---------

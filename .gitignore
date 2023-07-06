@@ -52,3 +52,5 @@ data/*.csv
 .talismanrc
 
 data-raw/_db_connect.R
+
+*.DS_Store

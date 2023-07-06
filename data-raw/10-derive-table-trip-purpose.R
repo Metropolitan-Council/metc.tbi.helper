@@ -1,8 +1,9 @@
 # 2019 -------------
 ### Fix "Change Mode" -----
+
 linked_trips <-
   trip19 %>%
-  mutate(linked_trip_id = paste0(person_id, "_", linked_trip_num)) %>%
+  # mutate(linked_trip_id = paste0(person_id, str_pad(linked_trip_num, width = 3, side = 'left', pad = '0') )) %>%
   select(-linked_trip_num) %>%
   group_by(linked_trip_id, person_id, hh_id) %>%
   summarize(
