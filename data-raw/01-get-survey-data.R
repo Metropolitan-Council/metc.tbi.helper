@@ -143,4 +143,5 @@ person21[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
 ]
 
 ## Clean up---------------
-dbDisconnect(tbidb); rm(tbidb)
+dbDisconnect(tbidb)
+rm(tbidb, tables2019, tables2021)
