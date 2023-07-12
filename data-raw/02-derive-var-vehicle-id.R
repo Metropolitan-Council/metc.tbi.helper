@@ -1,16 +1,12 @@
 # 2019 -------
-veh19 <-
-  veh19 %>% mutate(veh_id = paste0(hh_id, "_", vehicle_num))
-
-trip19 <- trip19 %>%
-  mutate(veh_id = case_when(
-    grepl(pattern = "Household vehicle", x = mode_type_detailed) ~
-      paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
-  ))
+vehicle19[, veh_id := paste0(hh_id, "-", vehicle_num)]
+trip19[
+  mode_type_detailed %>% str_detect("Household vehicle")
+  , veh_id := paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
+]
 
 # 2021 ----
-veh21 <-
-  veh21 %>% rename(veh_id = vehicle_id)
+setnames(vehicle21, "vehicle_id", "veh_id")
 
 ## Mode type detailed for 2021 dataset ----
 # mode_type_hierarchy <- read.csv("data-raw/mode_type_hierarchy.csv") %>%
