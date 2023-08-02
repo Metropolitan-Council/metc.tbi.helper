@@ -1,5 +1,6 @@
-# Packages -------------
-source("data-raw/00-load-pkgs.R")
+message("01-get-survey_data.R")
+# This script is writen to run after
+# 00-load-pkgs.R
 
 # Get data -----------
 # Configure database time zone
@@ -7,17 +8,18 @@ Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
 ## connect to database ------------
+# Raw data lives in the Met Council databases and this code
+# will only work for internal employees.
 tbidb <- db_connect()
 
 # 2019 tables -------------
-message("Loading raw 2019 data from SQL database")
 tables2019 <- c("TBI19_DAY_RAW"
                 , "TBI19_HOUSEHOLD_RAW"
                 , "TBI19_LOCATION_RAW"
                 , "TBI19_PERSON_RAW"
                 , "TBI19_TRIP_RAW"
                 , "TBI19_VEHICLE_RAW"
-                , "TBI19_DICTIONARY")
+                , "TBI19_DICTIONARY_RAW")
 
 lapply(tables2019, \(table_){
   message(table_)
@@ -40,15 +42,12 @@ dictionary19[str_detect(value_label, "Missing"), value_label := NA]
 # these columns are not in the data in the DB. look into.
 dictionary19 <- dictionary19[!variable %in% c("home_park_pass_period", "provided_text_name", "study_design")]
 
-message("Recode 2019 data")
 # for variables in the dictionary, replace the coded level with the
 # human readable level.
 dictionary19[, unique(table)] %>%
   lapply(\(table_){
     dictionary19[table == table_, unique(variable)] %>%
       lapply(\(var_){
-
-        message(table_, ':', var_)
         tempLookup <- dictionary19[table == table_ & variable == var_]
         setnames(tempLookup, "value", var_)
 
@@ -62,14 +61,13 @@ dictionary19[, unique(table)] %>%
   })
 
 # 2021 tables ------------------
-message("Loading raw 2021 data from SQL database")
 tables2021 <- c("TBI21_DAY_RAW"
                 , "TBI21_HOUSEHOLD_RAW"
                 , "TBI21_LOCATION_RAW"
                 , "TBI21_PERSON_RAW"
                 , "TBI21_TRIP_RAW"
                 , "TBI21_VEHICLE_RAW"
-                , "TBI21_DICTIONARY")
+                , "TBI21_DICTIONARY_RAW")
 
 lapply(tables2021, \(table_){
 
@@ -93,13 +91,10 @@ dictionary21[str_detect(label, "Missing"), label := NA]
 
 # for variables in the dictionary, replace the coded level with the
 # human readable level.
-message("Recode 2021 data")
 dictionary21[, unique(table)] %>%
   lapply(\(table_){
     dictionary21[table == table_, unique(variable)] %>%
       lapply(\(var_){
-
-        message(table_, ':', var_)
         tempLookup <- dictionary21[table == table_ & variable == var_]
         setnames(tempLookup, "value", var_)
 
@@ -114,7 +109,6 @@ dictionary21[, unique(table)] %>%
 
 
 # Set IDs as Integer64 -----------
-message("IDs as Int64")
 household19[, hh_id := as.integer64(hh_id)]
 household21[, hh_id := as.integer64(hh_id)]
 

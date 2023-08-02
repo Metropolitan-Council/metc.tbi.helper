@@ -1,3 +1,7 @@
+# This script is writen to run after
+# 05-get-dps-vehicle-weight-data.R
+
+
 # Race is a select-all question, but it helps to have a single column sometimes for factor-type analysis.
 # This table adds a column for "race_ethnicity_simple" that categorizes people according to the
 # race/ethnicity they selected, with an option for "2 or more races" for those that tick more than one box.
@@ -5,8 +9,9 @@
 # Note, we should really go through the "other_specify" column (not included in this data extract)
 # to weed out the (presumably) white people who answer as "human race", "none of your business" etc :/
 
+# 2019 -------------
 per_race19 <-
-  per19 %>%
+  person19 %>%
   select(person_id, starts_with("ethnicity")) %>%
   pivot_longer(cols = starts_with("ethnicity"), names_prefix = "ethnicity_") %>%
   filter(value == "Yes") %>%
@@ -28,15 +33,13 @@ per_race19 <-
   select(person_id, race_ethnicity) %>%
   unique()
 
-per19 <- per19 %>%
+person19 <- person19 %>%
   left_join(per_race19, by = "person_id")
-
-
-
 rm(per_race19)
 
+# 2021 --------
 per_race_broad21 <-
-  per21 %>%
+  person21 %>%
   select(person_id, starts_with("ethnicity")) %>%
   pivot_longer(cols = starts_with("ethnicity")) %>%
   filter(value == "Selected") %>%
@@ -53,7 +56,7 @@ per_race_broad21 <-
   unique()
 
 per_race_detailed21 <-
-  per21 %>%
+  person21 %>%
   select(person_id, starts_with("race")) %>%
   pivot_longer(cols = starts_with("race")) %>%
   filter(value == "Selected") %>%
@@ -69,13 +72,8 @@ per_race_detailed21 <-
   select(person_id, race_ethnicity_detailed) %>%
   unique()
 
-per21 <- per21 %>%
+person21 <- person21 %>%
   left_join(per_race_broad21, by = "person_id") %>%
   left_join(per_race_detailed21, by = "person_id")
 
-
-
 rm(per_race_broad21, per_race_detailed21)
-
-
-message("New variable added: a simple race category, race_ethnicity")

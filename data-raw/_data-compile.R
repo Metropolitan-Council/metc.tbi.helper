@@ -1,11 +1,11 @@
 # Load necessary packages ------
-source("R/_db_connect.R")
 source("data-raw/00-load-pkgs.R")
+source("R/_db_connect.R")
 
 # Get TBI survey data from database ---------
 source("data-raw/01-get-survey-data.R")
 
-# Append geographic boundaries to  household, work, school, and trip -----------
+# Append geographic boundaries to household, work, school, and trip -----------
 source("data-raw/02-derive-var-vehicle-id.R")
 
 # Append geographic boundaries to  household, work, school, and trip -----------
@@ -25,6 +25,12 @@ source("data-raw/09-derive-var-trip-distance-adjusted.R")
 source("data-raw/10-derive-table-trip-purpose.R")
 source("data-raw/11-derive-var-trip-purpose-broad.R")
 source("data-raw/12-derive-var-trip-seasons.R")
+source("data-raw/13-remove-pii.R")
+source("data-raw/14-make-data-objects.R")
+source("data-raw/15-create-dictionary.R")
+source("data-raw/99-distribute-data.R")
+# ********* here **********
+
 
 # Re-format time
 trip19 <- trip19 %>%
@@ -97,4 +103,6 @@ save(tbi21,
   file = "data/tbi21.rda",
   compress = T
 )
+
+
 

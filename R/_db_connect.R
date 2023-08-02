@@ -1,6 +1,6 @@
 if (exists("db_connect") == FALSE) {
-  db_connect <- function(uid = getOption("councilR.uid"),
-                         pwd = getOption("councilR.pwd")) {
+  db_connect <- function(uid = keyring::key_get("councilR.uid"),
+                         pwd = keyring::key_get("councilR.pwd")) {
     purrr::map(c(uid, pwd), rlang:::check_string)
 
     requireNamespace("DBI", quietly = TRUE)
@@ -19,7 +19,7 @@ if (exists("db_connect") == FALSE) {
                             Database = "MTS_Planning_Data",
                             Uid = uid,
                             Pwd = pwd,
-                            Server = "dbsqlcl11t.test.local,65414"
+                            Server = keyring::key_get('mts_planning_database_string')
       ) == FALSE) {
         cli::cli_abort("Database failed to connect")
       }
@@ -27,7 +27,7 @@ if (exists("db_connect") == FALSE) {
       if (DBI::dbCanConnect(odbc::odbc(),
                             Driver = drv,
                             Database = "MTS_Planning_Data",
-                            Server = "dbsqlcl11t.test.local,65414",
+                            Server = keyring::key_get('mts_planning_database_string'),
                             Trusted_Connection = "yes"
       ) ==
       FALSE) {
@@ -44,13 +44,13 @@ if (exists("db_connect") == FALSE) {
                      Database = "MTS_Planning_Data",
                      Uid = uid,
                      Pwd = pwd,
-                     Server = "dbsqlcl11t.test.local,65414"
+                     Server = keyring::key_get('mts_planning_database_string')
       )
     } else if (drv == "SQL Server") {
       DBI::dbConnect(odbc::odbc(),
                      Driver = drv,
                      Database = "MTS_Planning_Data",
-                     Server = "dbsqlcl11t.test.local,65414",
+                     Server = keyring::key_get('mts_planning_database_string'),
                      Trusted_Connection = "yes"
       )
     }
@@ -61,8 +61,8 @@ if (exists("db_connect") == FALSE) {
   }
 
 
-  db_connect_gis <- function(uid = getOption("councilR.uid"),
-                             pwd = getOption("councilR.pwd")) {
+  db_connect_gis <- function(uid = keyring::key_get('mts_planning_database_string')("councilR.uid"),
+                             pwd = keyring::key_get('mts_planning_database_string')("councilR.pwd")) {
     purrr::map(c(uid, pwd), rlang:::check_string)
     requireNamespace("DBI", quietly = TRUE)
 
