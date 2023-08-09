@@ -14,27 +14,27 @@ mode_21 <-
   mutate(
     mode_group_2 =
       recode_factor(
-        mode_type_chr
-        , `Household vehicle` = "Drive"
-        , `Other vehicle` = "Drive"
-        , `Vehicle` = "Drive"
-        , `Carshare` = "Drive"
-        , `For-hire vehicle` = "Taxi/TNC"
-        , Taxi = "Taxi/TNC"
-        , `Smartphone-app ride-hailing service` = "Taxi/TNC"
-        , `Public bus` = "Transit"
-        , `Rail` = "Transit"
-        , `Other bus` = "Transit"
-        , `Shuttle` = "Transit"
-        , `Commuter Rail` = "Transit"
-        , `School bus` = "Transit"
-        , `Bicycle or e-bicycle` = "Bicycle"
-        , `Walk` = "Walk"
-        , Other = "Other"
-        , `Ferry` = "Other"
-        , `Scooter-share` = "Other"
-        , `Micromobility` = "Other"
-        , `Long distance passenger mode` = "Other"
+        mode_type_chr,
+        `Household vehicle` = "Drive",
+        `Other vehicle` = "Drive",
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `For-hire vehicle` = "Taxi/TNC",
+        Taxi = "Taxi/TNC",
+        `Smartphone-app ride-hailing service` = "Taxi/TNC",
+        `Public bus` = "Transit",
+        `Rail` = "Transit",
+        `Other bus` = "Transit",
+        `Shuttle` = "Transit",
+        `Commuter Rail` = "Transit",
+        `School bus` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Walk` = "Walk",
+        Other = "Other",
+        `Ferry` = "Other",
+        `Scooter-share` = "Other",
+        `Micromobility` = "Other",
+        `Long distance passenger mode` = "Other"
       )
   ) %>%
   select(-mode_type_chr)
@@ -44,9 +44,9 @@ mode_21 <-
 #     trip_d_in_mpo == "Trip ends in Twin Cities region"
 # )
 
-mode_21[tbi21$hh, on=.(hh_id), hh_thrive_category_broad := i.hh_thrive_category_broad]
+mode_21[tbi21$hh, on = .(hh_id), hh_thrive_category_broad := i.hh_thrive_category_broad]
 mode_21[is.na(hh_thrive_category_broad), hh_thrive_category_broad := "N/A"]
-mode_21[tbi21$hh, on=.(hh_id), sample_segment := i.sample_segment]# Sample segment (2021)
+mode_21[tbi21$hh, on = .(hh_id), sample_segment := i.sample_segment] # Sample segment (2021)
 
 # Mode --------
 mode_share <- mode_21 %>%
@@ -60,13 +60,14 @@ mode_share <- mode_21 %>%
   ) %>%
   mutate(year = "2021")
 
-plot_ly(data = mode_share
-        , x=~mode_group_2
-        , y=~ct
-        # , y=~pct
-        # , y=~n
-        , type = 'bar'
-        ) %>%
+plot_ly(
+  data = mode_share,
+  x = ~mode_group_2,
+  y = ~ct
+  # , y=~pct
+  # , y=~n
+  , type = "bar"
+) %>%
   layout(xaxis = list(categoryorder = "total descending"))
 
 
@@ -110,9 +111,9 @@ mode_share_commute <-
   mutate(
     commute = ifelse(
       o_purpose_category_broad %in% "Work" |
-        o_purpose_category_broad  %in% "Work"
-      , "Commute"
-      , "Non-Commute"
+        o_purpose_category_broad %in% "Work",
+      "Commute",
+      "Non-Commute"
     )
   ) %>%
   filter(!is.na(mode_group_2) & trip_weight > 0) %>%
@@ -125,28 +126,32 @@ mode_share_commute <-
   ) %>%
   mutate(year = "2021")
 
-plot_ly(data = mode_share_commute
-        , x=~mode_group_2
-        , y=~n
-        , color=~ commute
-        , type = 'bar'
-        ) %>%
+plot_ly(
+  data = mode_share_commute,
+  x = ~mode_group_2,
+  y = ~n,
+  color = ~commute,
+  type = "bar"
+) %>%
   layout(xaxis = list(categoryorder = "total descending"))
 
 
-plot_ly(data = mode_share_commute
-        , x=~mode_group_2
-        , y=~pct
-        , color=~ commute
-        , type = 'bar'
-        ) %>%
-  layout(barmode = "stack",
-         xaxis = list(categoryorder = "max ascending"))
+plot_ly(
+  data = mode_share_commute,
+  x = ~mode_group_2,
+  y = ~pct,
+  color = ~commute,
+  type = "bar"
+) %>%
+  layout(
+    barmode = "stack",
+    xaxis = list(categoryorder = "max ascending")
+  )
 
 
 # Mode x Community Designation --------
 mode_share_thrive_category <-
-mode_21 %>%
+  mode_21 %>%
   filter(!is.na(mode_group_2) & trip_weight > 0) %>%
   srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
   group_by(hh_thrive_category_broad, mode_group_2) %>%
@@ -157,25 +162,27 @@ mode_21 %>%
   ) %>%
   mutate(year = "2021")
 
-plot_ly(data = mode_share_thrive_category
-        , x=~hh_thrive_category_broad
-        , y=~n
-        , color=~ mode_group_2
-        , colors = 'Spectral'
-        , type = 'bar'
+plot_ly(
+  data = mode_share_thrive_category,
+  x = ~hh_thrive_category_broad,
+  y = ~n,
+  color = ~mode_group_2,
+  colors = "Spectral",
+  type = "bar"
 ) %>%
   layout(xaxis = list(categoryorder = "max decending"))
 
-plot_ly(data = mode_share_thrive_category
-        , x=~hh_thrive_category_broad
-        , y=~pct
-        , color=~ mode_group_2
-        , colors = 'Spectral'
-        , type = 'bar'
+plot_ly(
+  data = mode_share_thrive_category,
+  x = ~hh_thrive_category_broad,
+  y = ~pct,
+  color = ~mode_group_2,
+  colors = "Spectral",
+  type = "bar"
 ) %>%
   layout(
-    barmode = "stack"
-    , xaxis = list(categoryorder = "max decending")
+    barmode = "stack",
+    xaxis = list(categoryorder = "max decending")
   )
 
 
@@ -266,16 +273,3 @@ mode_21 %>%
 #
 #     )
 #   )
-
-
-
-
-
-
-
-
-
-
-
-
-

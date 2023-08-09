@@ -11,10 +11,10 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-	message = FALSE,
-	warning = FALSE,
-	collapse = TRUE,
-	comment = "#>"
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
 )
 source("R/_load_libraries_data.R")
 source("R/_color_palettes.R")
@@ -25,7 +25,7 @@ source("R/_color_palettes.R")
 ## 
 
 ```{r 2021 mode data, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
-  #### Run as part of d_meta_mode_share_tbi.R ##### ---
+#### Run as part of d_meta_mode_share_tbi.R ##### ---
 ## 2021 ----
 mode_21 <-
   tbi21 %>%
@@ -40,27 +40,27 @@ mode_21 <-
   mutate(
     mode_group_2 =
       recode_factor(
-        mode_type_chr
-        , `Household vehicle` = "Drive"
-        , `Other vehicle` = "Drive"
-        , `Vehicle` = "Drive"
-        , `Carshare` = "Drive"
-        , `For-hire vehicle` = "Taxi/TNC"
-        , Taxi = "Taxi/TNC"
-        , `Smartphone-app ride-hailing service` = "Taxi/TNC"
-        , `Public bus` = "Transit"
-        , `Rail` = "Transit"
-        , `Other bus` = "Transit"
-        , `Shuttle` = "Transit"
-        , `Commuter Rail` = "Transit"
-        , `School bus` = "Transit"
-        , `Bicycle or e-bicycle` = "Bicycle"
-        , `Walk` = "Walk"
-        , Other = "Other"
-        , `Ferry` = "Other"
-        , `Scooter-share` = "Other"
-        , `Micromobility` = "Other"
-        , `Long distance passenger mode` = "Other"
+        mode_type_chr,
+        `Household vehicle` = "Drive",
+        `Other vehicle` = "Drive",
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `For-hire vehicle` = "Taxi/TNC",
+        Taxi = "Taxi/TNC",
+        `Smartphone-app ride-hailing service` = "Taxi/TNC",
+        `Public bus` = "Transit",
+        `Rail` = "Transit",
+        `Other bus` = "Transit",
+        `Shuttle` = "Transit",
+        `Commuter Rail` = "Transit",
+        `School bus` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Walk` = "Walk",
+        Other = "Other",
+        `Ferry` = "Other",
+        `Scooter-share` = "Other",
+        `Micromobility` = "Other",
+        `Long distance passenger mode` = "Other"
       )
   ) %>%
   select(-mode_type_chr)
@@ -80,17 +80,19 @@ mode_share <- mode_21 %>%
   group_by(mode_group_2) %>%
   dplyr::summarize(
     pct = survey_prop(proportion = TRUE),
-    ct = survey_total(), 
+    ct = survey_total(),
     n = n()
   ) %>%
   mutate(year = "2021")
 ```
 
 ```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_ly(data = mode_share
-        , x=~reorder(mode_group_2, -pct)
-        , y=~pct
-        , colors = tbiyrpal)
+plot_ly(
+  data = mode_share,
+  x = ~ reorder(mode_group_2, -pct),
+  y = ~pct,
+  colors = tbiyrpal
+)
 ```
 
 ## Commute Mode Share
@@ -105,20 +107,19 @@ mode_share_commute <- mode_21 %>%
   mutate(
     commute = ifel
   )
-  # srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
-  # group_by(mode_group_2) %>%
-  # dplyr::summarize(
-  #   pct = survey_prop(proportion = TRUE),
-  #   ct = survey_total(), 
-  #   n = n()
-  # ) %>%
-  # mutate(year = "2021")
+# srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
+# group_by(mode_group_2) %>%
+# dplyr::summarize(
+#   pct = survey_prop(proportion = TRUE),
+#   ct = survey_total(),
+#   n = n()
+# ) %>%
+# mutate(year = "2021")
 ```
 
 1
 
 ```{r}
-
 employed_categories <- c(
   "Full-time ", # 2019 - extra whitespace
   "Full-time", # 2021
@@ -249,5 +250,4 @@ commute_trips <- trip_mode21 %>%
 commute_trips
 
 # saveRDS(commute_trips, "data/commute_trips_tbi21.RDS")
-
 ```

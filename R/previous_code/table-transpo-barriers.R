@@ -2,38 +2,43 @@ source("R/_load_libraries_data.R")
 
 # how many barriers do they have, what are they? s
 tbi21$transpo_barriers <- tbi21$per[
-  , melt(.SD, id.vars = c("person_id", "person_weight")
-         , measure.vars = grep("transportation_barriers", names(tbi21$per))
-         , variable.name = 'name'
-         , value.name = "barrier_type")
+  , melt(.SD,
+    id.vars = c("person_id", "person_weight"),
+    measure.vars = grep("transportation_barriers", names(tbi21$per)),
+    variable.name = "name",
+    value.name = "barrier_type"
+  )
 ][
   !barrier_type %ilike% "Not selected" & !is.na(barrier_type)
 ][
-  barrier_type %ilike% "this has not happened"
-  , barrier_type := "None"
+  barrier_type %ilike% "this has not happened",
+  barrier_type := "None"
 ][
-  , name := gsub("transportation_barriers_", '', name)
+  , name := gsub("transportation_barriers_", "", name)
 ]
 
 message("New table added: transportation barriers faced in last 7 days by person in 2021 survey, transpo_barriers")
 
 
 tbi21$transpo_barriers[
-  , .(transpo_barriers = barrier_type |>
-        unique() |>
-        sort() |>
-        paste0(collapse = ',')
-      , n_barriers = uniqueN(barrier_type))
-  , keyby = .(person_id)
+  , .(
+    transpo_barriers = barrier_type |>
+      unique() |>
+      sort() |>
+      paste0(collapse = ","),
+    n_barriers = uniqueN(barrier_type)
+  ),
+  keyby = .(person_id)
 ][
-  transpo_barriers %chin% c('None', "Prefer not to answer") |
-    is.na(transpo_barriers)
-  , n_barriers := n_barriers - 1
+  transpo_barriers %chin% c("None", "Prefer not to answer") |
+    is.na(transpo_barriers),
+  n_barriers := n_barriers - 1
 ][
   n_barriers > 1,
-  transpo_barriers := 'Multiple'
+  transpo_barriers := "Multiple"
 ][
-  tbi21$per, on='person_id'
+  tbi21$per,
+  on = "person_id"
 ]
 
 message("New variable added: transportation barriers faced in last 7 days by

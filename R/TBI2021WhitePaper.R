@@ -7,51 +7,50 @@ source("R/linkingTrips.R")
 # Load data - align levels ---------------
 
 linked_trips_19_mpo <- linked_trips_19[
-    , mode_type_chr := as.character(mode_type)
-  ][
-    , mode_type_chr := ifelse(
-      grepl("bicy|bike", mode_type_detailed, ignore.case = T),
-      "Bicycle",
-      mode_type_chr
+  , mode_type_chr := as.character(mode_type)
+][
+  , mode_type_chr := ifelse(
+    grepl("bicy|bike", mode_type_detailed, ignore.case = T),
+    "Bicycle",
+    mode_type_chr
+  )
+][
+  , mode_group_2 :=
+    recode_factor(
+      mode_type_chr,
+      `Household vehicle` = "Drive",
+      `Other vehicle` = "Drive",
+      `Vehicle` = "Drive",
+      `Carshare` = "Drive",
+      `For-hire vehicle` = "Taxi/TNC",
+      Taxi = "Taxi/TNC",
+      `Smartphone-app ride-hailing service` = "Taxi/TNC",
+      `Public bus` = "Transit",
+      `Rail` = "Transit",
+      `Other bus` = "Transit",
+      `Shuttle` = "Transit",
+      `Commuter Rail` = "Transit",
+      `School bus` = "Transit",
+      `Bicycle or e-bicycle` = "Bicycle",
+      `Walk` = "Walk",
+      Other = "Other",
+      `Ferry` = "Other",
+      `Scooter-share` = "Other",
+      `Micromobility` = "Other",
+      `Long distance passenger mode` = "Other"
     )
-  ][
-    ,  mode_group_2 :=
-      recode_factor(
-        mode_type_chr
-        , `Household vehicle` = "Drive"
-        , `Other vehicle` = "Drive"
-        , `Vehicle` = "Drive"
-        , `Carshare` = "Drive"
-        , `For-hire vehicle` = "Taxi/TNC"
-        , Taxi = "Taxi/TNC"
-        , `Smartphone-app ride-hailing service` = "Taxi/TNC"
-        , `Public bus` = "Transit"
-        , `Rail` = "Transit"
-        , `Other bus` = "Transit"
-        , `Shuttle` = "Transit"
-        , `Commuter Rail` = "Transit"
-        , `School bus` = "Transit"
-        , `Bicycle or e-bicycle` = "Bicycle"
-        , `Walk` = "Walk"
-        , Other = "Other"
-        , `Ferry` = "Other"
-        , `Scooter-share` = "Other"
-        , `Micromobility` = "Other"
-        , `Long distance passenger mode` = "Other"
-      )
-  ][
-    trip_o_in_mpo == "Trip begins in Twin Cities region" |
-      trip_d_in_mpo == "Trip ends in Twin Cities region"
-  ]
+][
+  trip_o_in_mpo == "Trip begins in Twin Cities region" |
+    trip_d_in_mpo == "Trip ends in Twin Cities region"
+]
 
-linked_trips_19_mpo[tbi19$hh, on=.(hh_id), hh_thrive_category_broad := i.hh_thrive_category_broad]
+linked_trips_19_mpo[tbi19$hh, on = .(hh_id), hh_thrive_category_broad := i.hh_thrive_category_broad]
 linked_trips_19_mpo[is.na(hh_thrive_category_broad), hh_thrive_category_broad := "N/A"]
-linked_trips_19_mpo[tbi19$hh, on=.(hh_id), sample_segment := i.sample_segment]
+linked_trips_19_mpo[tbi19$hh, on = .(hh_id), sample_segment := i.sample_segment]
 
 # Mode --------
 mode_share <- linked_trips_19_mpo[
-  !is.na(mode_group_2) & trip_weight > 0
-  , {
+  !is.na(mode_group_2) & trip_weight > 0, {
     as_survey_design(.SD, w = trip_weight, strata = sample_segment) %>%
       group_by(mode_group_2) %>%
       dplyr::summarize(
@@ -63,13 +62,14 @@ mode_share <- linked_trips_19_mpo[
   }
 ]
 
-plot_ly(data = mode_share
-        , x=~mode_group_2
-        , y=~ct
-        # , y=~pct
-        # , y=~n
-        , type = 'bar'
-        ) %>%
+plot_ly(
+  data = mode_share,
+  x = ~mode_group_2,
+  y = ~ct
+  # , y=~pct
+  # , y=~n
+  , type = "bar"
+) %>%
   layout(xaxis = list(categoryorder = "total descending"))
 
 
@@ -104,25 +104,24 @@ plot_ly(data = mode_share
 
 mode_share_commute <-
   linked_trips_19_mpo[
-  , commute := fifelse(
-    o_purpose_category_imputed %in% c("Work", "Work-related") |
-      d_purpose_category_imputed  %in% c("Work", "Work-related")
-    , "Commute"
-    , "Non-Commute"
-  )
-][
-  !is.na(mode_group_2) & trip_weight > 0
-  , {
-    as_survey_design(.SD, w = trip_weight, strata = sample_segment) %>%
-      group_by(mode_group_2, commute) %>%
-      dplyr::summarize(
-        pct = survey_prop(proportion = TRUE),
-        ct = survey_total(),
-        n = n()
-      ) %>%
-      mutate(year = "2021")
-  }
-]
+    , commute := fifelse(
+      o_purpose_category_imputed %in% c("Work", "Work-related") |
+        d_purpose_category_imputed %in% c("Work", "Work-related"),
+      "Commute",
+      "Non-Commute"
+    )
+  ][
+    !is.na(mode_group_2) & trip_weight > 0, {
+      as_survey_design(.SD, w = trip_weight, strata = sample_segment) %>%
+        group_by(mode_group_2, commute) %>%
+        dplyr::summarize(
+          pct = survey_prop(proportion = TRUE),
+          ct = survey_total(),
+          n = n()
+        ) %>%
+        mutate(year = "2021")
+    }
+  ]
 
 # plot_ly(data = mode_share_commute
 #         , x=~commute
@@ -132,14 +131,17 @@ mode_share_commute <-
 #         ) %>%
 #   layout(xaxis = list(categoryorder = "total descending"))
 
-plot_ly(data = mode_share_commute
-        , x=~mode_group_2
-        , y=~pct
-        , color=~ commute
-        , type = 'bar'
-        ) %>%
-  layout(barmode = "stack",
-         xaxis = list(categoryorder = "max ascending"))
+plot_ly(
+  data = mode_share_commute,
+  x = ~mode_group_2,
+  y = ~pct,
+  color = ~commute,
+  type = "bar"
+) %>%
+  layout(
+    barmode = "stack",
+    xaxis = list(categoryorder = "max ascending")
+  )
 
 
 # Mode x Community Designation --------
@@ -155,16 +157,17 @@ mode_share_thrive_category <-
   ) %>%
   mutate(year = "2021")
 
-plot_ly(data = mode_share_thrive_category
-        , x=~hh_thrive_category_broad
-        , y=~pct
-        , color=~ mode_group_2
-        , colors = 'Spectral'
-        , type = 'bar'
+plot_ly(
+  data = mode_share_thrive_category,
+  x = ~hh_thrive_category_broad,
+  y = ~pct,
+  color = ~mode_group_2,
+  colors = "Spectral",
+  type = "bar"
 ) %>%
   layout(
-    barmode = "stack"
-    , xaxis = list(categoryorder = "max decending")
+    barmode = "stack",
+    xaxis = list(categoryorder = "max decending")
   )
 
 
@@ -188,16 +191,17 @@ linked_trips_19_mpo[
   factor(mode_share_origin, levels = mode_share_origin[mode_group_2 == "Drive"][order(pct), trip_o_city], ordered = T)
 ]
 
-plot_ly(data = mode_share_origin
-        , x=~trip_o_city
-        , y=~pct
-        , color=~ mode_group_2
-        , colors = 'Spectral'
-        , type = 'bar'
+plot_ly(
+  data = mode_share_origin,
+  x = ~trip_o_city,
+  y = ~pct,
+  color = ~mode_group_2,
+  colors = "Spectral",
+  type = "bar"
 ) %>%
   layout(
-    barmode = "stack"
-    , xaxis = list(categoryorder = "total decending")
+    barmode = "stack",
+    xaxis = list(categoryorder = "total decending")
   )
 
 # Trip purpose x Trip Origin --------
@@ -288,16 +292,3 @@ plot_ly(data = mode_share_origin
 #
 #     )
 #   )
-
-
-
-
-
-
-
-
-
-
-
-
-

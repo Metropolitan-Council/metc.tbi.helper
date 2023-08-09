@@ -132,7 +132,7 @@ cty_sf <- rbind(mn_cty_sf, wi_cty_sf) %>%
   st_make_valid()
 
 ##### Cities: ----
-ctu_sf <- councilR::import_from_gis("CTUs")  %>%
+ctu_sf <- councilR::import_from_gis("CTUs") %>%
   st_make_valid() %>%
   select(CTU_NAME) %>%
   rename(community_name = CTU_NAME) %>%
@@ -214,8 +214,8 @@ household19_mpo <-
   st_drop_geometry() %>%
   rename(hh_in_mpo = OBJECTID) %>%
   mutate(hh_in_mpo = case_when(
-    hh_in_mpo == 1 ~ "Household in Twin Cities region"
-    , .default = "Household outside Twin Cities region"
+    hh_in_mpo == 1 ~ "Household in Twin Cities region",
+    .default = "Household outside Twin Cities region"
   ))
 
 household21_mpo <-
@@ -223,8 +223,8 @@ household21_mpo <-
   st_drop_geometry() %>%
   rename(hh_in_mpo = OBJECTID) %>%
   mutate(hh_in_mpo = case_when(
-    hh_in_mpo == 1 ~ "Household in Twin Cities region"
-    , .default = "Household outside Twin Cities region"
+    hh_in_mpo == 1 ~ "Household in Twin Cities region",
+    .default = "Household outside Twin Cities region"
   ))
 
 ##### County: ----
@@ -317,11 +317,12 @@ trip19_o_mpo <-
   rename(trip_o_in_mpo = OBJECTID) %>%
   mutate(
     trip_o_in_mpo = case_when(
-      trip_o_in_mpo == 1 ~ "Trip begins in Twin Cities region"
-      , .default = "Trip begins outside Twin Cities region"
+      trip_o_in_mpo == 1 ~ "Trip begins in Twin Cities region",
+      .default = "Trip begins outside Twin Cities region"
     )
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_o_mpo <-
   st_join(trip21_o_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
@@ -329,11 +330,12 @@ trip21_o_mpo <-
   rename(trip_o_in_mpo = OBJECTID) %>%
   mutate(
     trip_o_in_mpo = case_when(
-      trip_o_in_mpo == 1 ~ "Trip begins in Twin Cities region"
-      , .default = "Trip begins outside Twin Cities region"
+      trip_o_in_mpo == 1 ~ "Trip begins in Twin Cities region",
+      .default = "Trip begins outside Twin Cities region"
     )
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip19_d_mpo <-
   st_join(trip19_d_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
@@ -341,11 +343,12 @@ trip19_d_mpo <-
   rename(trip_d_in_mpo = OBJECTID) %>%
   mutate(
     trip_d_in_mpo = case_when(
-      trip_d_in_mpo == 1 ~ "Trip ends in Twin Cities region"
-      , .default = "Trip ends outside Twin Cities region"
+      trip_d_in_mpo == 1 ~ "Trip ends in Twin Cities region",
+      .default = "Trip ends outside Twin Cities region"
     )
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_d_mpo <-
   st_join(trip21_d_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
@@ -353,11 +356,12 @@ trip21_d_mpo <-
   rename(trip_d_in_mpo = OBJECTID) %>%
   mutate(
     trip_d_in_mpo = case_when(
-      trip_d_in_mpo == 1 ~ "Trip ends in Twin Cities region"
-      , .default = "Trip ends outside Twin Cities region"
+      trip_d_in_mpo == 1 ~ "Trip ends in Twin Cities region",
+      .default = "Trip ends outside Twin Cities region"
     )
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 ##### County: ----
 trip19_o_cty <-
@@ -367,7 +371,8 @@ trip19_o_cty <-
   mutate(trip_o_county = ifelse(
     trip_o_county %in% county_list, trip_o_county, "Outside study area"
   )) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip19_d_cty <-
   st_join(trip19_d_sf, cty_sf, join = st_within) %>%
@@ -376,7 +381,8 @@ trip19_d_cty <-
   mutate(trip_d_county = ifelse(
     trip_d_county %in% county_list, trip_d_county, "Outside study area"
   )) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_o_cty <-
   st_join(trip21_o_sf, cty_sf, join = st_within) %>%
@@ -385,7 +391,8 @@ trip21_o_cty <-
   mutate(trip_o_county = ifelse(
     trip_o_county %in% county_list, trip_o_county, "Outside study area"
   )) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_d_cty <-
   st_join(trip21_d_sf, cty_sf, join = st_within) %>%
@@ -394,7 +401,8 @@ trip21_d_cty <-
   mutate(trip_d_county = ifelse(
     trip_d_county %in% county_list, trip_d_county, "Outside study area"
   )) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 ##### City: ----
 trip19_o_ctu <-
@@ -402,28 +410,32 @@ trip19_o_ctu <-
   st_drop_geometry() %>%
   mutate(trip_o_city = ifelse(is.na(community_name), "Outside 7-county area", community_name)) %>%
   select(-community_name) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip19_d_ctu <-
   st_join(trip19_d_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   mutate(trip_d_city = ifelse(is.na(community_name), "Outside 7-county area", community_name)) %>%
   select(-community_name) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_o_ctu <-
   st_join(trip21_o_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   mutate(trip_o_city = ifelse(is.na(community_name), "Outside 7-county area", community_name)) %>%
   select(-community_name) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_d_ctu <-
   st_join(trip21_d_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   mutate(trip_d_city = ifelse(is.na(community_name), "Outside 7-county area", community_name)) %>%
   select(-community_name) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 ##### Thrive: -----
 trip19_o_thrive <-
@@ -434,7 +446,8 @@ trip19_o_thrive <-
     trip_o_thrive_category_broad = thrive_category_broad,
     trip_o_urban_rural_suburban = urban_rural_suburban
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip19_d_thrive <-
   st_join(trip19_d_sf, thrive_sf, join = st_within) %>%
@@ -444,7 +457,8 @@ trip19_d_thrive <-
     trip_d_thrive_category_broad = thrive_category_broad,
     trip_d_urban_rural_suburban = urban_rural_suburban
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_o_thrive <-
   st_join(trip21_o_sf, thrive_sf, join = st_within) %>%
@@ -454,7 +468,8 @@ trip21_o_thrive <-
     trip_o_thrive_category_broad = thrive_category_broad,
     trip_o_urban_rural_suburban = urban_rural_suburban
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_d_thrive <-
   st_join(trip21_d_sf, thrive_sf, join = st_within) %>%
@@ -464,7 +479,8 @@ trip21_d_thrive <-
     trip_d_thrive_category_broad = thrive_category_broad,
     trip_d_urban_rural_suburban = urban_rural_suburban
   ) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 
 ##### Block Group: -----
@@ -472,25 +488,29 @@ trip19_o_cbg <-
   st_join(trip19_o_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(trip_o_cbg = cbg) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip19_d_cbg <-
   st_join(trip19_d_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(trip_d_cbg = cbg) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_o_cbg <-
   st_join(trip21_o_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(trip_o_cbg = cbg) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 trip21_d_cbg <-
   st_join(trip21_d_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(trip_d_cbg = cbg) %>%
-  as.data.table() %>% .[, first(.SD), trip_id]
+  as.data.table() %>%
+  .[, first(.SD), trip_id]
 
 ##### Compile: -----
 trip19 <- trip19 %>%
@@ -792,4 +812,3 @@ rm(
   "work21_sf",
   "work21_thrive"
 )
-

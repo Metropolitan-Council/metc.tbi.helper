@@ -8,7 +8,7 @@ trip19[, linked_trip_id := paste0(person_id, "_", linked_trip_num)]
 linked_trips <-
   trip19[
     , .(
-        # First origin
+      # First origin
       o_purpose_category_imputed = first(o_purpose_category_imputed),
       o_purpose_imputed = first(o_purpose_imputed),
 
@@ -24,8 +24,8 @@ linked_trips <-
       # distance (total):
       distance = sum(distance),
       distance_adj = sum(distance_adj)
-    )
-    , keyby = .(linked_trip_id, person_id, hh_id)
+    ),
+    keyby = .(linked_trip_id, person_id, hh_id)
   ]
 
 # get rid of change mode trips (origin)
@@ -50,38 +50,39 @@ homebasedtrips <-
   linked_trips[
     trip_type == "Home-based"
   ][
-  ,  `:=`(
-    purpose_category = case_when(
-      # when coming FROM home, the purpose is the destination
-      o_purpose_category_imputed %in% homecats ~ d_purpose_category_imputed,
-      # when going TO home, the purpose is the origin:
-      d_purpose_category_imputed %in% homecats ~ o_purpose_category_imputed
+    , `:=`(
+      purpose_category = case_when(
+        # when coming FROM home, the purpose is the destination
+        o_purpose_category_imputed %in% homecats ~ d_purpose_category_imputed,
+        # when going TO home, the purpose is the origin:
+        d_purpose_category_imputed %in% homecats ~ o_purpose_category_imputed
+      ),
+      purpose = case_when(
+        # when coming FROM home, the purpose is the destination
+        o_purpose_category_imputed %in% homecats ~ d_purpose_imputed,
+        # when going TO home, the purpose is the origin:
+        d_purpose_category_imputed %in% homecats ~ o_purpose_imputed
+      )
     )
-    , purpose = case_when(
-      # when coming FROM home, the purpose is the destination
-      o_purpose_category_imputed %in% homecats ~ d_purpose_imputed,
-      # when going TO home, the purpose is the origin:
-      d_purpose_category_imputed %in% homecats ~ o_purpose_imputed
-    )
-  )
-][
-  , c('o_purpose_category_imputed',
-      'o_purpose_imputed',
-      'd_purpose_category_imputed',
-      'd_purpose_imputed',
-      'd_purpose_category',
-      'd_purpose'
-      ) := NULL
-]
+  ][
+    , c(
+      "o_purpose_category_imputed",
+      "o_purpose_imputed",
+      "d_purpose_category_imputed",
+      "d_purpose_imputed",
+      "d_purpose_category",
+      "d_purpose"
+    ) := NULL
+  ]
 
 ### Trip Weight Adjustment: 50% for each half of the trip ----------------
 nonhomebasedtrips_1 <-
   linked_trips[
-    trip_type == "Non-home-based"
-    , melt(
-      .SD
-      , measure.vars = c('o_purpose_category_imputed', 'd_purpose_category_imputed')
-      , value.name = 'purpose_category'
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose_category_imputed", "d_purpose_category_imputed"),
+      value.name = "purpose_category"
     )
   ][
     , .(purpose_category)
@@ -89,11 +90,11 @@ nonhomebasedtrips_1 <-
 
 nonhomebasedtrips_2 <-
   linked_trips[
-    trip_type == "Non-home-based"
-    , melt(
-      .SD
-      , measure.vars = c("o_purpose_imputed", "d_purpose_imputed")
-      , value.name = 'purpose'
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose_imputed", "d_purpose_imputed"),
+      value.name = "purpose"
     )
   ][
     , `:=`(
@@ -102,9 +103,11 @@ nonhomebasedtrips_2 <-
       distance_adj = 0.5 * distance_adj
     )
   ][
-    , .(linked_trip_id, person_id, hh_id,
-        trip_type, trip_purpose_weight, purpose,
-        distance, distance_adj)
+    , .(
+      linked_trip_id, person_id, hh_id,
+      trip_type, trip_purpose_weight, purpose,
+      distance, distance_adj
+    )
   ]
 
 nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)
@@ -113,8 +116,8 @@ nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)
 #### Merge home-based and non-homebased trips ------------
 trip_purpose19 <-
   rbind(
-    homebasedtrips
-    , nonhomebasedtrips
+    homebasedtrips,
+    nonhomebasedtrips
   )
 
 rm(
@@ -144,8 +147,8 @@ linked_trips <-
       # distance (total):
       distance = sum(distance),
       distance_adj = sum(distance_adj)
-    )
-    , keyby = .(linked_trip_id, person_id, hh_id)
+    ),
+    keyby = .(linked_trip_id, person_id, hh_id)
   ]
 
 # get rid of these
@@ -160,10 +163,10 @@ homecats <- c("Overnight", "Home")
 
 linked_trips <-
   linked_trips[
-    ,trip_type := case_when(
+    , trip_type := case_when(
       o_purpose_category %in% homecats |
         d_purpose_category %in% homecats ~ "Home-based",
-      .default = 'Non-home-based'
+      .default = "Non-home-based"
     )
   ]
 
@@ -188,10 +191,10 @@ homebasedtrips <-
     )
   ][
     , c(
-      'o_purpose_category',
-      'o_purpose',
-      'd_purpose_category',
-      'd_purpose'
+      "o_purpose_category",
+      "o_purpose",
+      "d_purpose_category",
+      "d_purpose"
     ) := NULL
   ]
 
@@ -199,11 +202,11 @@ homebasedtrips <-
 ### Trip Weight Adjustment: 50% for each half of the trip ----------------
 nonhomebasedtrips_1 <-
   linked_trips[
-    trip_type == "Non-home-based"
-    , melt(
-      .SD
-      , measure.vars = c('o_purpose_category', 'd_purpose_category')
-      , value.name = 'purpose_category'
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose_category", "d_purpose_category"),
+      value.name = "purpose_category"
     )
   ][
     , .(purpose_category)
@@ -211,11 +214,11 @@ nonhomebasedtrips_1 <-
 
 nonhomebasedtrips_2 <-
   linked_trips[
-    trip_type == "Non-home-based"
-    , melt(
-      .SD
-      , measure.vars = c("o_purpose", "d_purpose")
-      , value.name = 'purpose'
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose", "d_purpose"),
+      value.name = "purpose"
     )
   ][
     , `:=`(
@@ -224,9 +227,11 @@ nonhomebasedtrips_2 <-
       distance_adj = 0.5 * distance_adj
     )
   ][
-    , .(linked_trip_id, trip_type, person_id,
-        hh_id, trip_purpose_weight, purpose,
-        distance, distance_adj)
+    , .(
+      linked_trip_id, trip_type, person_id,
+      hh_id, trip_purpose_weight, purpose,
+      distance, distance_adj
+    )
   ]
 
 nonhomebasedtrips <- cbind(nonhomebasedtrips_2, nonhomebasedtrips_1)

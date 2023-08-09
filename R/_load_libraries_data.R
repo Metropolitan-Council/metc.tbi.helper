@@ -49,5 +49,3 @@ mpo_sf <- councilR::import_from_gis("MetropolitanPlanningOrganizationArea") %>%
 
 # load CTUs
 db <- db_connect_gis()
-
-

@@ -11,5 +11,3 @@ keyring::key_set("mts_planning_database_string")
 keyring::key_set("councilR.uid") # your MetC user
 keyring::key_set("councilR.pwd") # your MetC password
 keyring::key_set("desktop") # path you your desktop
-
-

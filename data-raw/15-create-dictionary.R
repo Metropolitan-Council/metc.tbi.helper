@@ -4,11 +4,13 @@
 
 # 2019 ------------------------------
 missing_vars <-
-  lapply(tbi19[c("person", "trip", "household", "day", "vehicle", "trip_purpose")]
-         , \(x) setdiff(names(x), tbi19$dictionary$variable) %>%
-           as.data.table()) %>%
-  rbindlist(idcol = '.id') %>%
-  setnames(c('.id', '.'), c('which_table', 'variable')) %>%
+  lapply(
+    tbi19[c("person", "trip", "household", "day", "vehicle", "trip_purpose")],
+    \(x) setdiff(names(x), tbi19$dictionary$variable) %>%
+      as.data.table()
+  ) %>%
+  rbindlist(idcol = ".id") %>%
+  setnames(c(".id", "."), c("which_table", "variable")) %>%
   .[
     , wt_field := case_when(
       which_table == "person" ~ "person_weight",
@@ -49,11 +51,13 @@ tbi19$dictionary <- tbi19$dictionary %>%
 
 # 2021 ------------------------------
 missing_vars <-
-  lapply(tbi21[c("person", "trip", "household", "day", "vehicle", "trip_purpose")]
-         , \(x) setdiff(names(x), tbi21$dictionary$variable) %>%
-           as.data.table()) %>%
-  rbindlist(idcol = '.id') %>%
-  setnames(c('.id', '.'), c('which_table', 'variable')) %>%
+  lapply(
+    tbi21[c("person", "trip", "household", "day", "vehicle", "trip_purpose")],
+    \(x) setdiff(names(x), tbi21$dictionary$variable) %>%
+      as.data.table()
+  ) %>%
+  rbindlist(idcol = ".id") %>%
+  setnames(c(".id", "."), c("which_table", "variable")) %>%
   .[
     , wt_field := case_when(
       which_table == "person" ~ "person_weight",

@@ -13,13 +13,15 @@ Sys.setenv(ORA_SDTZ = "America/Chicago")
 tbidb <- db_connect()
 
 # 2019 tables -------------
-tables2019 <- c("TBI19_DAY_RAW"
-                , "TBI19_HOUSEHOLD_RAW"
-                , "TBI19_LOCATION_RAW"
-                , "TBI19_PERSON_RAW"
-                , "TBI19_TRIP_RAW"
-                , "TBI19_VEHICLE_RAW"
-                , "TBI19_DICTIONARY_RAW")
+tables2019 <- c(
+  "TBI19_DAY_RAW",
+  "TBI19_HOUSEHOLD_RAW",
+  "TBI19_LOCATION_RAW",
+  "TBI19_PERSON_RAW",
+  "TBI19_TRIP_RAW",
+  "TBI19_VEHICLE_RAW",
+  "TBI19_DICTIONARY_RAW"
+)
 
 lapply(tables2019, \(table_){
   message(table_)
@@ -27,11 +29,12 @@ lapply(tables2019, \(table_){
   assign(
     table_ %>%
       str_to_lower() %>%
-      str_replace ('tbi19_', '') %>%
-      str_replace('_raw', '') %>%
-      str_c('19')
-    , data_download
-    , envir = .GlobalEnv)
+      str_replace("tbi19_", "") %>%
+      str_replace("_raw", "") %>%
+      str_c("19"),
+    data_download,
+    envir = .GlobalEnv
+  )
 })
 
 tables2019 <- c("day19", "household19", "location19", "person19", "trip19", "vehicle19")
@@ -53,34 +56,36 @@ dictionary19[, unique(table)] %>%
 
         table_ %>%
           str_c(19) %>%
-          get %>%
-          .[tempLookup, on=var_, temp := value_label] %>%
+          get() %>%
+          .[tempLookup, on = var_, temp := value_label] %>%
           .[, (var_) := NULL] %>%
-          setnames('temp', var_)
+          setnames("temp", var_)
       })
   })
 
 # 2021 tables ------------------
-tables2021 <- c("TBI21_DAY_RAW"
-                , "TBI21_HOUSEHOLD_RAW"
-                , "TBI21_LOCATION_RAW"
-                , "TBI21_PERSON_RAW"
-                , "TBI21_TRIP_RAW"
-                , "TBI21_VEHICLE_RAW"
-                , "TBI21_DICTIONARY_RAW")
+tables2021 <- c(
+  "TBI21_DAY_RAW",
+  "TBI21_HOUSEHOLD_RAW",
+  "TBI21_LOCATION_RAW",
+  "TBI21_PERSON_RAW",
+  "TBI21_TRIP_RAW",
+  "TBI21_VEHICLE_RAW",
+  "TBI21_DICTIONARY_RAW"
+)
 
 lapply(tables2021, \(table_){
-
   message(table_)
   data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
   assign(
     table_ %>%
       str_to_lower() %>%
-      str_replace ('tbi21_', '') %>%
-      str_replace('_raw', '') %>%
-      str_c('21')
-    , data_download
-    , envir = .GlobalEnv)
+      str_replace("tbi21_", "") %>%
+      str_replace("_raw", "") %>%
+      str_c("21"),
+    data_download,
+    envir = .GlobalEnv
+  )
 })
 
 tables2021 <- c("day21", "household21", "location21", "person21", "trip21", "vehicle21")
@@ -100,10 +105,10 @@ dictionary21[, unique(table)] %>%
 
         table_ %>%
           str_c(21) %>%
-          get %>%
-          .[tempLookup, on=var_, temp := label] %>%
+          get() %>%
+          .[tempLookup, on = var_, temp := label] %>%
           .[, (var_) := NULL] %>%
-          setnames('temp', var_)
+          setnames("temp", var_)
       })
   })
 
