@@ -39,7 +39,7 @@ dictionary19[, table := table %>% str_to_lower()]
 dictionary19[, value := as.integer(value)]
 dictionary19[str_detect(value_label, "Missing"), value_label := NA]
 
-# these columns are not in the data in the DB. look into.
+# FIXME: these columns are not in the data in the DB. look into.
 dictionary19 <- dictionary19[!variable %in% c("home_park_pass_period", "provided_text_name", "study_design")]
 
 # for variables in the dictionary, replace the coded level with the

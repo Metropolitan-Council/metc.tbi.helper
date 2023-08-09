@@ -41,6 +41,8 @@ vignettes/*.pdf
 # Ignore CSV files in data folder if people output them
 data/*.csv
 
+*.zip
+
 *.xlsx
 
 *.html

@@ -7,11 +7,11 @@ tbi19 <- list(
   person = person19
   , day = day19
   , household = household19
-  , location = location19
-  , trip = trip19
-  , trip_purpose = trip_purpose19
   , vehicle = vehicle19
   , dictionary = dictionary19
+  , trip_purpose = trip_purpose19
+  , trip = trip19
+  , location = location19
 )
 rm(person19, household19, location19, trip19, vehicle19)
 
