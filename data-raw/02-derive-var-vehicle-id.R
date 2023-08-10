@@ -1,4 +1,3 @@
-message("02-derive-var-vehicle-id.R")
 # This script is writen to run after
 # 01-get-survey-data.R
 

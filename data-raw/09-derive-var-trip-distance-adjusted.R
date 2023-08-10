@@ -1,7 +1,5 @@
 # This script is writen to run after
 # 08-derive-var-trip-mode-group.R
-
-
 trip19[
   , distance_adj :=
     fifelse(
@@ -10,8 +8,6 @@ trip19[
       distance
     )
 ]
-
-
 
 trip21[household21, on = .(hh_id), participation_group := i.participation_group]
 trip21[, survey_group := word(participation_group, -1)]

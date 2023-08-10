@@ -1,4 +1,3 @@
-message("03-get-geographic-boundaries.R")
 # This script is writen to run after
 # 02-derive-var-vehicle-id.R
 

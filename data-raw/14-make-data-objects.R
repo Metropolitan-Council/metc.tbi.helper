@@ -11,7 +11,8 @@ tbi19 <- list(
   dictionary = dictionary19,
   trip_purpose = trip_purpose19,
   trip = trip19,
-  location = location19
+  location = location19,
+  mode_conflation = tbi_mode_conflation19
 )
 rm(person19, household19, location19, trip19, vehicle19)
 
@@ -22,9 +23,13 @@ tbi19_rmPII <- list(
   trip = trip19_rmPII,
   trip_purpose = trip_purpose19,
   vehicle = vehicle19_rmPII,
-  dictionary = dictionary19
+  dictionary = dictionary19,
+  mode_conflation = tbi_mode_conflation19
 )
-rm(person19_rmPII, day19, household19_rmPII, trip19_rmPII, trip_purpose19, vehicle19_rmPII, dictionary19)
+rm(
+  person19_rmPII, day19, household19_rmPII, trip19_rmPII,
+  trip_purpose19, vehicle19_rmPII, dictionary19, tbi_mode_conflation19
+)
 
 # 2021 -----------------------------
 tbi21 <- list(
@@ -35,7 +40,8 @@ tbi21 <- list(
   trip = trip21,
   trip_purpose = trip_purpose21,
   vehicle = vehicle21,
-  dictionary = dictionary21
+  dictionary = dictionary21,
+  mode_conflation = tbi_mode_conflation21
 )
 rm(person21, household21, location21, trip21, vehicle21)
 
@@ -46,6 +52,10 @@ tbi21_rmPII <- list(
   trip = trip21_rmPII,
   trip_purpose = trip_purpose21,
   vehicle = vehicle21_rmPII,
-  dictionary = dictionary21
+  dictionary = dictionary21,
+  mode_conflation = tbi_mode_conflation21
 )
-rm(person21_rmPII, day21, household21_rmPII, trip21_rmPII, trip_purpose21, vehicle21_rmPII, dictionary21)
+rm(
+  person21_rmPII, day21, household21_rmPII, trip21_rmPII,
+  trip_purpose21, vehicle21_rmPII, dictionary21, tbi_mode_conflation21
+)

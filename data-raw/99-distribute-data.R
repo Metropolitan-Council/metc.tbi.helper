@@ -5,7 +5,6 @@
 save(tbi19_rmPII, file = "data/tbi19.rda")
 save(tbi21_rmPII, file = "data/tbi21.rda")
 
-
 # Geo-spatial commons --------------------------------------
 # Contact GIS
 tbi_desktop_path <- file.path(key_get("desktop"), "TBI_data")
@@ -39,7 +38,6 @@ tbi21_rmPII %>%
   })
 
 
-
 # MTS_Planning DB --------------------------------------
 
 db_con <- db_connect()
@@ -47,67 +45,62 @@ tbi19 %>%
   names() %>%
   setdiff("location") %>%
   lapply(\(table_){
-    message(table_)
-    tictoc::tic()
-    dbWriteTable(
-      db_con,
-      name = paste0("TBI19_", str_to_upper(table_)),
-      value = tbi19[[table_]]
-    )
-    tictoc::toc()
+    table_name <- paste0("TBI19_", str_to_upper(table_))
+    if (!dbExistsTable(db_con, table_name)) {
+      message(table_)
+      dbWriteTable(db_con, name = table_name, value = tbi19[[table_]])
+    }
   })
 
+# since the location table is so big, it works better
+# to up load it in chuncks.
 hh_i <- 1
-tictoc::tic()
 tbi19$location[, unique(hh_id)] %>%
   lapply(\(hh_){
-    cat("\014")
-    message(hh_i, " of ", tbi19$location[, uniqueN(hh_id)])
-    dbWriteTable(
-      db_con,
-      name = "TBI19_LOCATION",
-      value = tbi19$location[hh_id == hh_],
-      append = T
-    )
+    if (!dbExistsTable(db_con, "TBI19_LOCATION")) {
+      cat("\014")
+      message(hh_i, " of ", tbi19$location[, uniqueN(hh_id)])
+      dbWriteTable(
+        db_con,
+        name = "TBI19_LOCATION",
+        value = tbi19$location[hh_id == hh_],
+        append = T
+      )
+    }
     hh_i <<- hh_i + 1
   })
-tictoc::toc()
+
 
 # 2021
 tbi21 %>%
   names() %>%
   setdiff("location") %>%
   lapply(\(table_){
-    message(table_)
-    tictoc::tic()
-    dbWriteTable(
-      db_con,
-      name = paste0("TBI21_", str_to_upper(table_)),
-      value = tbi21[[table_]]
-    )
-    tictoc::toc()
+    table_name <- paste0("TBI21_", str_to_upper(table_))
+    if (!dbExistsTable(db_con, table_name)) {
+      message(table_)
+      dbWriteTable(db_con, name = table_name, value = tbi21[[table_]])
+    }
   })
 
-
-dbDisconnect(db_con)
-tictoc::tic()
-db_con <- db_connect()
+# since the location table is so big, it works better
+# to up load it in chuncks.
 hh_i <- 1
 tbi21$location[, ind := rep(1:4426, each = 760)]
 tbi21$location[, unique(ind)] %>%
   lapply(\(i){
-    message(hh_i, " of ", tbi21$location[, uniqueN(ind)])
-    dbWriteTable(
-      db_con,
-      name = "TBI21_LOCATION",
-      value = tbi21$location[ind == i, -c("ind")],
-      append = T
-    )
+    if (!dbExistsTable(db_con, "TBI21_LOCATION")) {
+      message(hh_i, " of ", tbi21$location[, uniqueN(ind)])
+      dbWriteTable(
+        db_con,
+        name = "TBI21_LOCATION",
+        value = tbi21$location[ind == i, -c("ind")],
+        append = T
+      )
+    }
     hh_i <<- hh_i + 1
   })
-tictoc::toc()
 
-tbi21$location[, .N] %>% prettyNum(",")
 
 
 # National Renewable Energy Laboratory -----

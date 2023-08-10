@@ -1,4 +1,3 @@
-message("01-get-survey_data.R")
 # This script is writen to run after
 # 00-load-pkgs.R
 
@@ -20,7 +19,8 @@ tables2019 <- c(
   "TBI19_PERSON_RAW",
   "TBI19_TRIP_RAW",
   "TBI19_VEHICLE_RAW",
-  "TBI19_DICTIONARY_RAW"
+  "TBI19_DICTIONARY_RAW",
+  "TBI_MODE_CONFLATION"
 )
 
 lapply(tables2019, \(table_){
@@ -71,7 +71,8 @@ tables2021 <- c(
   "TBI21_PERSON_RAW",
   "TBI21_TRIP_RAW",
   "TBI21_VEHICLE_RAW",
-  "TBI21_DICTIONARY_RAW"
+  "TBI21_DICTIONARY_RAW",
+  "TBI_MODE_CONFLATION"
 )
 
 lapply(tables2021, \(table_){
