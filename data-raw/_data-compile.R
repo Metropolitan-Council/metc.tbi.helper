@@ -12,10 +12,12 @@ source("data-raw/02-derive-var-vehicle-id.R")
 source("data-raw/03-get-geographic-boundaries.R")
 
 # Get EPA Efficiency Data -----------
-source("data-raw/04-get-epa-vehicle-efficiency-data.R")
+# script under construction
+# source("data-raw/04-get-epa-vehicle-efficiency-data.R")
 
 # Get DPS Vehicle Weight Data -----------
-source("data-raw/05-get-dps-vehicle-weight-data.R")
+# script under construction
+# source("data-raw/05-get-dps-vehicle-weight-data.R")
 
 # Extra variables ------
 source("data-raw/06-derive-var-person-race.R")
