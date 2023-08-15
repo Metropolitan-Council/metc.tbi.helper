@@ -18,7 +18,7 @@ This repository is in active development, and anyone can contribute 🤝. See th
 ## Organization: what's here
 
 * `metadata`: Read the documentation 💘 
-* `data`: compiled datasets generated from raw TBI data, that live in the Council's Oracle database.
+* `data`: compiled datasets generated from raw TBI data, that live in the Council's database.
   * `tbi19.rda` and `tbi21.rda` are compressed `list` objects for each survey containing:
       * `dictionary` of variable names, values, survey questions, and logic;
       * person-level records (`per`);
@@ -28,12 +28,12 @@ This repository is in active development, and anyone can contribute 🤝. See th
       * vehicle (`veh`) records, including fuel efficiency data; and
       * `trip_purpose`, for working with trip purpose data. This table has been specially weighted to attribute weights to either end of non-home-based trips, and to the non-home based end of home-based trips.
 
-**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-survey-data-to-csv.R`, and add the .csv's to your `gitignore` file. If incorporating a new dataset, write it to the Oracle database first (see @ashleyasmus for write access).
+**This is the only data we store in this GitHub repository.**  Git (even [Git LFS](https://git-lfs.github.com/)) is not ideal for storing data. If you generate additional datasets in your work, please add them to the .gitignore file. If you need to work with .csv data, please see the script `data-raw/99-survey-data-to-csv.R`, and add the .csv's to your `gitignore` file. If incorporating a new dataset, write it to the database first (see @ashleyasmus for write access).
 
 * `data-raw`: scripts to generate datasets. Work here if you want to add a new variable to the dataset(s) or incorporate a new dataset to the database and/or .RData object. You may need access to internal databases for this work.
   * `data-raw/_data-compile.R` is the main script that sources all numbered .R scripts in this folder. 
   * `derive-var-[variable-name].R`: derive new variables from TBI datasets. 
-  * `get-[dataset-name].R`: incorporate auxillary datasets (e.g., fuel efficiency data). If external to the Council, they are added to the Oracle database. Wherever possible, spatial datasets are loaded from the Council's internal GISLibrary.
+  * `get-[dataset-name].R`: incorporate auxillary datasets (e.g., fuel efficiency data). If external to the Council, they are added to the database. Wherever possible, spatial datasets are loaded from the Council's internal GISLibrary.
 * `R`: collection R code. At the moment, this is mostly crosstabs.
   * `xtab-[unit of measurement]-[variable1]-by-[variable2].R`: custom crosstabs.
   * `fun-[does-this].R`: functions or processes.

@@ -129,6 +129,7 @@ trip21[, mode_group :=
     "Household vehicle 4" ~ "Vehicle",
     "Household vehicle 5" ~ "Vehicle",
     "Household vehicle 6" ~ "Vehicle",
+    "Household vehicle 7" ~ "Vehicle",
     "Household vehicle 8" ~ "Vehicle",
     "Other car" ~ "Vehicle",
     "Other hired car service (e.g., black car, limo)" ~ "Vehicle",
