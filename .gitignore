@@ -59,3 +59,4 @@ data-raw/_db_connect.R
 
 **/.DS_Store
 R/.DS_Store
+R/_db_connect.R
