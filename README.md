@@ -49,7 +49,7 @@ One day, this repository might be an R package. For now, you can source data, me
 source(
   paste0(
     "directory/where/your/repository/lives/",
-    "R/xtab-vehicle-stops.R"
+    "R/xtab-vehicle-stops.R" 
   )
 )
 ```
