@@ -1,5 +1,5 @@
 # Keyring Set up
-# If you need the keys to the database, get in touch with Ashley Asmus or Sean Molloy
+# If you need the keys to the database, get in touch with Liz Roten or Sean Molloy
 
 keyring::key_set("mts_planning_database_string")
 

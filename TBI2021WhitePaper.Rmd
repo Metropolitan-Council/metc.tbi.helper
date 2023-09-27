@@ -67,7 +67,7 @@ mode_21 <-
 
 # Sample segment (2021) -----
 mode_21 <- mode_21 %>%
-  left_join(tbi21$hh %>% select(hh_id, sample_segment))
+  left_join(tbi21$household %>% select(hh_id, sample_segment))
 
 
 mode_share <- mode_21 %>%
@@ -103,10 +103,10 @@ mode_share_commute <- mode_21 %>%
   filter(
     trip_o_in_mpo == "Trip begins in Twin Cities region" |
       trip_d_in_mpo == "Trip ends in Twin Cities region"
-  ) %>%
-  mutate(
-    commute = ifel
   )
+  # mutate(
+    # commute = ifel
+  # )
 # srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
 # group_by(mode_group_2) %>%
 # dplyr::summarize(
@@ -140,7 +140,7 @@ drive_modes <- c(
 workers21 <- tbi21$per %>%
   filter(employment_status %in% employed_categories) %>%
   # filter to those within the MPO boundary:
-  left_join(tbi21$hh %>% select(hh_id, hh_in_mpo), by = "hh_id") %>%
+  left_join(tbi21$household %>% select(hh_id, hh_in_mpo), by = "hh_id") %>%
   filter(hh_in_mpo == "Household in Twin Cities region") %>%
   purrr::pluck("person_id")
 
@@ -218,7 +218,7 @@ trip_mode21 <-
     )
   ) %>%
   select(-mode_type_chr) %>%
-  left_join(tbi21$hh %>% select(hh_id, sample_segment) %>% unique()) %>%
+  left_join(tbi21$household %>% select(hh_id, sample_segment) %>% unique()) %>%
   left_join(tbi21$day %>% select(hh_id, person_id, day_id, day_weight) %>% unique())
 
 
