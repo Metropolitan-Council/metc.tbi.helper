@@ -104,9 +104,9 @@ mode_share_commute <- mode_21 %>%
     trip_o_in_mpo == "Trip begins in Twin Cities region" |
       trip_d_in_mpo == "Trip ends in Twin Cities region"
   )
-  # mutate(
-    # commute = ifel
-  # )
+# mutate(
+# commute = ifel
+# )
 # srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
 # group_by(mode_group_2) %>%
 # dplyr::summarize(
