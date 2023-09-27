@@ -433,7 +433,6 @@ vehicle19[
     mpg_city = round(mpg_city, 0),
     mpg_highway = round(mpg_highway, 0),
     weight_unladen = round(weight_unladen, -2)
-
   )
 ]
 

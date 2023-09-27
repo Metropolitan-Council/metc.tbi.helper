@@ -27,38 +27,42 @@ epa_raw[highwayA08 == 0, highwayA08 := NA]
 
 epa_sel <-
   epa_raw[
-    , lapply(.SD, \(x) x %>% mean(na.rm = T, trim = 0.05) %>% round(1))
-    , .SDcols = c("co2", "co2A", 'co2TailpipeAGpm', 'co2TailpipeGpm',
-                  'city08U', 'cityA08U', 'cityA08', 'highway08U',
-                  'highway08', 'highwayA08U', 'highwayA08')
-    , keyby = .(make, model, year, fuelType)
+    , lapply(.SD, \(x) x %>%
+      mean(na.rm = T, trim = 0.05) %>%
+      round(1)),
+    .SDcols = c(
+      "co2", "co2A", "co2TailpipeAGpm", "co2TailpipeGpm",
+      "city08U", "cityA08U", "cityA08", "highway08U",
+      "highway08", "highwayA08U", "highwayA08"
+    ),
+    keyby = .(make, model, year, fuelType)
   ]
 
 epa_sel <- epa_raw %>%
-select(
-  make,
-  model,
-  year,
-  fuelType,
-  # "Electricity" for electric cars
-  co2,
-  co2A,
-  co2TailpipeAGpm,
-  co2TailpipeGpm,
-  city08U,
-  # city MPG for fuelType1 (2), (11)
-  city08,
-  # unrounded city MPG for fuelType1 (2), (3)
-  cityA08U,
-  # city MPG for fuelType2 (2)
-  cityA08,
-  # unrounded city MPG for fuelType2 (2), (3)
-  # same for highways:
-  highway08U,
-  highway08,
-  highwayA08U,
-  highwayA08
-)
+  select(
+    make,
+    model,
+    year,
+    fuelType,
+    # "Electricity" for electric cars
+    co2,
+    co2A,
+    co2TailpipeAGpm,
+    co2TailpipeGpm,
+    city08U,
+    # city MPG for fuelType1 (2), (11)
+    city08,
+    # unrounded city MPG for fuelType1 (2), (3)
+    cityA08U,
+    # city MPG for fuelType2 (2)
+    cityA08,
+    # unrounded city MPG for fuelType2 (2), (3)
+    # same for highways:
+    highway08U,
+    highway08,
+    highwayA08U,
+    highwayA08
+  )
 
 # Fix up model/makes to ease matching to vehicle dataset ------------------
 epa_fix <- epa_sel %>%
