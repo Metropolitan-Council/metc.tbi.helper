@@ -76,7 +76,7 @@ library(dplyr)
 library(bit64) # for looking at big integers, like the person_ids
 
 tbi_tables$veh %>%
-  left_join(tbi_tables$hh) %>%
+  left_join(tbi_tables$household) %>%
   as_survey_design(weights = "hh_weight", strata = "sample_segment") %>%
   group_by(income_detailed) %>%
   summarize(veh_age_avg = survey_mean(veh_age, na.rm = T))
