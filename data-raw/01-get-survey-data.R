@@ -46,7 +46,6 @@ dictionary19[, unique(table)] %>%
   lapply(\(table_){
     dictionary19[table == table_, unique(variable)] %>%
       lapply(\(var_){
-        message(var_)
         tempLookup <- dictionary19[table == table_ & variable == var_]
         setnames(tempLookup, "value", var_)
 

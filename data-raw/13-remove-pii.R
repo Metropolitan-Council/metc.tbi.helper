@@ -9,9 +9,11 @@
 vehicle19_rmPII <- copy(vehicle19)
 vehicle19_rmPII[
   , c(
-    "make", "model", "vehicle_name",
-    "class_vehicle", "epa_tbi_veh_match_notes",
-    "dps_tbi_veh_match_notes"
+    "make", "model", "vehicle_name"
+    # FIXME: add these back in when scripts 4 and 5 are back up and runnign
+    # , "class_vehicle"
+    # , "epa_tbi_veh_match_notes"
+    # , "dps_tbi_veh_match_notes"
   ) := NULL
 ]
 
@@ -37,8 +39,11 @@ person19_rmPII[
 vehicle21_rmPII <- copy(vehicle21)
 vehicle21_rmPII[
   , c(
-    "make", "model", "class_vehicle", "epa_tbi_veh_match_notes",
-    "dps_tbi_veh_match_notes"
+    "make"
+    , "model"
+    # , "class_vehicle"
+    # , "epa_tbi_veh_match_notes"
+    # , "dps_tbi_veh_match_notes"
   ) := NULL
 ]
 

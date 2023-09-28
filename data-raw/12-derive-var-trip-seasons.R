@@ -1,6 +1,5 @@
 # This script is writen to run after
 # 11-derive-var-trip-purpose-broad.R
-library(lubridate)
 
 # Seasons -------------
 getSeason <- function(input.date) {
