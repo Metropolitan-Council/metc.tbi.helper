@@ -2,8 +2,8 @@
 # 15-create-dictionary.R
 
 # Git Hub --------------------------------------
-save(tbi19_rmPII, file = "data/tbi19.rda")
-save(tbi21_rmPII, file = "data/tbi21.rda")
+save(tbi19, file = "data/tbi19.rda")
+save(tbi21, file = "data/tbi21.rda")
 
 # Geospatial commons --------------------------------------
 # Contact GIS
@@ -17,10 +17,10 @@ dir.create(tbi_geospatialCommons_path)
 tbi19_path <- file.path(tbi_geospatialCommons_path, "tbi19")
 dir.create(tbi19_path)
 
-tbi19_rmPII %>%
+tbi19 %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi19_rmPII[[table_]],
+    fwrite(tbi19[[table_]],
       file = file.path(tbi19_path, table_) %>% str_c(".csv")
     )
   })
@@ -29,47 +29,53 @@ tbi19_rmPII %>%
 tbi21_path <- file.path(tbi_geospatialCommons_path, "tbi21")
 dir.create(tbi21_path)
 
-tbi21_rmPII %>%
+tbi21 %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi21_rmPII[[table_]],
+    fwrite(tbi21[[table_]],
       file = file.path(tbi21_path, table_) %>% str_c(".csv")
     )
   })
 
 # Geospatial metadata ----------
-dictionary19[!is.na(survey_question), survey_question %>%
-               paste0(' (', variable_label, ')') %>%
-               unique() %>%
-               paste(collapse = '\n') %>%
-               cat]
+# this'll just give a nice list of field to be copy and pasted in to the metadata tool.
+tbi19$dictionary[
+  variable_label %>%
+    unique() %>%
+    paste(collapse = '\n') %>%
+    cat]
+tbi21$dictionary[
+  description %>%
+    unique() %>%
+    paste(collapse = '\n') %>%
+    cat]
 
 # MTS_Planning DB --------------------------------------
 
 db_con <- db_connect()
-tbi19 %>%
+tbi19_PII %>%
   names() %>%
   setdiff("location") %>%
   lapply(\(table_){
     table_name <- paste0("TBI19_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
       message(table_)
-      dbWriteTable(db_con, name = table_name, value = tbi19[[table_]])
+      dbWriteTable(db_con, name = table_name, value = tbi19_PII[[table_]])
     }
   })
 
 # since the location table is so big, it works better
 # to up load it in chunks.
 hh_i <- 1
-tbi19$location[, unique(hh_id)] %>%
+tbi19_PII$location[, unique(hh_id)] %>%
   lapply(\(hh_){
     if (!dbExistsTable(db_con, "TBI19_LOCATION")) {
       cat("\014")
-      message(hh_i, " of ", tbi19$location[, uniqueN(hh_id)])
+      message(hh_i, " of ", tbi19_PII$location[, uniqueN(hh_id)])
       dbWriteTable(
         db_con,
         name = "TBI19_LOCATION",
-        value = tbi19$location[hh_id == hh_],
+        value = tbi19_PII$location[hh_id == hh_],
         append = T
       )
     }
@@ -78,28 +84,28 @@ tbi19$location[, unique(hh_id)] %>%
 
 
 # 2021
-tbi21 %>%
+tbi21_PII %>%
   names() %>%
   setdiff("location") %>%
   lapply(\(table_){
     table_name <- paste0("TBI21_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
       message(table_)
-      dbWriteTable(db_con, name = table_name, value = tbi21[[table_]])
+      dbWriteTable(db_con, name = table_name, value = tbi21_PII[[table_]])
     }
   })
 
 # since the location table is so big, it works better
 # to up load it in chunks.
 hh_i <- 1
-tbi21$location[, unique(ind)] %>%
+tbi21_PII$location[, unique(ind)] %>%
   lapply(\(i){
     if (!dbExistsTable(db_con, "TBI21_LOCATION")) {
-      message(hh_i, " of ", tbi21$location[, uniqueN(ind)])
+      message(hh_i, " of ", tbi21_PII$location[, uniqueN(ind)])
       dbWriteTable(
         db_con,
         name = "TBI21_LOCATION",
-        value = tbi21$location[ind == i, -c("ind")],
+        value = tbi21_PII$location[ind == i, -c("ind")],
         append = T
       )
     }
@@ -114,25 +120,25 @@ tbi_database_NREL <- file.path(tbi_desktop_path, "database_NREL")
 dir.create(tbi_database_NREL)
 
 # 2019
-tbi19_path <- file.path(tbi_database_NREL, "tbi19")
+tbi19_path <- file.path(tbi_database_NREL, "tbi19_PII")
 dir.create(tbi19_path)
 
-tbi19 %>%
+tbi19_PII %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi19[[table_]],
+    fwrite(tbi19_PII[[table_]],
       file = file.path(tbi19_path, table_) %>% str_c(".csv")
     )
   })
 
 # 2021
-tbi21_path <- file.path(tbi_database_NREL, "tbi21")
+tbi21_path <- file.path(tbi_database_NREL, "tbi21_PII")
 dir.create(tbi21_path)
 
-tbi21 %>%
+tbi21_PII %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi21[[table_]],
+    fwrite(tbi21_PII[[table_]],
       file = file.path(tbi21_path, table_) %>% str_c(".csv")
     )
   })
