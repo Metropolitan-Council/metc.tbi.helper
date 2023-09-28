@@ -12,7 +12,7 @@ Sys.setenv(ORA_SDTZ = "America/Chicago")
 tbidb <- db_connect()
 
 # 2019 tables -------------
-tables2019 <- c(
+c(
   "TBI19_DAY_RAW",
   "TBI19_HOUSEHOLD_RAW",
   "TBI19_LOCATION_RAW",
@@ -21,9 +21,7 @@ tables2019 <- c(
   "TBI19_VEHICLE_RAW",
   "TBI19_DICTIONARY_RAW",
   "TBI_MODE_CONFLATION"
-)
-
-lapply(tables2019, \(table_){
+) %>% lapply(\(table_){
   message(table_)
   data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
   assign(
@@ -42,17 +40,13 @@ dictionary19[, table := table %>% str_to_lower()]
 dictionary19[, value := as.integer(value)]
 dictionary19[str_detect(value_label, "Missing"), value_label := NA]
 
-dictionary19[, survey_question := survey_question %>% str_replace_all("â€™", "'")]
-
-# FIXME: These columns are missing. Emailed RSG to get a copy of them.
-dictionary19 <- dictionary19[!variable %in% c("home_park_pass_period", "provided_text_name")]
-
 # for variables in the dictionary, replace the coded level with the
 # human readable level.
 dictionary19[, unique(table)] %>%
   lapply(\(table_){
     dictionary19[table == table_, unique(variable)] %>%
       lapply(\(var_){
+        message(var_)
         tempLookup <- dictionary19[table == table_ & variable == var_]
         setnames(tempLookup, "value", var_)
 
