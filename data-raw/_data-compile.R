@@ -3,7 +3,7 @@
 # RSG's data. Where/why does this happen?
 
 source("data-raw/00-load-pkgs.R")
-source("R/_db_connect.R")
+source("data-raw/_db_connect.R")
 
 # Get TBI survey data from database ---------
 source("data-raw/01-get-survey-data.R")
