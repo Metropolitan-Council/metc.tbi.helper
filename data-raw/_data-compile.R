@@ -1,4 +1,7 @@
 # Load necessary packages ------
+# FIXME: Through this process we lose 4 trips from the trips table verified by
+# RSG's data. Where/why does this happen?
+
 source("data-raw/00-load-pkgs.R")
 source("R/_db_connect.R")
 
