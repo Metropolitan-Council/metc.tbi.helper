@@ -22,7 +22,7 @@ c(
   "TBI19_DICTIONARY_RAW",
   "TBI_MODE_CONFLATION"
 ) %>% lapply(\(table_){
-  message(table_)
+  cli::cli_progress_message(table_)
   data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
   assign(
     table_ %>%
@@ -71,7 +71,7 @@ tables2021 <- c(
 )
 
 lapply(tables2021, \(table_){
-  message(table_)
+  cli::cli_progress_message(table_)
   data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
   assign(
     table_ %>%
