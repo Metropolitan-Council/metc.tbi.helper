@@ -4,7 +4,7 @@
 # 03-get-geographic-boundaries.R
 
 # Read from online -----------
-message("Downloading fuel economy data from EPA website")
+cli::progress_message("Downloading fuel economy data from EPA website")
 # https://www.fueleconomy.gov/feg/download.shtml
 epa_raw <-
   read.csv("https://www.fueleconomy.gov/feg/epadata/vehicles.csv") %>%
@@ -12,7 +12,7 @@ epa_raw <-
 # see README for documentation/metadata
 
 # Trim Columns ----------------
-message("Rearranging EPA data")
+cli::progress_message("Rearranging EPA data")
 
 epa_raw[co2 == -1, co2 := NA]
 epa_raw[co2A == -1, co2A := NA]
@@ -230,7 +230,7 @@ epa <- epa_coalesce %>%
   rename(epa_fuel_type = fuel_type)
 
 # Matching to Vehicle table ------------
-message("Matching EPA data to TBI vehicle table")
+cli::progress_message("Matching EPA data to TBI vehicle table")
 
 get_veh_epa <- function(veh) {
   veh_epa <-
@@ -325,7 +325,7 @@ get_veh_epa <- function(veh) {
       epa_fuel_type
     )
 
-  message("Matching EPA data to TBI vehicle table")
+  cli::progress_message("Matching EPA data to TBI vehicle table")
   final_dat <-
     veh %>%
     mutate(

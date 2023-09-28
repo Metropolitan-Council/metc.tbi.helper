@@ -1,7 +1,7 @@
 # This script is writen to run after
 # 15-create-dictionary.R
 
-# Git Hub --------------------------------------
+# GitHub --------------------------------------
 save(tbi19, file = "data/tbi19.rda")
 save(tbi21, file = "data/tbi21.rda")
 
@@ -59,7 +59,7 @@ tbi19_PII %>%
   lapply(\(table_){
     table_name <- paste0("TBI19_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
-      message(table_)
+      cli::progress_message(table_)
       dbWriteTable(db_con, name = table_name, value = tbi19_PII[[table_]])
     }
   })
@@ -71,7 +71,7 @@ tbi19_PII$location[, unique(hh_id)] %>%
   lapply(\(hh_){
     if (!dbExistsTable(db_con, "TBI19_LOCATION")) {
       cat("\014")
-      message(hh_i, " of ", tbi19_PII$location[, uniqueN(hh_id)])
+      cli::progress_message(hh_i, " of ", tbi19_PII$location[, uniqueN(hh_id)])
       dbWriteTable(
         db_con,
         name = "TBI19_LOCATION",
@@ -90,7 +90,7 @@ tbi21_PII %>%
   lapply(\(table_){
     table_name <- paste0("TBI21_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
-      message(table_)
+      cli::progress_message(table_)
       dbWriteTable(db_con, name = table_name, value = tbi21_PII[[table_]])
     }
   })
@@ -101,7 +101,7 @@ hh_i <- 1
 tbi21_PII$location[, unique(ind)] %>%
   lapply(\(i){
     if (!dbExistsTable(db_con, "TBI21_LOCATION")) {
-      message(hh_i, " of ", tbi21_PII$location[, uniqueN(ind)])
+      cli::progress_message(hh_i, " of ", tbi21_PII$location[, uniqueN(ind)])
       dbWriteTable(
         db_con,
         name = "TBI21_LOCATION",
