@@ -5,7 +5,7 @@
 save(tbi19_rmPII, file = "data/tbi19.rda")
 save(tbi21_rmPII, file = "data/tbi21.rda")
 
-# Geo-spatial commons --------------------------------------
+# Geospatial commons --------------------------------------
 # Contact GIS
 tbi_desktop_path <- file.path(key_get("desktop"), "TBI_data")
 dir.create(tbi_desktop_path)
@@ -37,6 +37,12 @@ tbi21_rmPII %>%
     )
   })
 
+# Geospatial metadata ----------
+dictionary19[!is.na(survey_question), survey_question %>%
+               paste0(' (', variable_label, ')') %>%
+               unique() %>%
+               paste(collapse = '\n') %>%
+               cat]
 
 # MTS_Planning DB --------------------------------------
 
@@ -53,7 +59,7 @@ tbi19 %>%
   })
 
 # since the location table is so big, it works better
-# to up load it in chuncks.
+# to up load it in chunks.
 hh_i <- 1
 tbi19$location[, unique(hh_id)] %>%
   lapply(\(hh_){
@@ -84,9 +90,8 @@ tbi21 %>%
   })
 
 # since the location table is so big, it works better
-# to up load it in chuncks.
+# to up load it in chunks.
 hh_i <- 1
-tbi21$location[, ind := rep(1:4426, each = 760)]
 tbi21$location[, unique(ind)] %>%
   lapply(\(i){
     if (!dbExistsTable(db_con, "TBI21_LOCATION")) {

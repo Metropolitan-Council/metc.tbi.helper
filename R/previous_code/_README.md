@@ -15,7 +15,7 @@ conversion and prior to updates made to the data itself.
 
 3.  Add created graphic, table, or statistic to TBI2021WhitePaper.Rmd
 
-4.  Migrate updated/verified script out of the prevous_code folder into
+4.  Migrate updated/verified script out of the previous_code folder into
     the R folder
 
 5.  Remove scripts with no clear use case
