@@ -21,8 +21,10 @@ tbi19 %>%
   names() %>%
   lapply(\(table_){
     fwrite(tbi19[[table_]],
-      file = file.path(tbi19_path, table_) %>% str_c(".csv")
-    )
+      file = file.path(tbi19_path
+                       , paste0("TravelBehaviorInventory2019"
+                                , str_to_title(table_)
+                                , '.csv')))
   })
 
 # 2021
@@ -32,9 +34,11 @@ dir.create(tbi21_path)
 tbi21 %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi21[[table_]],
-      file = file.path(tbi21_path, table_) %>% str_c(".csv")
-    )
+    fwrite(tbi19[[table_]],
+      file = file.path(tbi19_path
+                       , paste0("TravelBehaviorInventory2019"
+                                , str_to_title(table_)
+                                , '.csv')))
   })
 
 # Geospatial metadata ----------
@@ -42,7 +46,9 @@ tbi21 %>%
 tbi19$dictionary[
   variable_label %>%
     unique() %>%
-    paste(collapse = '\n') %>%
+    paste(collapse = '
+
+          ') %>%
     cat]
 tbi21$dictionary[
   description %>%
@@ -127,8 +133,10 @@ tbi19_PII %>%
   names() %>%
   lapply(\(table_){
     fwrite(tbi19_PII[[table_]],
-      file = file.path(tbi19_path, table_) %>% str_c(".csv")
-    )
+           file = file.path(tbi19_path
+                            , paste0("TravelBehaviorInventory2019"
+                                     , str_to_title(table_)
+                                     , '.csv')))
   })
 
 # 2021
@@ -139,6 +147,9 @@ tbi21_PII %>%
   names() %>%
   lapply(\(table_){
     fwrite(tbi21_PII[[table_]],
-      file = file.path(tbi21_path, table_) %>% str_c(".csv")
-    )
+           file = file.path(tbi21_path
+                            , paste0("TravelBehaviorInventory2019"
+                                     , str_to_title(table_)
+                                     , '.csv')))
   })
+
