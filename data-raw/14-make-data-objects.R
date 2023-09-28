@@ -3,7 +3,7 @@
 
 
 # 2019 -----------------------------
-tbi19 <- list(
+tbi19_PII <- list(
   person = person19,
   day = day19,
   household = household19,
@@ -16,7 +16,7 @@ tbi19 <- list(
 )
 rm(person19, household19, location19, trip19, vehicle19)
 
-tbi19_rmPII <- list(
+tbi19 <- list(
   person = person19_rmPII,
   day = day19,
   household = household19_rmPII,
@@ -32,7 +32,7 @@ rm(
 )
 
 # 2021 -----------------------------
-tbi21 <- list(
+tbi21_PII <- list(
   person = person21,
   day = day21,
   household = household21,
@@ -45,7 +45,7 @@ tbi21 <- list(
 )
 rm(person21, household21, location21, trip21, vehicle21)
 
-tbi21_rmPII <- list(
+tbi21 <- list(
   person = person21_rmPII,
   day = day21,
   household = household21_rmPII,
@@ -55,6 +55,7 @@ tbi21_rmPII <- list(
   dictionary = dictionary21,
   mode_conflation = tbi_mode_conflation21
 )
+
 rm(
   person21_rmPII, day21, household21_rmPII, trip21_rmPII,
   trip_purpose21, vehicle21_rmPII, dictionary21, tbi_mode_conflation21
