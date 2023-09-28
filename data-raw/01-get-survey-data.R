@@ -42,8 +42,10 @@ dictionary19[, table := table %>% str_to_lower()]
 dictionary19[, value := as.integer(value)]
 dictionary19[str_detect(value_label, "Missing"), value_label := NA]
 
-# FIXME: these columns are not in the data in the DB. look into.
-dictionary19 <- dictionary19[!variable %in% c("home_park_pass_period", "provided_text_name", "study_design")]
+dictionary19[, survey_question := survey_question %>% str_replace_all("â€™", "'")]
+
+# FIXME: These columns are missing. Emailed RSG to get a copy of them.
+dictionary19 <- dictionary19[!variable %in% c("home_park_pass_period", "provided_text_name")]
 
 # for variables in the dictionary, replace the coded level with the
 # human readable level.
