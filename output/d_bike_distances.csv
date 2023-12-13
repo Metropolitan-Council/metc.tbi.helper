@@ -1,0 +1,7 @@
+mode_type_detailed,n_surveys,est_trips,dist_min,dist_5th_pct,dist_25th_pct,dist_median,avg_dist,dist_75th_pct,dist_95th_pct,dist_max
+Bike-share - electric bicycle,27,264,0.01,0.01,1.25,1.85,1.01,2.67,4.47,4.65
+Bike-share - standard bicycle,20,1903,0.46,0.58,0.75,1.15,3.89,1.77,18.49,18.49
+"Borrowed bicycle (e.g., a friend's)",12,7,0.07,0.07,1.43,2.99,3.1,6.26,13.57,14.88
+Electric bicycle (my household's),191,10343,0.08,0.26,0.8,2.63,1.86,4.27,12.34,29.18
+Other rented bicycle,4,208,3.07,3.99,7.67,17.1,6.73,26.53,30.24,31.16
+Standard bicycle (my household's),3045,115422,0.03,0.27,0.81,1.81,2.8,3.94,11.06,80.36

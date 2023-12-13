@@ -38,7 +38,7 @@ tbi21$trip[
   , keyby = mode_type_detailed
 ] %>%
   print() %>%
-  fwrite("output/d_bike_dist.csv")
+  fwrite("output/d_bike_distances.csv")
 
 
 plot_data <-
