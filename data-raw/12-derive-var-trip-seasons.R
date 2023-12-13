@@ -1,4 +1,6 @@
-library(lubridate)
+# This script is writen to run after
+# 11-derive-var-trip-purpose-broad.R
+
 # Seasons -------------
 getSeason <- function(input.date) {
   numeric.date <- 100 * month(input.date) + day(input.date)
@@ -10,12 +12,10 @@ getSeason <- function(input.date) {
   return(cuts)
 }
 
-day19 <- day19 %>% mutate(travel_date_season = getSeason(travel_date))
-day21 <- day21 %>% mutate(travel_date_season = getSeason(travel_date))
+day19[, travel_date_season := getSeason(travel_date)]
+day21[, travel_date_season := getSeason(travel_date)]
 
-trip19 <- trip19 %>%
-  mutate(trip_season = getSeason(travel_date))
-trip21 <- trip21 %>%
-  mutate(trip_season = getSeason(travel_date))
+trip19[, trip_season := getSeason(travel_date)]
+trip21[, trip_season := getSeason(travel_date)]
 
 rm(getSeason)

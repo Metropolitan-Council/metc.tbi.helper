@@ -1,0 +1,253 @@
+---
+title: "TBI 2021 White Paper"
+author: "Brandon Whited"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{TRB 2021 White Paper}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+source("R/_load_libraries_data.R")
+source("R/_color_palettes.R")
+```
+
+# How & Why We Travel
+
+## 
+
+```{r 2021 mode data, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+#### Run as part of d_meta_mode_share_tbi.R ##### ---
+## 2021 ----
+mode_21 <-
+  tbi21 %>%
+  pluck("trip") %>%
+  mutate(month = lubridate::month(travel_date, label = T, abbr = T)) %>%
+  mutate(mode_type_chr = as.character(mode_type)) %>%
+  mutate(mode_type_chr = ifelse(
+    grepl("bicy|bike", mode_type_detailed, ignore.case = T),
+    "Bicycle",
+    mode_type_chr
+  )) %>%
+  mutate(
+    mode_group_2 =
+      recode_factor(
+        mode_type_chr,
+        `Household vehicle` = "Drive",
+        `Other vehicle` = "Drive",
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `For-hire vehicle` = "Taxi/TNC",
+        Taxi = "Taxi/TNC",
+        `Smartphone-app ride-hailing service` = "Taxi/TNC",
+        `Public bus` = "Transit",
+        `Rail` = "Transit",
+        `Other bus` = "Transit",
+        `Shuttle` = "Transit",
+        `Commuter Rail` = "Transit",
+        `School bus` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Walk` = "Walk",
+        Other = "Other",
+        `Ferry` = "Other",
+        `Scooter-share` = "Other",
+        `Micromobility` = "Other",
+        `Long distance passenger mode` = "Other"
+      )
+  ) %>%
+  select(-mode_type_chr)
+
+# Sample segment (2021) -----
+mode_21 <- mode_21 %>%
+  left_join(tbi21$household %>% select(hh_id, sample_segment))
+
+
+mode_share <- mode_21 %>%
+  filter(!is.na(mode_group_2) & trip_weight > 0) %>%
+  filter(
+    trip_o_in_mpo == "Trip begins in Twin Cities region" |
+      trip_d_in_mpo == "Trip ends in Twin Cities region"
+  ) %>%
+  srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
+  group_by(mode_group_2) %>%
+  dplyr::summarize(
+    pct = survey_prop(proportion = TRUE),
+    ct = survey_total(),
+    n = n()
+  ) %>%
+  mutate(year = "2021")
+```
+
+```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_ly(
+  data = mode_share,
+  x = ~ reorder(mode_group_2, -pct),
+  y = ~pct,
+  colors = tbiyrpal
+)
+```
+
+## Commute Mode Share
+
+```{r}
+mode_share_commute <- mode_21 %>%
+  filter(!is.na(mode_group_2) & trip_weight > 0) %>%
+  filter(
+    trip_o_in_mpo == "Trip begins in Twin Cities region" |
+      trip_d_in_mpo == "Trip ends in Twin Cities region"
+  )
+# mutate(
+# commute = ifel
+# )
+# srvyr::as_survey_design(w = trip_weight, strata = sample_segment) %>%
+# group_by(mode_group_2) %>%
+# dplyr::summarize(
+#   pct = survey_prop(proportion = TRUE),
+#   ct = survey_total(),
+#   n = n()
+# ) %>%
+# mutate(year = "2021")
+```
+
+1
+
+```{r}
+employed_categories <- c(
+  "Full-time ", # 2019 - extra whitespace
+  "Full-time", # 2021
+  "Employed full-time (paid)", # 2021
+  "Part-time", # 2019
+  "Employed part-time (paid)", # 2021
+  "Self-employed", # both yrs
+  "Unpaid volunteer or intern"
+)
+
+drive_modes <- c(
+  "Household vehicle",
+  "Other vehicle",
+  "Vehicle",
+  "Carshare"
+)
+
+workers21 <- tbi21$per %>%
+  filter(employment_status %in% employed_categories) %>%
+  # filter to those within the MPO boundary:
+  left_join(tbi21$household %>% select(hh_id, hh_in_mpo), by = "hh_id") %>%
+  filter(hh_in_mpo == "Household in Twin Cities region") %>%
+  purrr::pluck("person_id")
+
+## 2021 ----
+trip_mode21 <-
+  tbi21$trip %>%
+  select(
+    contains("_id"),
+    travel_date,
+    trip_season,
+    mode_type_detailed,
+    mode_type,
+    mode_group,
+    trip_weight,
+    distance_adj,
+    num_travelers,
+    trip_o_in_mpo,
+    trip_d_in_mpo,
+    trip_o_in_mpo,
+    trip_d_in_mpo,
+    trip_o_thrive_category,
+    trip_d_thrive_category,
+    trip_o_thrive_category_broad,
+    trip_d_thrive_category_broad
+  ) %>%
+  mutate(month = lubridate::month(travel_date, label = T, abbr = T)) %>%
+  mutate(mode_type_chr = as.character(mode_type)) %>%
+  mutate(mode_type_chr = ifelse(
+    grepl("bicy|bike", mode_type_detailed, ignore.case = T),
+    "Bicycle",
+    mode_type_chr
+  )) %>%
+  # mutate(vmt_adj = case_when(
+  #   # get rid of excessively long drive trips > 200 miles:
+  #   mode_type %in% drive_modes & distance_adj > 200 ~ NA_real_,
+  #   mode_type %in% drive_modes & distance_adj <= 200 ~ distance_adj,
+  #   (!mode_type %in% drive_modes) ~ 0
+  # )) %>%
+  mutate(
+    mode_group_2 =
+      recode_factor(
+        mode_type_chr,
+        `Household vehicle` = "Drive",
+        `Other vehicle` = "Drive",
+        `Vehicle` = "Drive",
+        `Carshare` = "Drive",
+        `For-hire vehicle` = "Taxi/TNC",
+        Taxi = "Taxi/TNC",
+        `Smartphone-app ride-hailing service` = "Taxi/TNC",
+        `Public bus` = "Transit",
+        `Rail` = "Transit",
+        `Bicycle or e-bicycle` = "Bicycle",
+        `Walk` = "Walk",
+        `Other bus` = "Transit",
+        `Shuttle` = "Transit",
+        Other = "Other",
+        `Ferry` = "Other",
+        `Commuter Rail` = "Transit",
+        `Scooter-share` = "Other",
+        `Micromobility` = "Other",
+        `Long distance passenger mode` = "Other",
+        `School bus` = "Transit"
+      )
+  ) %>%
+  mutate(
+    mode_group_2 = case_when(
+      mode_group_2 == "Drive" &
+        num_travelers == "1 person" ~ "Drive alone",
+      mode_group_2 == "Drive" &
+        num_travelers %in% c("2 people", "3 people", "4 people", "5 or more people") ~
+        "Drive with others",
+      mode_group_2 == "Drive" &
+        is.na(num_travelers) ~ NA_character_,
+      TRUE ~ as.character(mode_group_2)
+    )
+  ) %>%
+  select(-mode_type_chr) %>%
+  left_join(tbi21$household %>% select(hh_id, sample_segment) %>% unique()) %>%
+  left_join(tbi21$day %>% select(hh_id, person_id, day_id, day_weight) %>% unique())
+
+
+commute_trips <- trip_mode21 %>%
+  filter(
+    # only trips made by workers
+    person_id %in% workers21,
+    trip_weight > 0
+  ) %>%
+  # get trip purpose
+  left_join(tbi21$trip_purpose,
+    by = c("hh_id", "person_id", "linked_trip_id"),
+    multiple = "all"
+  ) %>%
+  # only work related trips
+  filter(purpose_category_broad == "Work") %>%
+  as_survey_design(
+    weights = "trip_weight"
+  ) %>%
+  group_by(mode_group_2) %>%
+  summarize(
+    group_N = length(person_id),
+    wtd_ntrips = survey_mean(trip_weight),
+    num_workers = survey_total(),
+    survey_prop()
+  ) %>%
+  arrange(-coef)
+
+commute_trips
+
+# saveRDS(commute_trips, "data/commute_trips_tbi21.RDS")
+```

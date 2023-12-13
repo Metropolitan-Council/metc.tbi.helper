@@ -1,189 +1,120 @@
-# Packages -------------
-source("data-raw/00-load-pkgs.R")
-# Set wd-------------
-here::here()
+# This script is writen to run after
+# 00-load-pkgs.R
 
 # Get data -----------
 # Configure database time zone
 Sys.setenv(TZ = "America/Chicago")
 Sys.setenv(ORA_SDTZ = "America/Chicago")
 
-
 ## connect to database ------------
-tbidb <- ROracle::dbConnect(
-  DBI::dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
+# Raw data lives in the Met Council databases and this code
+# will only work for internal employees.
+tbidb <- db_connect()
+
+# 2019 tables -------------
+c(
+  "TBI19_DAY_RAW",
+  "TBI19_HOUSEHOLD_RAW",
+  "TBI19_LOCATION_RAW",
+  "TBI19_PERSON_RAW",
+  "TBI19_TRIP_RAW",
+  "TBI19_VEHICLE_RAW",
+  "TBI19_DICTIONARY_RAW",
+  "TBI_MODE_CONFLATION"
+) %>% lapply(\(table_){
+  cli::cli_progress_message(table_)
+  data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
+  assign(
+    table_ %>%
+      str_to_lower() %>%
+      str_replace("tbi19_", "") %>%
+      str_replace("_raw", "") %>%
+      str_c("19"),
+    data_download,
+    envir = .GlobalEnv
+  )
+})
+
+tables2019 <- c("day19", "household19", "location19", "person19", "trip19", "vehicle19")
+dictionary19[, table := table %>% str_to_lower()]
+dictionary19[, value := as.integer(value)]
+dictionary19[str_detect(value_label, "Missing"), value_label := NA]
+
+# for variables in the dictionary, replace the coded level with the
+# human readable level.
+dictionary19[, unique(table)] %>%
+  lapply(\(table_){
+    dictionary19[table == table_, unique(variable)] %>%
+      lapply(\(var_){
+        tempLookup <- dictionary19[table == table_ & variable == var_]
+        setnames(tempLookup, "value", var_)
+
+        table_ %>%
+          str_c(19) %>%
+          get() %>%
+          .[tempLookup, on = var_, temp := value_label] %>%
+          .[, (var_) := NULL] %>%
+          setnames("temp", var_)
+      })
+  })
+
+# 2021 tables ------------------
+tables2021 <- c(
+  "TBI21_DAY_RAW",
+  "TBI21_HOUSEHOLD_RAW",
+  "TBI21_LOCATION_RAW",
+  "TBI21_PERSON_RAW",
+  "TBI21_TRIP_RAW",
+  "TBI21_VEHICLE_RAW",
+  "TBI21_DICTIONARY_RAW",
+  "TBI_MODE_CONFLATION"
 )
 
-## Load tables ---------
-message("Loading raw data from Oracle database")
-hh19 <- ROracle::dbReadTable(tbidb, "TBI19_HOUSEHOLD_RAW") %>% as.data.table()
-per19 <- ROracle::dbReadTable(tbidb, "TBI19_PERSON_RAW") %>% as.data.table()
-trip19 <- ROracle::dbReadTable(tbidb, "TBI19_TRIP_RAW") %>% as.data.table()
-veh19 <- ROracle::dbReadTable(tbidb, "TBI19_VEHICLE_RAW") %>% as.data.table()
-day19 <- ROracle::dbReadTable(tbidb, "TBI19_DAY_RAW") %>% as.data.table()
-
-hh21 <- ROracle::dbReadTable(tbidb, "TBI21_HOUSEHOLD_RAW") %>% as.data.table()
-per21 <- ROracle::dbReadTable(tbidb, "TBI21_PERSON_RAW") %>% as.data.table()
-trip21 <- ROracle::dbReadTable(tbidb, "TBI21_TRIP_RAW") %>% as.data.table()
-veh21 <- ROracle::dbReadTable(tbidb, "TBI21_VEHICLE_RAW") %>% as.data.table()
-day21 <- ROracle::dbReadTable(tbidb, "TBI21_DAY_RAW") %>% as.data.table()
-
-## Translate tables using dictionary -----------
-message("Translating tables using dictionary")
-
-dictionary19 <-
-  ROracle::dbReadTable(tbidb, "TBI19_DICTIONARY") %>%
-  select(-table) %>%
-  unique() %>%
-  as.data.table()
-
-dictionary21 <-
-  ROracle::dbReadTable(tbidb, "TBI21_DICTIONARY") %>%
-  select(-table) %>%
-  unique() %>%
-  as.data.table()
-
-dictionary21 <- rename(dictionary21, "value_label" = label)
-
-# note: this part uses data.table syntax and functions.
-translate_tbi <- function(dat, dictionary) {
-  # select the names of columns that do not need to be translated -
-  # (anything column that's not in the codebook):
-  dat_id_vars <-
-    names(dat[, !colnames(dat) %in% unique(dictionary$variable), with = FALSE])
-
-  # melt the dataset:
-  dat_long <-
-    # suppressing warning about column types being coerced to character.
-    suppressWarnings(
-      melt(
-        dat,
-        var = "variable",
-        val = "value",
-        id.vars = dat_id_vars
-      ),
-      classes = c("message", "warning")
-    )
-
-  # convert var/value pairs to character, for both dictionary and data:
-  dat_long[, c("variable", "value") := list(as.character(variable), as.character(value))]
-  dictionary[, c("variable", "value") := list(as.character(variable), as.character(value))]
-
-  # merge data to dictionary:
-  dat_long <- merge(
-    dat_long,
-    dictionary,
-    on = c("variable", "value"),
-    # keep all data
-    all.x = T,
-    # don't keep all the extraneous dictionary
-    all.y = F
+lapply(tables2021, \(table_){
+  cli::cli_progress_message(table_)
+  data_download <- dbReadTable(tbidb, table_) %>% as.data.table()
+  assign(
+    table_ %>%
+      str_to_lower() %>%
+      str_replace("tbi21_", "") %>%
+      str_replace("_raw", "") %>%
+      str_c("21"),
+    data_download,
+    envir = .GlobalEnv
   )
+})
 
-  # cast back to wide:
-  dat_cast_formula <-
-    as.formula(paste(paste(dat_id_vars, collapse = " + "), "~ variable"))
-  newdat <-
-    dcast(dat_long, dat_cast_formula, value.var = "value_label")
+tables2021 <- c("day21", "household21", "location21", "person21", "trip21", "vehicle21")
+dictionary21[, table := table %>% str_to_lower()]
+dictionary21[, value := as.integer(value)]
+dictionary21 <- dictionary21[!is.na(value)]
+dictionary21[str_detect(label, "Missing"), label := NA]
 
-  # fix factor variables - relevel according to the order in the codebook (to start)
-  namevec <- names(newdat)
-  for (i in namevec) {
-    if (i %in% unique(dictionary$variable)) {
-      col_levels <- unique(dictionary$value_label[dictionary$variable == i])
-      newdat[, (i) := factor(get(i), levels = col_levels)]
-    }
-  }
-  newdat <- droplevels(newdat)
-  return(newdat)
-}
+# for variables in the dictionary, replace the coded level with the
+# human readable level.
+dictionary21[, unique(table)] %>%
+  lapply(\(table_){
+    dictionary21[table == table_, unique(variable)] %>%
+      lapply(\(var_){
+        tempLookup <- dictionary21[table == table_ & variable == var_]
+        setnames(tempLookup, "value", var_)
 
-message("...person...")
-per19 <- translate_tbi(per19, dictionary19)
-per21 <- translate_tbi(per21, dictionary21)
+        table_ %>%
+          str_c(21) %>%
+          get() %>%
+          .[tempLookup, on = var_, temp := label] %>%
+          .[, (var_) := NULL] %>%
+          setnames("temp", var_)
+      })
+  })
 
-message("...hh...")
-hh19 <- translate_tbi(hh19, dictionary19)
-hh21 <- translate_tbi(hh21, dictionary21)
-
-message("...veh...")
-veh19 <- translate_tbi(veh19, dictionary19)
-veh21 <- translate_tbi(veh21, dictionary21)
-
-message("...day...")
-day19 <- translate_tbi(day19, dictionary19)
-day21 <- translate_tbi(day21, dictionary21)
-
-message("...trip...")
-trip19 <- translate_tbi(trip19, dictionary19)
-trip21 <- translate_tbi(trip21, dictionary21)
-
-# Replace missing with NA -----------
-message("Replacing missing values with NA")
-# all the numeric codes for missing:
-all_missing_codes <-
-  rbind(
-    dictionary19[grep("Missing", value_label), "value", with = F],
-    dictionary21[grep("Missing", value_label), "value", with = F],
-    use.names = T
-  )
-
-all_missing_codes <- unique(all_missing_codes$value)
-
-# all the value labels that include missing:
-all_missing_labels <-
-  rbind(
-    dictionary19[grep("Missing", value_label), "value_label", with = F],
-    dictionary21[grep("Missing", value_label), "value_label", with = F],
-    use.names = T
-  )
-
-
-# both as character:
-all_missing_vector <- unique(rbind(all_missing_codes, all_missing_labels, use.names = F))
-all_missing_vector <- all_missing_vector$x
-
-
-# function to replace missing values with NA:
-replace_survey_missing <- function(dat) {
-  na_dat <- dat %>%
-    mutate(across(
-      where(is.numeric),
-      ~ ifelse(. %in% all_missing_codes, NA, .)
-    )) %>%
-    # replace factor entries with NA:
-    mutate(across(
-      where(is.factor),
-      ~ factor(., exclude = all_missing_vector)
-    ))
-
-  return(na_dat)
-}
-
-day19 <- replace_survey_missing(day19)
-trip19 <- replace_survey_missing(trip19)
-hh19 <- replace_survey_missing(hh19)
-per19 <- replace_survey_missing(per19)
-veh19 <- replace_survey_missing(veh19)
-
-day21 <- replace_survey_missing(day21)
-trip21 <- replace_survey_missing(trip21)
-hh21 <- replace_survey_missing(hh21)
-per21 <- replace_survey_missing(per21)
-veh21 <- replace_survey_missing(veh21)
-
-rm(all_missing_labels, all_missing_vector, all_missing_codes)
 
 # Set IDs as Integer64 -----------
-message("IDs as Int64")
-hh19[, hh_id := as.integer64(hh_id)]
-hh21[, hh_id := as.integer64(hh_id)]
+household19[, hh_id := as.integer64(hh_id)]
+household21[, hh_id := as.integer64(hh_id)]
 
-veh19[, hh_id := as.integer64(hh_id)]
-veh21[, hh_id := as.integer64(hh_id)]
+vehicle19[, hh_id := as.integer64(hh_id)]
+vehicle21[, hh_id := as.integer64(hh_id)]
 
 day19[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
@@ -199,12 +130,13 @@ trip21[, c("hh_id", "person_id", "trip_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id", "trip_id")
 ]
 
-per19[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
+person19[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
 ]
-per21[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
+person21[, c("hh_id", "person_id") := lapply(.SD, as.integer64),
   .SDcols = c("hh_id", "person_id")
 ]
 
 ## Clean up---------------
-rm(replace_survey_missing, translate_tbi, tbidb)
+dbDisconnect(tbidb)
+rm(tbidb, tables2019, tables2021)

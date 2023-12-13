@@ -1,17 +1,42 @@
-# Packages -------------
-# source("data-raw/00-load-pkgs.R")
-# Set wd-------------
-here::here()
+# FIXME: This script needs work
+
+# This script is writen to run after
+# 03-get-geographic-boundaries.R
 
 # Read from online -----------
-message("Downloading fuel economy data from EPA website")
+cli::progress_message("Downloading fuel economy data from EPA website")
 # https://www.fueleconomy.gov/feg/download.shtml
 epa_raw <-
-  read.csv("https://www.fueleconomy.gov/feg/epadata/vehicles.csv")
+  read.csv("https://www.fueleconomy.gov/feg/epadata/vehicles.csv") %>%
+  as.data.table()
 # see README for documentation/metadata
 
 # Trim Columns ----------------
-message("Rearranging EPA data")
+cli::progress_message("Rearranging EPA data")
+
+epa_raw[co2 == -1, co2 := NA]
+epa_raw[co2A == -1, co2A := NA]
+across()
+epa_raw[co2TailpipeAGpm == 0, co2TailpipeAGpm := NA]
+epa_raw[co2TailpipeGpm == 0, co2TailpipeGpm := NA]
+epa_raw[city08U == 0, city08U := NA]
+epa_raw[cityA08U == 0, cityA08U := NA]
+epa_raw[highway08U == 0, highway08U := NA]
+epa_raw[highwayA08U == 0, highwayA08U := NA]
+epa_raw[highwayA08 == 0, highwayA08 := NA]
+
+epa_sel <-
+  epa_raw[
+    , lapply(.SD, \(x) x %>%
+      mean(na.rm = T, trim = 0.05) %>%
+      round(1)),
+    .SDcols = c(
+      "co2", "co2A", "co2TailpipeAGpm", "co2TailpipeGpm",
+      "city08U", "cityA08U", "cityA08", "highway08U",
+      "highway08", "highwayA08U", "highwayA08"
+    ),
+    keyby = .(make, model, year, fuelType)
+  ]
 
 epa_sel <- epa_raw %>%
   select(
@@ -157,13 +182,13 @@ epa_fix2 <-
   # make -1 and NULL into proper NAs
   mutate(across(
     !!(my_num_columns),
-    ~ na_if(., "-1")
+    ~ na_if(., -1)
   )) %>%
   # make -1 and NULL into proper NAs
-  mutate(across(
-    !!(my_num_columns),
-    ~ na_if(., "NULL")
-  )) %>%
+  # mutate(across(
+  #   !!(my_num_columns),
+  #   ~ na_if(., NULL)
+  # )) %>%
   # make the column numeric
   mutate(across(
     !!(my_num_columns),
@@ -178,11 +203,12 @@ epa_fix2 <-
 # Average by make, model, year - multiple styles/engine types for the same car: -------------
 epa_avg <- epa_fix2 %>%
   group_by(make, model, year) %>%
-  summarise(across(
-    !!(my_num_columns),
-    ~ median(., na.rm = T)
-  ),
-  fuelType = first(fuelType)
+  summarise(
+    across(
+      !!(my_num_columns),
+      ~ median(., na.rm = T)
+    ),
+    fuelType = first(fuelType)
   ) %>% # take the median emissions value for the Make/Model/year
   ungroup()
 
@@ -204,7 +230,7 @@ epa <- epa_coalesce %>%
   rename(epa_fuel_type = fuel_type)
 
 # Matching to Vehicle table ------------
-message("Matching EPA data to TBI vehicle table")
+cli::progress_message("Matching EPA data to TBI vehicle table")
 
 get_veh_epa <- function(veh) {
   veh_epa <-
@@ -299,7 +325,7 @@ get_veh_epa <- function(veh) {
       epa_fuel_type
     )
 
-  message("Matching EPA data to TBI vehicle table")
+  cli::progress_message("Matching EPA data to TBI vehicle table")
   final_dat <-
     veh %>%
     mutate(
@@ -312,34 +338,15 @@ get_veh_epa <- function(veh) {
     ) %>%
     mutate(year = as.character(year)) %>%
     mutate(year = case_when(year == "1980" ~ "1980 or earlier", TRUE ~ year)) %>%
-    left_join(veh_epa_best %>%
-      rename(model = model.tbi),
-    by = c("year", "make", "model")
+    left_join(
+      veh_epa_best %>%
+        rename(model = model.tbi),
+      by = c("year", "make", "model")
     )
 
   return(final_dat)
 }
 
-veh19 <- get_veh_epa(veh19)
-veh21 <- get_veh_epa(veh21)
-
-
-# # how many missing?
-# summary(veh)
-# # about 973 cars missing (4% of total)
-#
-#
-# remainingproblems <- veh_epa_final %>%
-#   filter(is.na(co2_gpm)) %>%
-#   filter(!make == "") %>%
-#   # filter(!model == "Other") %>%
-#   filter(!make == "Motorcycle") %>%
-#   group_by(vehicle_name, make, model, year)  %>%
-#   tally()  %>%
-#   ungroup() %>%
-#   arrange(desc(n))
-# #
-# View(remainingproblems)
-
-
+vehicle19 <- get_veh_epa(vehicle19)
+vehicle21 <- get_veh_epa(vehicle21)
 rm(epa_raw, epa_sel, epa_fix, my_num_columns, epa_fix2, epa_avg, epa_coalesce, epa, get_veh_epa)

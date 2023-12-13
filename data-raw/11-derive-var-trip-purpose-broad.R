@@ -1,114 +1,98 @@
+# This script is writen to run after
+# 10-derive-table-trip-purpose.R
+
 # 2019 -----
 ### Trip table (purpose on origin & destination ends) --------------
-trip19 <- trip19 %>%
-  mutate(
-    d_purpose_category_broad =
-      recode_factor(d_purpose_category_imputed,
-        `Home` = "Home",
-        `Spent the night at non-home location` = "Home",
-        Work = "Work",
-        `Work-related` = "Work",
-        School = "School",
-        `School-related` = "School",
-        `Escort` = "Maintenance",
-        `Errand/Other` = "Maintenance",
-        `Shop` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational"
-      )
-  ) %>%
-  mutate(
-    o_purpose_category_broad =
-      recode_factor(
-        o_purpose_category_imputed,
-        `Home` = "Home",
-        `Spent the night at non-home location` = "Home",
-        Work = "Work",
-        `Work-related` = "Work",
-        School = "School",
-        `School-related` = "School",
-        `Escort` = "Maintenance",
-        `Errand/Other` = "Maintenance",
-        `Shop` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational"
-      )
-  )
+from <- c(
+  "Work",
+  "Work-related",
+  "Home",
+  "Spent the night at non-home location",
+  "School",
+  "School-related",
+  "Escort",
+  "Shop",
+  "Errand/Other",
+  "Social/Recreation",
+  "Meal"
+)
+to <- c(
+  "Work",
+  "Work",
+  "Home",
+  "Home",
+  "School",
+  "School",
+  "Maintenance",
+  "Maintenance",
+  "Maintenance",
+  "Social/Recreation",
+  "Social/Recreation"
+)
 
-### Trip purpose table (overall purpose of trip) --------------
-trip_purpose19 <- trip_purpose19 %>%
-  mutate(
-    purpose_category_broad =
-      recode_factor(purpose_category,
-        `Home` = "Home",
-        `Spent the night at non-home location` = "Home",
-        Work = "Work",
-        `Work-related` = "Work",
-        School = "School",
-        `School-related` = "School",
-        `Escort` = "Maintenance",
-        `Errand/Other` = "Maintenance",
-        `Shop` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational"
-      )
-  )
+trip19[
+  data.table(from, to),
+  on = .(d_purpose_category_imputed = from),
+  d_purpose_category_broad := i.to
+]
+
+trip19[
+  data.table(from, to),
+  on = .(o_purpose_category_imputed = from),
+  o_purpose_category_broad := i.to
+]
+
+trip_purpose19[
+  data.table(from, to),
+  on = .(purpose_category = from),
+  purpose_category_broad := i.to
+]
 
 # 2021 -----
 ### Trip table (purpose on origin & destination ends) --------------
-trip21 <- trip21 %>%
-  mutate(
-    d_purpose_category_broad =
-      recode_factor(d_purpose_category,
-                    `Home` = "Home",
-                    `Overnight` = "Home",
-                    Work = "Work",
-                    `Work related` = "Work",
-                    School = "School",
-                    `School related` = "School",
-                    `Escort` = "Maintenance",
-                    `Errand` = "Maintenance",
-                    `Other` = "Maintenance",
-                    `Shopping` = "Maintenance",
-                    Meal = "Social/Recreational",
-                    `Social/Recreation` = "Social/Recreational"
-      )
-  ) %>%
-  mutate(
-    o_purpose_category_broad =
-      recode_factor(
-        o_purpose_category,
-        `Home` = "Home",
-        `Overnight` = "Home",
-        Work = "Work",
-        `Work related` = "Work",
-        School = "School",
-        `School related` = "School",
-        `Escort` = "Maintenance",
-        `Errand` = "Maintenance",
-        `Other` = "Maintenance",
-        `Shopping` = "Maintenance",
-        Meal = "Social/Recreational",
-        `Social/Recreation` = "Social/Recreational"
-      )
-  )
+from <- c(
+  "Work",
+  "Work related",
+  "Home",
+  "Overnight",
+  "School",
+  "School related",
+  "Escort",
+  "Shopping",
+  "Errand",
+  "Other",
+  "Social/Recreation",
+  "Meal"
+)
+to <- c(
+  "Work",
+  "Work",
+  "Home",
+  "Home",
+  "School",
+  "School",
+  "Maintenance",
+  "Maintenance",
+  "Maintenance",
+  "Maintenance",
+  "Social/Recreation",
+  "Social/Recreation"
+)
 
-### Trip purpose table (overall purpose of trip) --------------
-trip_purpose21 <- trip_purpose21 %>%
-  mutate(
-    purpose_category_broad =
-      recode_factor(purpose_category,
-                    `Home` = "Home",
-                    `Overnight` = "Home",
-                    Work = "Work",
-                    `Work related` = "Work",
-                    School = "School",
-                    `School related` = "School",
-                    `Escort` = "Maintenance",
-                    `Errand` = "Maintenance",
-                    `Other` = "Maintenance",
-                    `Shopping` = "Maintenance",
-                    Meal = "Social/Recreational",
-                    `Social/Recreation` = "Social/Recreational"
-      )
-  )
+trip21[
+  data.table(from, to),
+  on = .(d_purpose_category = from),
+  d_purpose_category_broad := i.to
+]
+
+trip21[
+  data.table(from, to),
+  on = .(o_purpose_category = from),
+  o_purpose_category_broad := i.to
+]
+
+trip_purpose21[
+  data.table(from, to),
+  on = .(purpose_category = from),
+  purpose_category_broad := i.to
+]

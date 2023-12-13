@@ -41,6 +41,8 @@ vignettes/*.pdf
 # Ignore CSV files in data folder if people output them
 data/*.csv
 
+*.zip
+
 *.xlsx
 
 *.html
@@ -50,3 +52,13 @@ data/*.csv
 !.gitignore
 
 .talismanrc
+
+data-raw/_db_connect.R
+
+.DS_Store
+
+**/.DS_Store
+R/.DS_Store
+R/_db_connect.R
+
+*.svg

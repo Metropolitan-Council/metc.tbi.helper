@@ -16,7 +16,7 @@ Contribute to the project by making changes to your own feature branch and issui
     * fix an issue - [please name your branch with the issue number](https://deepsource.io/blog/git-branch-naming-conventions/)
 * Commit changes related to your feature and push them to GitHub.
 * You can push changes to your feature branch at any time.
-* So that anyone within the Met Council can build your reports, make sure you set your `keyring` keys to the MTS Oracle database to match those in the `R/keyring_template.R`. For database passwords, contact @ashleyasmus.
+* So that anyone within the Met Council can build your reports, make sure you set your `keyring` keys to the MTS planning database to match those in the `R/keyring_template.R`. For database passwords, contact @eroten.
 * When you're ready to have your work reviewed you create a pull-request on GitHub.
 * You can issue a pull-request and request a review of work-in-progress if you want guidance on code or content.
 * Make changes or respond to comments in your pull-request reviews.

@@ -1,21 +1,20 @@
-## connect to database ------------
-tbidb <- ROracle::dbConnect(
-  DBI::dbDriver("Oracle"),
-  dbname = keyring::key_get("mts_planning_database_string"),
-  username = "mts_planning_data",
-  password = keyring::key_get("mts_planning_data_pw")
-)
+# FIXME: This script needs work
 
+# This script is writen to run after
+# 04-get-epa-vehicle-efficiency-data.R
+
+## connect to database ------------
+tbidb <- db_connect()
 
 ## Load tables ---------
-dps <- ROracle::dbReadTable(tbidb, "DPS_VEHICLE_WEIGHTS")
+dps <- DBI::dbGetQuery(tbidb, "SELECT * FROM DPS_VEHICLE_WEIGHTS") %>% as.data.table()
 # remove NA make, model, year
 dps <-
   dps %>%
   filter(weight_unladen > 0) %>%
   filter(if_any(c(make, model, year), ~ !is.na(.x)))
 
-
+# FIXME: get a better data source.
 # Hand-googled Weights for certain makes/models:  -------------
 missingJeep <- data.frame(
   make = c("JEEP"),
@@ -135,7 +134,7 @@ dps_median <-
 
 ## 2019: -----
 # Tiny tweaks to TBI Vehicle Table ---------------------
-new_veh19 <- veh19 %>%
+new_veh19 <- vehicle19 %>%
   mutate(model = case_when(
     make == "Scion" ~ paste("Scion", model),
     TRUE ~ model
@@ -236,23 +235,28 @@ veh_dps_full19 <-
   # unique() %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
-  left_join(veh_dps_best19 %>%
-    rename(model = model.tbi),
-  by = c("year", "make", "model")
+  left_join(
+    veh_dps_best19 %>%
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
   )
 
 veh_dps_rename19 <-
   veh_dps_full19 %>%
   select(
     hh_id, vehicle_num, vehicle_name, make_original, model_original, year, fuel,
-    veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, epa_fuel_type,
-    weight_unladen, class_vehicle, dps_tbi_veh_match_notes
+    veh_id, weight_unladen, class_vehicle, dps_tbi_veh_match_notes
+    # , epa_fuel_type
+    # , epa_tbi_veh_match_notes
+    # , mpg_highway
+    # , mpg_city
+    # , co2_gpm
   ) %>%
   rename(make = make_original, model = model_original)
 
 
 
-veh19 <-
+vehicle19 <-
   new_veh19 %>%
   left_join(veh_dps_rename19,
     by = c(
@@ -265,7 +269,7 @@ veh19 <-
 
 ## 2021: -----
 # Tiny tweaks to TBI Vehicle Table ---------------------
-new_veh21 <- veh21 %>%
+new_veh21 <- vehicle21 %>%
   mutate(model = case_when(
     make == "Scion" ~ paste("Scion", model),
     TRUE ~ model
@@ -297,7 +301,8 @@ veh_dps21 <-
   mutate(make = toupper(make), model = toupper(model)) %>%
   unique() %>%
   # join by make and year -- ignore model, match across all of them
-  left_join(dps_median %>% mutate(year = as.character(year)),
+  # left_join(dps_median %>% mutate(year = as.character(year)),
+  left_join(dps_median,
     by = c("make", "year"),
     suffix = c(".tbi", ".dps")
   ) %>%
@@ -366,23 +371,29 @@ veh_dps_full21 <-
   # unique() %>%
   mutate(make_original = make, model_original = model) %>%
   mutate(make = toupper(make), model = toupper(model)) %>%
-  left_join(veh_dps_best21 %>%
-    rename(model = model.tbi),
-  by = c("year", "make", "model")
+  left_join(
+    veh_dps_best21 %>%
+      rename(model = model.tbi),
+    by = c("year", "make", "model")
   )
 
 veh_dps_rename21 <-
   veh_dps_full21 %>%
   select(
     hh_id, vehicle_num, make_model_other, make_original, model_original, year, fuel,
-    veh_id, co2_gpm, mpg_city, mpg_highway, epa_tbi_veh_match_notes, epa_fuel_type,
+    veh_id,
     weight_unladen, class_vehicle, dps_tbi_veh_match_notes
+    # , epa_fuel_type
+    # , epa_tbi_veh_match_notes
+    # , mpg_highway
+    # , mpg_city
+    # , co2_gpm
   ) %>%
   rename(make = make_original, model = model_original)
 
 
 
-veh21 <-
+vehicle21 <-
   new_veh21 %>%
   left_join(veh_dps_rename21,
     by = c(
@@ -414,3 +425,22 @@ rm(
 
 DBI::dbDisconnect(tbidb)
 rm(tbidb)
+
+
+vehicle19[
+  , `:=`(
+    co2_gpm = round(co2_gpm, -1),
+    mpg_city = round(mpg_city, 0),
+    mpg_highway = round(mpg_highway, 0),
+    weight_unladen = round(weight_unladen, -2)
+  )
+]
+
+vehicle21[
+  , `:=`(
+    co2_gpm = round(co2_gpm, -1),
+    mpg_city = round(mpg_city, 0),
+    mpg_highway = round(mpg_highway, 0),
+    weight_unladen = round(weight_unladen, -2)
+  )
+]
