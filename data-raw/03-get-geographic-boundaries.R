@@ -1,6 +1,3 @@
-# This script is writen to run after
-# 02-derive-var-vehicle-id.R
-
 ### List of Counties ----------
 county_list <-
   c(
@@ -14,7 +11,7 @@ county_list <-
 ### Create SF objects from TBI tables ------------
 
 ##### households -----
-household19_sf <- household19 %>%
+hh19_sf <- hh19 %>%
   select(hh_id, home_lon, home_lat) %>%
   na.omit() %>%
   st_as_sf(
@@ -23,7 +20,7 @@ household19_sf <- household19 %>%
   ) %>%
   st_make_valid()
 
-household21_sf <- household21 %>%
+hh21_sf <- hh21 %>%
   select(hh_id, home_lon, home_lat) %>%
   na.omit() %>%
   st_as_sf(
@@ -205,11 +202,11 @@ taz_sf <- councilR::import_from_gis("TAZ2010") %>%
   mutate(taz = as.integer64(CensusTAZ)) %>%
   select(taz, taz_pop_per_acre, taz_housing_units_per_acre, taz_jobs_per_acre)
 
-### Household geographic Info ----------
+### hh geographic Info ----------
 
 ##### MPO: ----
-household19_mpo <-
-  st_join(household19_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
+hh19_mpo <-
+  st_join(hh19_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_in_mpo = OBJECTID) %>%
   mutate(hh_in_mpo = case_when(
@@ -217,8 +214,8 @@ household19_mpo <-
     .default = "Household outside Twin Cities region"
   ))
 
-household21_mpo <-
-  st_join(household21_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
+hh21_mpo <-
+  st_join(hh21_sf, mpo_sf %>% select(OBJECTID), join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_in_mpo = OBJECTID) %>%
   mutate(hh_in_mpo = case_when(
@@ -227,30 +224,30 @@ household21_mpo <-
   ))
 
 ##### County: ----
-household19_cty <-
-  st_join(household19_sf, cty_sf, join = st_within) %>%
+hh19_cty <-
+  st_join(hh19_sf, cty_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_county = county)
 
-household21_cty <-
-  st_join(household21_sf, cty_sf, join = st_within) %>%
+hh21_cty <-
+  st_join(hh21_sf, cty_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_county = county)
 
 ##### City: ----
-household19_ctu <-
-  st_join(household19_sf, ctu_sf, join = st_within) %>%
+hh19_ctu <-
+  st_join(hh19_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_city = community_name)
 
-household21_ctu <-
-  st_join(household21_sf, ctu_sf, join = st_within) %>%
+hh21_ctu <-
+  st_join(hh21_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_city = community_name)
 
 ##### Thrive: ----
-household19_thrive <-
-  st_join(household19_sf, thrive_sf, join = st_within) %>%
+hh19_thrive <-
+  st_join(hh19_sf, thrive_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(
     hh_thrive_category = thrive_category,
@@ -258,8 +255,8 @@ household19_thrive <-
     hh_urban_rural_suburban = urban_rural_suburban
   )
 
-household21_thrive <-
-  st_join(household21_sf, thrive_sf, join = st_within) %>%
+hh21_thrive <-
+  st_join(hh21_sf, thrive_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(
     hh_thrive_category = thrive_category,
@@ -268,44 +265,44 @@ household21_thrive <-
   )
 
 ##### Block Group: ----
-household19_cbg <-
-  st_join(household19_sf, cbg_sf, join = st_within) %>%
+hh19_cbg <-
+  st_join(hh19_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_cbg = cbg)
 
-household21_cbg <-
-  st_join(household21_sf, cbg_sf, join = st_within) %>%
+hh21_cbg <-
+  st_join(hh21_sf, cbg_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_cbg = cbg)
 
 ##### TAZ: ----
-household19_taz <-
-  st_join(household19_sf, taz_sf, join = st_within) %>%
+hh19_taz <-
+  st_join(hh19_sf, taz_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_taz = taz)
 
-household21_taz <-
-  st_join(household21_sf, taz_sf, join = st_within) %>%
+hh21_taz <-
+  st_join(hh21_sf, taz_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_taz = taz)
 
 #### Compile, write over hh table: -----
-household19 <- household19 %>%
-  left_join(household19_mpo, by = "hh_id") %>%
-  left_join(household19_cty, by = "hh_id") %>%
-  left_join(household19_ctu, by = "hh_id") %>%
-  left_join(household19_cbg, by = "hh_id") %>%
-  left_join(household19_thrive, by = "hh_id") %>%
-  left_join(household19_taz, by = "hh_id") %>%
+hh19 <- hh19 %>%
+  left_join(hh19_mpo, by = "hh_id") %>%
+  left_join(hh19_cty, by = "hh_id") %>%
+  left_join(hh19_ctu, by = "hh_id") %>%
+  left_join(hh19_cbg, by = "hh_id") %>%
+  left_join(hh19_thrive, by = "hh_id") %>%
+  left_join(hh19_taz, by = "hh_id") %>%
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
-household21 <- household21 %>%
-  left_join(household21_mpo, by = "hh_id") %>%
-  left_join(household21_cty, by = "hh_id") %>%
-  left_join(household21_ctu, by = "hh_id") %>%
-  left_join(household21_cbg, by = "hh_id") %>%
-  left_join(household21_thrive, by = "hh_id") %>%
-  left_join(household21_taz, by = "hh_id") %>%
+hh21 <- hh21 %>%
+  left_join(hh21_mpo, by = "hh_id") %>%
+  left_join(hh21_cty, by = "hh_id") %>%
+  left_join(hh21_ctu, by = "hh_id") %>%
+  left_join(hh21_cbg, by = "hh_id") %>%
+  left_join(hh21_thrive, by = "hh_id") %>%
+  left_join(hh21_taz, by = "hh_id") %>%
   mutate(across(c(hh_in_mpo, hh_county, hh_city), ~ as.factor(.)))
 
 ### Append Geographic Info to Trip Origin & Destination ----------
@@ -748,20 +745,20 @@ rm(
   "mn_cty_sf",
   "wi_cty_sf",
   "thrive_sf",
-  "household19_cbg",
-  "household19_ctu",
-  "household19_cty",
-  "household19_mpo",
-  "household19_sf",
-  "household19_thrive",
-  "household19_taz",
-  "household21_cbg",
-  "household21_ctu",
-  "household21_cty",
-  "household21_mpo",
-  "household21_sf",
-  "household21_thrive",
-  "household21_taz",
+  "hh19_cbg",
+  "hh19_ctu",
+  "hh19_cty",
+  "hh19_mpo",
+  "hh19_sf",
+  "hh19_thrive",
+  "hh19_taz",
+  "hh21_cbg",
+  "hh21_ctu",
+  "hh21_cty",
+  "hh21_mpo",
+  "hh21_sf",
+  "hh21_thrive",
+  "hh21_taz",
   "school19_cbg",
   "school19_ctu",
   "school19_cty",
@@ -809,5 +806,6 @@ rm(
   "work21_cty",
   "work21_mpo",
   "work21_sf",
-  "work21_thrive"
+  "work21_thrive",
+  "county_list"
 )

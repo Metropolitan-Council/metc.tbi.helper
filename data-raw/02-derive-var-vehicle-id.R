@@ -1,17 +1,13 @@
-# This script is writen to run after
-# 01-get-survey-data.R
-
 # 2019 -------
-vehicle19[, veh_id := paste0(hh_id, "-", vehicle_num)]
+vehicle19[, vehicle_id := paste0(hh_id, "_", vehicle_num %>% str_extract("[0-9]+") %>% as.numeric())]
 trip19[
   mode_type_detailed %>% str_detect("Household vehicle"),
-  veh_id := paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
+  vehicle_id := paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
 ]
-
 vehicle19[, veh_age := fifelse(year == "1980 or earlier", 39, 2020 - as.numeric(year))]
-vehicle19[household19, on = .(hh_id), hh_weight := i.hh_weight]
+vehicle19[hh19, on = .(hh_id), hh_weight := i.hh_weight]
 
 # 2021 ----
-setnames(vehicle21, "vehicle_id", "veh_id")
 vehicle21[, veh_age := fifelse(year == "1980 or earlier", 39, 2020 - as.numeric(year))]
-vehicle21[household21, on = .(hh_id), hh_weight := i.hh_weight]
+vehicle21[hh21, on = .(hh_id), hh_weight := i.hh_weight]
+

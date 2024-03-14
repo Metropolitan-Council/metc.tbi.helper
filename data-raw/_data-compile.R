@@ -1,7 +1,4 @@
 # Load necessary packages ------
-# FIXME: Through this process we lose 4 trips from the trips table verified by
-# RSG's data. Where/why does this happen?
-
 source("data-raw/00-load-pkgs.R")
 source("data-raw/_db_connect.R")
 
@@ -25,12 +22,13 @@ source("data-raw/03-get-geographic-boundaries.R")
 # Extra variables ------
 source("data-raw/06-derive-var-person-race.R")
 source("data-raw/07-derive-var-hh-income-easyread.R")
-source("data-raw/08-derive-var-trip-mode-group.R")
-source("data-raw/09-derive-var-trip-distance-adjusted.R")
+# source("data-raw/08-derive-var-trip-mode-group.R") # deprecated
+# source("data-raw/09-derive-var-trip-distance-adjusted.R") # Analysis needed
 source("data-raw/10-derive-table-trip-purpose.R")
 source("data-raw/11-derive-var-trip-purpose-broad.R")
 source("data-raw/12-derive-var-trip-seasons.R")
 source("data-raw/13-remove-pii.R")
 source("data-raw/14-make-data-objects.R")
-source("data-raw/15-create-dictionary.R")
 source("data-raw/99-distribute-data.R")
+
+

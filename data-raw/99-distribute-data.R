@@ -7,7 +7,7 @@ save(tbi21, file = "data/tbi21.rda")
 
 # Geospatial commons --------------------------------------
 # Contact GIS
-tbi_desktop_path <- file.path(key_get("desktop"), "TBI_data")
+tbi_desktop_path <- file.path("~/Desktop", "TBI_data_out")
 dir.create(tbi_desktop_path)
 
 tbi_geospatialCommons_path <- file.path(tbi_desktop_path, "geospatial_commons")
@@ -34,88 +34,64 @@ dir.create(tbi21_path)
 tbi21 %>%
   names() %>%
   lapply(\(table_){
-    fwrite(tbi19[[table_]],
-      file = file.path(tbi19_path
-                       , paste0("TravelBehaviorInventory2019"
+    fwrite(tbi21[[table_]],
+      file = file.path(tbi21_path
+                       , paste0("TravelBehaviorInventory2021"
                                 , str_to_title(table_)
                                 , '.csv')))
   })
 
-# Geospatial metadata ----------
-# this'll just give a nice list of field to be copy and pasted in to the metadata tool.
-tbi19$dictionary[
-  variable_label %>%
-    unique() %>%
-    paste(collapse = '
-
-          ') %>%
-    cat]
-tbi21$dictionary[
-  description %>%
-    unique() %>%
-    paste(collapse = '\n') %>%
-    cat]
 
 # MTS_Planning DB --------------------------------------
+# location file is not modified in this process and in the
+# data base as TBI19_RAW_LOCATION
+lapply(tbi21_PII, nrow)
 
 db_con <- db_connect()
 tbi19_PII %>%
   names() %>%
-  setdiff("location") %>%
+  setdiff(c("var_list", 'value_list')) %>%
   lapply(\(table_){
-    table_name <- paste0("TBI19_", str_to_upper(table_))
+    table_name <- paste0("TBI19_FINAL_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
-      cli::progress_message(table_)
-      dbWriteTable(db_con, name = table_name, value = tbi19_PII[[table_]])
-    }
-  })
+      message(table_)
+      n <- 5000
+      nr <- nrow(tbi19_PII[[table_]])
+      table_subsets <- split(tbi19_PII[[table_]], rep(1:ceiling(nr/n), each=n, length.out=nr))
 
-# since the location table is so big, it works better
-# to up load it in chunks.
-hh_i <- 1
-tbi19_PII$location[, unique(hh_id)] %>%
-  lapply(\(hh_){
-    if (!dbExistsTable(db_con, "TBI19_LOCATION")) {
-      cat("\014")
-      cli::progress_message(hh_i, " of ", tbi19_PII$location[, uniqueN(hh_id)])
-      dbWriteTable(
-        db_con,
-        name = "TBI19_LOCATION",
-        value = tbi19_PII$location[hh_id == hh_],
-        append = T
-      )
+      i <- 1
+      N <- length(table_subsets)
+      lapply(table_subsets, \(table_ss_){
+        message(table_, ' ', i, " of ", N)
+        dbWriteTable(db_con, name = table_name, value = table_ss_, append = T)
+        i <<- i + 1
+      })
     }
-    hh_i <<- hh_i + 1
   })
 
 
 # 2021
+# location file is not modified in this process and in the
+# data base as TBI21_RAW_LOCATION
 tbi21_PII %>%
   names() %>%
-  setdiff("location") %>%
+  setdiff(c("var_list", 'value_list')) %>%
   lapply(\(table_){
-    table_name <- paste0("TBI21_", str_to_upper(table_))
+    table_name <- paste0("TBI21_FINAL_", str_to_upper(table_))
     if (!dbExistsTable(db_con, table_name)) {
-      cli::progress_message(table_)
-      dbWriteTable(db_con, name = table_name, value = tbi21_PII[[table_]])
-    }
-  })
+      message(table_)
+      n <- 5000
+      nr <- nrow(tbi21_PII[[table_]])
+      table_subsets <- split(tbi21_PII[[table_]], rep(1:ceiling(nr/n), each=n, length.out=nr))
 
-# since the location table is so big, it works better
-# to up load it in chunks.
-hh_i <- 1
-tbi21_PII$location[, unique(ind)] %>%
-  lapply(\(i){
-    if (!dbExistsTable(db_con, "TBI21_LOCATION")) {
-      cli::progress_message(hh_i, " of ", tbi21_PII$location[, uniqueN(ind)])
-      dbWriteTable(
-        db_con,
-        name = "TBI21_LOCATION",
-        value = tbi21_PII$location[ind == i, -c("ind")],
-        append = T
-      )
+      i <- 1
+      N <- length(table_subsets)
+      lapply(table_subsets, \(table_ss_){
+        message(table_, ' ', i, " of ", N)
+        dbWriteTable(db_con, name = table_name, value = table_ss_, append = T)
+        i <<- i + 1
+      })
     }
-    hh_i <<- hh_i + 1
   })
 
 
@@ -153,3 +129,12 @@ tbi21_PII %>%
                                      , '.csv')))
   })
 
+
+
+
+dbListTables(db_con) %>%
+  str_subset("TBI") %>%
+  str_subset("OBS", T) %>%
+  str_subset("v_", T) %>%
+  str_subset("TOUR", T) %>%
+  paste0(collapse = '\n') %>% cat
