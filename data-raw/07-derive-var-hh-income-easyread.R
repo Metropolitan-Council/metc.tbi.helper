@@ -14,11 +14,8 @@ income_mapping <-
     "$250,000 or more" = "$250K+"
   )
 
-hh19[, income_detailed :=
-       income_mapping[income_detailed] %>% factor(levels = income_mapping, ordered = T)]
-hh21[, income_detailed :=
-       income_mapping[income_detailed] %>% factor(levels = income_mapping, ordered = T)]
-rm(income_mapping)
+levels(tbi$hh$income_detailed) <- tbi$hh[, income_mapping[levels(income_detailed)]]
+tbi$hh[, .N, keyby = income_detailed]
 
 # income_broad --------------
 income_mapping <-
@@ -31,8 +28,8 @@ income_mapping <-
     "$100,000 or more" = "$100K+"
   )
 
-hh19[, income_broad :=
-       income_mapping[income_broad] %>% factor(levels = income_mapping, ordered = T)]
-hh21[, income_broad :=
-       income_mapping[income_broad] %>% factor(levels = income_mapping, ordered = T)]
+levels(tbi$hh$income_broad) <- tbi$hh[, income_mapping[levels(income_broad)]]
+tbi$hh[, .N, keyby = income_broad]
+
+
 rm(income_mapping)

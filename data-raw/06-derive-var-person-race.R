@@ -1,7 +1,3 @@
-# This script is writen to run after
-# 05-get-dps-vehicle-weight-data.R
-
-
 # Race is a select-all question, but it helps to have a single column sometimes for factor-type analysis.
 # This table adds a column for "race_ethnicity_simple" that categorizes people according to the
 # race/ethnicity they selected, with an option for "2 or more races" for those that tick more than one box.
@@ -9,7 +5,6 @@
 # Note, we should really go through the "other_specify" column (not included in this data extract)
 # to weed out the (presumably) white people who answer as "human race", "none of your business" etc :/
 
-# 2019 -------------
 race_mapping <- c(
   "race_1" = "American Indian, Alaskan Native",
   "race_2" = "Asian, Asian American",
@@ -31,24 +26,15 @@ race_mapping <- c(
 # dataset to include only adults who have an answer for race_ethnicity, the
 # percentages should be better aligned.
 
-per_race19 <-
-  person19 %>%
-  .[, .SD, .SDcols = c("person_id", person19 %>% names %>% str_subset("race"))] %>%
+per_race <-
+  tbi$person %>%
+  .[, .SD, .SDcols = c("person_id", names(race_mapping))] %>%
   melt(id.vars = "person_id", variable.name = 'race', variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_mapping[race]] %>%
   .[, .(race_ethnicity = ifelse(uniqueN(race) > 1, "2 or more races", race_decoded)), keyby = person_id]
-person19[per_race19, on="person_id", race_ethnicity := i.race_ethnicity]
-rm(per_race19)
+tbi$person[per_race, on="person_id", race_ethnicity := i.race_ethnicity]
 
-# 2021 --------
-per_race21 <-
-  person21 %>%
-  .[, .SD, .SDcols = c("person_id", person21 %>% names %>% str_subset("race_\\d{1}"))] %>%
-  melt(id.vars = "person_id", variable.name = 'race', variable.factor = F) %>%
-  .[value == "Selected"] %>%
-  .[, race_decoded := race_mapping[race]] %>%
-  .[, .(race_ethnicity = ifelse(uniqueN(race) > 1, "2 or more races", race_decoded)), keyby = person_id]
 
 race_detailed <-
   var_list[
@@ -59,24 +45,37 @@ race_detailed <-
 race_detailed_mapping <- race_detailed$desc
 names(race_detailed_mapping) = race_detailed$variable_2021
 
-per_race21_detailed <-
-  person21 %>%
-  .[, .SD, .SDcols = c("person_id", person21 %>%
+per_race_detailed <-
+  tbi$person %>%
+  .[, .SD, .SDcols = c("person_id", tbi$person %>%
                          names %>%
                          str_subset("race_\\D{1}") %>%
                          str_subset("other", T)
-                       )]%>%
+                       )] %>%
   melt(id.vars = "person_id", variable.name = 'race', variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_detailed_mapping[race]] %>%
   .[, .(race_ethnicity = race_decoded %>% unique() %>% paste0(collapse = '; ')), keyby = person_id]
 
-person21[per_race21, on="person_id", race_ethnicity := i.race_ethnicity]
-person21[per_race21_detailed, on="person_id", race_ethnicity_detailed := i.race_ethnicity]
+tbi$person[per_race_detailed, on="person_id", race_ethnicity_detailed := i.race_ethnicity]
+
+# rename race columns ------------
+race_col_mapping <- c(
+  "race_1" = "Native_American",
+  "race_2" = "Asian",
+  "race_3" = "Black",
+  "race_4" = "Hispanic_Latinx_Latino",
+  "race_5" = "Middle_Eastern_North_African",
+  "race_6" = "Hawaiian_Pacific",
+  "race_7" = "White",
+  "race_997" = "Other",
+  "race_998" = "Not_Known",
+  "race_999" = "No_Say"
+)
+
+setnames(tbi$person, names(race_col_mapping), paste0("race_", make_clean_names(race_col_mapping)))
 
 # clean up --------
-rm(per_race21, per_race21_detailed, race_detailed_mapping, race_mapping, race_detailed)
-
-
+rm(per_race, race_detailed, per_race_detailed, race_mapping, race_col_mapping)
 
 

@@ -1,6 +1,6 @@
 # paste0(
 # '"',
-# c(trip19[,c(d_purpose_category, o_purpose_category)], trip21[,c(d_purpose_category, o_purpose_category)]) %>%
+# c(tbi$trip[,c(d_purpose_category, o_purpose_category)], tbi$trip[,c(d_purpose_category, o_purpose_category)]) %>%
 #   unique(),
 # '" = ,'
 # )%>%
@@ -11,8 +11,8 @@ mapping <-
   c(
     "Work" = "Work",
     "Work related" = "Work",
-    "Home" = 'Home',
-    "Overnight" = 'Home',
+    "Home" = "Home",
+    "Overnight" = "Home",
     "School" = "School",
     "School related" = "School",
     "Errand" = "Maintenance",
@@ -23,12 +23,15 @@ mapping <-
     "Social/Recreation" = "Social/Recreation",
     "Meal" = "Social/Recreation",
     "Change mode" = "Change mode",
-    "Not imputable" = "Not imputable"
+    "Not imputable" = "Not imputable",
+    "Missing" = "Missing"
   )
 
-### Trip table (purpose on origin & destination ends) --------------
-trip19[, d_purpose_category_broad :=  mapping[d_purpose_category]]
-trip19[, o_purpose_category_broad :=  mapping[o_purpose_category]]
-trip21[, d_purpose_category_broad :=  mapping[d_purpose_category]]
-trip21[, o_purpose_category_broad :=  mapping[o_purpose_category]]
+tbi$trip[, d_purpose_category_broad := d_purpose_category]
+levels(tbi$trip$d_purpose_category_broad) <- tbi$trip[, mapping[levels(tbi$trip$d_purpose_category_broad)]]
+
+tbi$trip[, o_purpose_category_broad := o_purpose_category]
+levels(tbi$trip$o_purpose_category_broad) <- tbi$trip[, mapping[levels(tbi$trip$o_purpose_category_broad)]]
+
+
 

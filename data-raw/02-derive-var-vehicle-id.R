@@ -1,13 +1,29 @@
-# 2019 -------
-vehicle19[, vehicle_id := paste0(hh_id, "_", vehicle_num %>% str_extract("[0-9]+") %>% as.numeric())]
-trip19[
-  mode_type_detailed %>% str_detect("Household vehicle"),
-  vehicle_id := paste(hh_id, str_extract(mode_type_detailed, "[0-9]+"), sep = "_")
+# vehicle id ----------------
+tbi$vehicle[
+  , vehicle_id := paste0(hh_id, "_", vehicle_num %>% str_extract("[0-9]+") %>% as.numeric())
 ]
-vehicle19[, veh_age := fifelse(year == "1980 or earlier", 39, 2020 - as.numeric(year))]
-vehicle19[hh19, on = .(hh_id), hh_weight := i.hh_weight]
 
-# 2021 ----
-vehicle21[, veh_age := fifelse(year == "1980 or earlier", 39, 2020 - as.numeric(year))]
-vehicle21[hh21, on = .(hh_id), hh_weight := i.hh_weight]
+tbi$trip[mode_type_detailed %>% str_detect("Household vehicle"),
+                             vehicle_id := paste0(hh_id,
+                                    str_extract(mode_type_detailed, "[0-9]+") %>%
+                                      str_extract("[0-9]+") %>%
+                                      str_pad(width = 2, pad = 0))
+                             ]
+
+# age of vehicle ----------
+tbi$vehicle[, year_num :=
+              ifelse(year != "Missing",
+                     as.character(year),
+                     NA_character_) %>%
+              str_sub(1, 4) %>%
+              as.numeric()
+              ]
+tbi$vehicle[
+  , veh_age := fifelse(year == "1980 or earlier", 39, max(year_num - 1, na.rm = T) - year_num)
+  , survey_year
+]
+tbi$vehicle[, year_num := NULL]
+
+# hh_id ----------------
+tbi$vehicle[tbi$hh, on = .(hh_id), hh_weight := i.hh_weight]
 

@@ -12,10 +12,7 @@ getSeason <- function(input.date) {
   return(cuts)
 }
 
-day19[, travel_date_season := getSeason(travel_date)]
-day21[, travel_date_season := getSeason(travel_date)]
-
-trip19[, trip_season := getSeason(travel_date)]
-trip21[, trip_season := getSeason(travel_date)]
+tbi$day[, travel_date_season := getSeason(travel_date)]
+tbi$trip[, trip_season := getSeason(travel_date)]
 
 rm(getSeason)
