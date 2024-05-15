@@ -89,8 +89,8 @@ ctu_sf <-
   rename(community_name = CTU_NAME) %>%
   st_transform(crs = 4326)
 
-##### Community Designations 2050: ----
-# proposed CD's
+##### Community Designations: ----
+# proposed CD's for 2050
 # TODO: replace with offical when they're finalized.
 cd_2050_sf <-
   councilR::import_from_gis("PROPOSED2050COMMUNITYDESIGNATIONS") %>%
@@ -113,6 +113,35 @@ cd_2050_sf <-
   mutate(
     cd_2050_rsd = recode_factor(
       cd_2050_broad,
+      "Urban Edge" = "Urban",
+      "Suburban Edge" = "Suburban",
+      "Diversified Residential" = "Rural/Non-Coucil"
+    ))
+
+
+# CD's for 2040
+
+cd_2040_sf <-
+  councilR::import_from_gis("THRIVEMSP2040COMMUNITYDESIGNATION") %>%
+  st_make_valid() %>%
+  select(CD2040) %>%
+  rename(cd_2040 = CD2040) %>%
+  st_transform(4326) %>%
+  mutate(
+    cd_2040 = as.factor(cd_2040)
+  ) %>%
+  mutate(
+    cd_2040_broad = recode_factor(
+      cd_2040,
+      "Agricultural" = "Rural/Non-Coucil",
+      "Rural Center" = "Rural/Non-Coucil",
+      "Rural Residential" = "Rural/Non-Coucil",
+      "Non-Council Area" = "Rural/Non-Coucil"
+    )
+  ) %>%
+  mutate(
+    cd_2040_rsd = recode_factor(
+      cd_2040_broad,
       "Urban Edge" = "Urban",
       "Suburban Edge" = "Suburban",
       "Diversified Residential" = "Rural/Non-Coucil"
