@@ -1,11 +1,11 @@
 # Load data from local file
 # MetC staff only
-qs::qload("~/tbi_hh_data/CombinedDataset_2024-04-19/dat_all_upcoded_labeled.qs")
+qs::qload("~/Desktop/tbi_hh_data/CombinedDataset_2024-04-19/dat_all_upcoded_labeled.qs")
 tbi <- dat_all_upcoded_labeled
 rm(dat_all_upcoded_labeled)
 
-var_list <- fread("~/tbi_hh_data/CombinedDataset_2024-04-19/variables.csv")
-val_list <- fread("~/tbi_hh_data/CombinedDataset_2024-04-19/values.csv")
+var_list <- fread("~/Desktop/tbi_hh_data/CombinedDataset_2024-04-19/variables.csv")
+val_list <- fread("~/Desktop/tbi_hh_data/CombinedDataset_2024-04-19/values.csv")
 
 # # Get data -----------
 # # Configure database time zone
