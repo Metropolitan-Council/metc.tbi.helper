@@ -14,11 +14,14 @@ dir.create(tbi_geospatialCommons_path)
 
 # remove emojis and special charactors from the data.
 lapply(tbi_rmPII, \(tab){
-  cols <- tab %>% sapply(typeof) %>% str_detect('character')
+  cols <- tab %>%
+    sapply(typeof) %>%
+    str_detect("character")
   col_names <- names(tab)[cols]
-  tab[,  c(col_names) :=
-        lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-      .SDcols = cols]
+  tab[, c(col_names) :=
+    lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
+  .SDcols = cols
+  ]
 })
 
 # output tables --------
@@ -28,13 +31,13 @@ years <- c(2019, 2021)
 lapply(tables, \(tab){
   lapply(years, \(yr){
     tbi_yr_path <- file.path(tbi_geospatialCommons_path, paste0("tbi", yr))
-    if(!dir.exists(tbi_yr_path)) dir.create(tbi_yr_path)
+    if (!dir.exists(tbi_yr_path)) dir.create(tbi_yr_path)
     fwrite(tbi_rmPII[[tab]][survey_year == yr],
-           file = file.path(
-             tbi_yr_path,
-             sprintf("TravelBehaviorInventory%s_%s.csv", yr, tab %>% str_to_upper())
-           ))
-
+      file = file.path(
+        tbi_yr_path,
+        sprintf("TravelBehaviorInventory%s_%s.csv", yr, tab %>% str_to_upper())
+      )
+    )
   })
 })
 
@@ -42,11 +45,14 @@ lapply(tables, \(tab){
 # remove emojis and special charactors from the data.
 # tab <- copy(tbi$trip)
 lapply(tbi, \(tab){
-  cols <- tab %>% sapply(typeof) %>% str_detect('character')
+  cols <- tab %>%
+    sapply(typeof) %>%
+    str_detect("character")
   col_names <- names(tab)[cols]
-  tab[,  c(col_names) :=
-        lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-      .SDcols = cols]
+  tab[, c(col_names) :=
+    lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
+  .SDcols = cols
+  ]
 })
 
 
@@ -56,27 +62,29 @@ db_con <- db_connect()
 # yr <- 2023
 lapply(tables, \(tab){
   lapply(years, \(yr){
-    table_name <- sprintf("TBI%s_%s", yr, tab %>% str_to_upper()) %>% print
+    table_name <- sprintf("TBI%s_%s", yr, tab %>% str_to_upper()) %>% print()
 
     if (!dbExistsTable(db_con, table_name)) {
       message(tab, yr)
 
       n <- 5000
       nr <- nrow(tbi[[tab]][survey_year == yr])
-      table_subsets <- split(tbi[[tab]][survey_year == yr],
-                             rep(1:ceiling(nr/n),
-                                 each=n,
-                                 length.out=nr))
+      table_subsets <- split(
+        tbi[[tab]][survey_year == yr],
+        rep(1:ceiling(nr / n),
+          each = n,
+          length.out = nr
+        )
+      )
 
       i <- 1
       N <- length(table_subsets)
       lapply(table_subsets, \(table_ss_){
-        message(tab, ' ', i, " of ", N)
+        message(tab, " ", i, " of ", N)
         dbWriteTable(db_con, name = table_name, value = table_ss_, append = T)
         i <<- i + 1
       })
     }
-
   })
 })
 dbDisconnect(db_con)
@@ -157,10 +165,15 @@ tbi19_PII %>%
   names() %>%
   lapply(\(table_){
     fwrite(tbi19_PII[[table_]],
-           file = file.path(tbi19_path
-                            , paste0("TravelBehaviorInventory2019"
-                                     , str_to_title(table_)
-                                     , '.csv')))
+      file = file.path(
+        tbi19_path,
+        paste0(
+          "TravelBehaviorInventory2019",
+          str_to_title(table_),
+          ".csv"
+        )
+      )
+    )
   })
 
 # 2021
@@ -171,10 +184,15 @@ tbi21_PII %>%
   names() %>%
   lapply(\(table_){
     fwrite(tbi21_PII[[table_]],
-           file = file.path(tbi21_path
-                            , paste0("TravelBehaviorInventory2019"
-                                     , str_to_title(table_)
-                                     , '.csv')))
+      file = file.path(
+        tbi21_path,
+        paste0(
+          "TravelBehaviorInventory2019",
+          str_to_title(table_),
+          ".csv"
+        )
+      )
+    )
   })
 
 
@@ -185,14 +203,16 @@ dbListTables(db_con) %>%
   str_subset("OBS", T) %>%
   str_subset("v_", T) %>%
   str_subset("TOUR", T) %>%
-  paste0(collapse = '\n') %>% cat
+  paste0(collapse = "\n") %>%
+  cat()
 
 
 lapply(names(tbi), \(dt_name){
   dt <- copy(tbi[[dt_name]])
   lapply(c(2019, 2021), \(yr){
-    message("table: ", dt_name, " yr: ", yr, " nrow: ",
-    dt[survey_year == yr, .N %>% prettyNum(",")]
+    message(
+      "table: ", dt_name, " yr: ", yr, " nrow: ",
+      dt[survey_year == yr, .N %>% prettyNum(",")]
     )
   })
 })

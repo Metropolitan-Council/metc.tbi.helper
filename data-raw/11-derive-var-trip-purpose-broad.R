@@ -32,6 +32,3 @@ levels(tbi$trip$d_purpose_category_broad) <- tbi$trip[, mapping[levels(tbi$trip$
 
 tbi$trip[, o_purpose_category_broad := o_purpose_category]
 levels(tbi$trip$o_purpose_category_broad) <- tbi$trip[, mapping[levels(tbi$trip$o_purpose_category_broad)]]
-
-
-

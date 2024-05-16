@@ -12,10 +12,14 @@ tbi_rmPII$vehicle[, c("make", "model", "vehicle_name") := NULL]
 tbi_rmPII$hh[, c("home_lat", "home_lon", "sample_home_lon", "sample_home_lat") := NULL]
 
 # trip -----------------
-tbi_rmPII$trip[d_purpose_category_broad %in% c("Home", "Work", "School"),
-               c("d_lat", "d_lon") := NA]
-tbi_rmPII$trip[o_purpose_category_broad %in% c("Home", "Work", "School"),
-               c("d_lat", "d_lon") := NA]
+tbi_rmPII$trip[
+  d_purpose_category_broad %in% c("Home", "Work", "School"),
+  c("d_lat", "d_lon") := NA
+]
+tbi_rmPII$trip[
+  o_purpose_category_broad %in% c("Home", "Work", "School"),
+  c("d_lat", "d_lon") := NA
+]
 
 # person ---------------------
 tbi_rmPII$person[
@@ -24,4 +28,3 @@ tbi_rmPII$person[
 
 # remove raw locations ------
 tbi_rmPII <- tbi_rmPII[names(tbi_rmPII) != "location"]
-

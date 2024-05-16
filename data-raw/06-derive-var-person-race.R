@@ -29,11 +29,11 @@ race_mapping <- c(
 per_race <-
   tbi$person %>%
   .[, .SD, .SDcols = c("person_id", names(race_mapping))] %>%
-  melt(id.vars = "person_id", variable.name = 'race', variable.factor = F) %>%
+  melt(id.vars = "person_id", variable.name = "race", variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_mapping[race]] %>%
   .[, .(race_ethnicity = ifelse(uniqueN(race) > 1, "2 or more races", race_decoded)), keyby = person_id]
-tbi$person[per_race, on="person_id", race_ethnicity := i.race_ethnicity]
+tbi$person[per_race, on = "person_id", race_ethnicity := i.race_ethnicity]
 
 
 race_detailed <-
@@ -41,23 +41,22 @@ race_detailed <-
     variable_2021 %>% str_detect("race"),
     .(variable_2021, description_unified)
   ] %>%
-  .[, desc := description_unified %>% str_replace_all(".*: ", '')]
+  .[, desc := description_unified %>% str_replace_all(".*: ", "")]
 race_detailed_mapping <- race_detailed$desc
-names(race_detailed_mapping) = race_detailed$variable_2021
+names(race_detailed_mapping) <- race_detailed$variable_2021
 
 per_race_detailed <-
   tbi$person %>%
   .[, .SD, .SDcols = c("person_id", tbi$person %>%
-                         names %>%
-                         str_subset("race_\\D{1}") %>%
-                         str_subset("other", T)
-                       )] %>%
-  melt(id.vars = "person_id", variable.name = 'race', variable.factor = F) %>%
+    names() %>%
+    str_subset("race_\\D{1}") %>%
+    str_subset("other", T))] %>%
+  melt(id.vars = "person_id", variable.name = "race", variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_detailed_mapping[race]] %>%
-  .[, .(race_ethnicity = race_decoded %>% unique() %>% paste0(collapse = '; ')), keyby = person_id]
+  .[, .(race_ethnicity = race_decoded %>% unique() %>% paste0(collapse = "; ")), keyby = person_id]
 
-tbi$person[per_race_detailed, on="person_id", race_ethnicity_detailed := i.race_ethnicity]
+tbi$person[per_race_detailed, on = "person_id", race_ethnicity_detailed := i.race_ethnicity]
 
 # rename race columns ------------
 race_col_mapping <- c(
@@ -77,5 +76,3 @@ setnames(tbi$person, names(race_col_mapping), paste0("race_", make_clean_names(r
 
 # clean up --------
 rm(per_race, race_detailed, per_race_detailed, race_mapping, race_col_mapping)
-
-

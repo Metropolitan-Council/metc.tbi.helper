@@ -271,4 +271,3 @@ val_list <- fread("~/tbi_hh_data/CombinedDataset_2024-04-19/values.csv")
 # ## Clean up---------------
 # dbDisconnect(tbidb)
 # rm(tbidb, tables2019, tables2021)
-

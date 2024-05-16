@@ -15,11 +15,15 @@ This repository contains a collection of R code for working with Travel Behavior
 _If you came for a pretty R Data object of the 2019 or 2021 TBI survey data, check out the_ `data` _folder or source from URL:_
 
 ```{r}
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi21.rda")))
-                
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi19.rda")))
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi21.rda"
+)))
+
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi19.rda"
+)))
 ```
 
 Other things you might find useful in here include R scripts to create complex cross-tabs that require funky joins, some scripts for appending auxiliary datasets & geographic information to the datasets, and more. 
@@ -67,7 +71,7 @@ One day, this repository might be an R package. For now, you can source data, me
 source(
   paste0(
     "directory/where/your/repository/lives/",
-    "R/previous_code/xtab-vehicle-stops.R" 
+    "R/previous_code/xtab-vehicle-stops.R"
   )
 )
 ```
@@ -79,7 +83,7 @@ Files that have "raw" output available directly on GitHub ([example](https://git
 ```{r}
 source(
   paste0(
-    "https://raw.githubusercontent.com/Metropolitan-Council/metc.tbi.helper/main/", 
+    "https://raw.githubusercontent.com/Metropolitan-Council/metc.tbi.helper/main/",
     "R/previous_code/xtab-vehicle-stops.R"
   )
 )
@@ -94,13 +98,14 @@ library(dplyr)
 library(bit64) # for looking at big integers, like the person_ids
 library(srvyr)
 
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi21.rda")))
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi21.rda"
+)))
 
 tbi21$vehicle %>%
   left_join(tbi21$household) %>%
   as_survey_design(weights = "hh_weight", strata = "sample_segment") %>%
   group_by(income_detailed) %>%
   summarize(veh_age_avg = survey_mean(veh_age, na.rm = T))
-
 ```

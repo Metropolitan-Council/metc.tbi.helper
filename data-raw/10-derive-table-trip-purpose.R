@@ -20,8 +20,8 @@ linked_trips <-
       distance = sum(distance_miles)
     ),
     keyby = .(survey_year, hh_id, person_id, linked_trip_id)
-]
-linked_trips <- linked_trips[d_purpose_category != 'Change mode']
+  ]
+linked_trips <- linked_trips[d_purpose_category != "Change mode"]
 
 ### Trip Purpose Table ------------
 linked_trips[
@@ -37,24 +37,26 @@ homebasedtrips <-
     trip_type == "Home-based",
     `:=`(
       purpose_category =
-      fcase(
-        o_purpose_category == "Home", d_purpose_category %>% as.vector(),
-        d_purpose_category == "Home", o_purpose_category %>% as.vector()
-      ),
+        fcase(
+          o_purpose_category == "Home", d_purpose_category %>% as.vector(),
+          d_purpose_category == "Home", o_purpose_category %>% as.vector()
+        ),
       purpose =
-      fcase(
-        o_purpose_category == "Home", d_purpose %>% as.vector(),
-        d_purpose_category == "Home", o_purpose %>% as.vector()
-      )
+        fcase(
+          o_purpose_category == "Home", d_purpose %>% as.vector(),
+          d_purpose_category == "Home", o_purpose %>% as.vector()
+        )
     )
   ]
 
 ### Trip Weight Adjustment: 50% for each half of the trip ----------------
 nonhomebasedtrips_1 <-
   linked_trips %>%
-  .[trip_type == "Non-home-based",
-    .(linked_trip_id, o_purpose_category, d_purpose_category)] %>%
-  melt(id.var = 'linked_trip_id', value.name = "purpose_category") %>%
+  .[
+    trip_type == "Non-home-based",
+    .(linked_trip_id, o_purpose_category, d_purpose_category)
+  ] %>%
+  melt(id.var = "linked_trip_id", value.name = "purpose_category") %>%
   .[, .(linked_trip_id, purpose_category)]
 
 nonhomebasedtrips_2 <-
@@ -62,8 +64,10 @@ nonhomebasedtrips_2 <-
     trip_type == "Non-home-based",
     .(linked_trip_id, o_purpose, d_purpose, trip_purpose_weight, distance)
   ] %>%
-  melt(id.var = c('linked_trip_id', "trip_purpose_weight", "distance"),
-       value.name = "purpose") %>%
+  melt(
+    id.var = c("linked_trip_id", "trip_purpose_weight", "distance"),
+    value.name = "purpose"
+  ) %>%
   .[
     , `:=`(
       trip_purpose_weight = 0.5 * trip_purpose_weight,
@@ -88,7 +92,3 @@ rm(
   nonhomebasedtrips_2,
   linked_trips
 )
-
-
-
-
