@@ -11,13 +11,13 @@
 ##### households -----
 hh_sf <-
   tbi$hh %>%
-    select(hh_id, home_lon, home_lat) %>%
-    na.omit() %>%
-    st_as_sf(
-      coords = c("home_lon", "home_lat"),
-      crs = 4326
-    ) %>%
-    st_make_valid()
+  select(hh_id, home_lon, home_lat) %>%
+  na.omit() %>%
+  st_as_sf(
+    coords = c("home_lon", "home_lat"),
+    crs = 4326
+  ) %>%
+  st_make_valid()
 
 ##### trip origins/destinations -----
 trip_d_sf <- tbi$trip %>%
@@ -116,7 +116,8 @@ cd_2050_sf <-
       "Urban Edge" = "Urban",
       "Suburban Edge" = "Suburban",
       "Diversified Residential" = "Rural/Non-Coucil"
-    ))
+    )
+  )
 
 
 # CD's for 2040
@@ -124,7 +125,7 @@ cd_2050_sf <-
 cd_2040_sf <-
   councilR::import_from_gis("THRIVEMSP2040COMMUNITYDESIGNATION") %>%
   st_make_valid() %>%
-  select(CD2040) %>%
+  select(CD2040 = COMDESNAME) %>%
   rename(cd_2040 = CD2040) %>%
   st_transform(4326) %>%
   mutate(
@@ -145,7 +146,8 @@ cd_2040_sf <-
       "Urban Edge" = "Urban",
       "Suburban Edge" = "Suburban",
       "Diversified Residential" = "Rural/Non-Coucil"
-    ))
+    )
+  )
 
 ##### Census Block Groups: ----
 cbg2010_sf <-
@@ -185,6 +187,7 @@ hh_mpo <-
     hh_in_mpo == 1 ~ TRUE,
     .default = FALSE
   ))
+
 hh_cty <-
   st_join(hh_sf, cty_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -194,22 +197,31 @@ hh_cty <-
   rename(
     hh_county = county
   )
+
 hh_ctu <-
   st_join(hh_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   mutate(community_name = community_name %>% as.factor()) %>%
   rename(hh_city = community_name)
+
 hh_cd_2050 <-
   st_join(hh_sf, cd_2050_sf, join = st_within) %>%
   st_drop_geometry()
+
+hh_cd_2040 <-
+  st_join(hh_sf, cd_2040_sf, join = st_within) %>%
+  st_drop_geometry()
+
 hh_cbg_2010 <-
   st_join(hh_sf, cbg2010_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_cbg_2010 = cbg_2010)
+
 hh_cbg_2020 <-
   st_join(hh_sf, cbg2020_sf, join = st_within) %>%
   st_drop_geometry() %>%
   rename(hh_cbg_2020 = cbg_2020)
+
 hh_taz <-
   st_join(hh_sf, taz_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -221,6 +233,7 @@ tbi$hh <-
   left_join(hh_cty, by = "hh_id") %>%
   left_join(hh_ctu, by = "hh_id") %>%
   left_join(hh_cd_2050, by = "hh_id") %>%
+  left_join(hh_cd_2040, by = "hh_id") %>%
   left_join(hh_cbg_2010, by = "hh_id") %>%
   left_join(hh_cbg_2020, by = "hh_id") %>%
   left_join(hh_taz, by = "hh_id")
@@ -244,11 +257,13 @@ trip_o_cty <-
   rename(
     trip_o_county = county
   )
+
 trip_o_ctu <-
   st_join(trip_o_sf, ctu_sf, join = st_within) %>%
   st_drop_geometry() %>%
   mutate(community_name = community_name %>% as.factor()) %>%
   rename(trip_o_city = community_name)
+
 trip_o_cd_2050 <-
   st_join(trip_o_sf, cd_2050_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -257,6 +272,16 @@ trip_o_cd_2050 <-
     trip_o_cd_2050_broad = cd_2050_broad,
     trip_o_cd_2050_rsd = cd_2050_rsd
   )
+
+trip_o_cd_2040 <-
+  st_join(trip_o_sf, cd_2040_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(
+    trip_o_cd_2040 = cd_2040,
+    trip_o_cd_2040_broad = cd_2040_broad,
+    trip_o_cd_2040_rsd = cd_2040_rsd
+  )
+
 trip_o_cbg_2010 <-
   st_join(trip_o_sf, cbg2010_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -267,8 +292,9 @@ trip_o_cbg_2020 <-
   rename(trip_o_cbg_2020 = cbg_2020)
 trip_o_taz <-
   st_join(trip_o_sf,
-          taz_sf %>% select("taz"),
-          join = st_within) %>%
+    taz_sf %>% select("taz"),
+    join = st_within
+  ) %>%
   st_drop_geometry() %>%
   rename(trip_o_taz = taz)
 
@@ -278,6 +304,7 @@ tbi$trip <-
   left_join(trip_o_cty, by = "trip_id") %>%
   left_join(trip_o_ctu, by = "trip_id") %>%
   left_join(trip_o_cd_2050, by = "trip_id") %>%
+  left_join(trip_o_cd_2040, by = "trip_id") %>%
   left_join(trip_o_cbg_2010, by = "trip_id") %>%
   left_join(trip_o_cbg_2020, by = "trip_id") %>%
   left_join(trip_o_taz, by = "trip_id")
@@ -310,6 +337,16 @@ trip_d_cd_2050 <-
     trip_d_cd_2050_broad = cd_2050_broad,
     trip_d_cd_2050_rsd = cd_2050_rsd
   )
+
+trip_d_cd_2040 <-
+  st_join(trip_d_sf, cd_2040_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(
+    trip_d_cd_2040 = cd_2040,
+    trip_d_cd_2040_broad = cd_2040_broad,
+    trip_d_cd_2040_rsd = cd_2040_rsd
+  )
+
 trip_d_cbg_2010 <-
   st_join(trip_d_sf, cbg2010_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -320,8 +357,9 @@ trip_d_cbg_2020 <-
   rename(trip_d_cbg_2020 = cbg_2020)
 trip_d_taz <-
   st_join(trip_d_sf,
-          taz_sf %>% select("taz"),
-          join = st_within) %>%
+    taz_sf %>% select("taz"),
+    join = st_within
+  ) %>%
   st_drop_geometry() %>%
   rename(trip_d_taz = taz)
 
@@ -331,6 +369,7 @@ tbi$trip <-
   left_join(trip_d_cty, by = "trip_id") %>%
   left_join(trip_d_ctu, by = "trip_id") %>%
   left_join(trip_d_cd_2050, by = "trip_id") %>%
+  left_join(trip_d_cd_2040, by = "trip_id") %>%
   left_join(trip_d_cbg_2010, by = "trip_id") %>%
   left_join(trip_d_cbg_2020, by = "trip_id") %>%
   left_join(trip_d_taz, by = "trip_id")
@@ -362,6 +401,16 @@ work_cd_2050 <-
     work_cd_2050_broad = cd_2050_broad,
     work_cd_2050_rsd = cd_2050_rsd
   )
+
+work_cd_2040 <-
+  st_join(work_sf, cd_2040_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(
+    work_cd_2040 = cd_2040,
+    work_cd_2040_broad = cd_2040_broad,
+    work_cd_2040_rsd = cd_2040_rsd
+  )
+
 work_cbg_2010 <-
   st_join(work_sf, cbg2010_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -372,8 +421,9 @@ work_cbg_2020 <-
   rename(work_cbg_2020 = cbg_2020)
 work_taz <-
   st_join(work_sf,
-          taz_sf %>% select("taz"),
-          join = st_within) %>%
+    taz_sf %>% select("taz"),
+    join = st_within
+  ) %>%
   st_drop_geometry() %>%
   rename(work_taz = taz)
 
@@ -382,6 +432,7 @@ tbi$person <-
   left_join(work_mpo, by = "person_id") %>%
   # left_join(work_cty, by = "person_id") %>% # RSG did this already
   left_join(work_ctu, by = "person_id") %>%
+  left_join(work_cd_2040, by = "person_id") %>%
   left_join(work_cd_2050, by = "person_id") %>%
   left_join(work_cbg_2010, by = "person_id") %>%
   left_join(work_cbg_2020, by = "person_id") %>%
@@ -414,6 +465,15 @@ school_cd_2050 <-
     school_cd_2050_broad = cd_2050_broad,
     school_cd_2050_rsd = cd_2050_rsd
   )
+
+school_cd_2040 <-
+  st_join(school_sf, cd_2040_sf, join = st_within) %>%
+  st_drop_geometry() %>%
+  rename(
+    school_cd_2040 = cd_2040,
+    school_cd_2040_broad = cd_2040_broad,
+    school_cd_2040_rsd = cd_2040_rsd
+  )
 school_cbg_2010 <-
   st_join(school_sf, cbg2010_sf, join = st_within) %>%
   st_drop_geometry() %>%
@@ -424,8 +484,9 @@ school_cbg_2020 <-
   rename(school_cbg_2020 = cbg_2020)
 school_taz <-
   st_join(school_sf,
-          taz_sf %>% select("taz"),
-          join = st_within) %>%
+    taz_sf %>% select("taz"),
+    join = st_within
+  ) %>%
   st_drop_geometry() %>%
   rename(school_taz = taz)
 
@@ -434,6 +495,7 @@ tbi$person <-
   left_join(school_mpo, by = "person_id") %>%
   # left_join(school_cty, by = "person_id") %>% # RSG did this already
   left_join(school_ctu, by = "person_id") %>%
+  left_join(school_cd_2040, by = "person_id") %>%
   left_join(school_cd_2050, by = "person_id") %>%
   left_join(school_cbg_2010, by = "person_id") %>%
   left_join(school_cbg_2020, by = "person_id") %>%
@@ -444,6 +506,7 @@ rm(
   cbg2010_sf,
   cbg2020_sf,
   cd_2050_sf,
+  cd_2040_sf,
   ctu_sf,
   cty_sf,
   hh_cbg_2010,
@@ -458,6 +521,7 @@ rm(
   school_cbg_2010,
   school_cbg_2020,
   school_cd_2050,
+  school_cd_2040,
   school_ctu,
   school_cty,
   school_mpo,
@@ -467,6 +531,7 @@ rm(
   trip_d_cbg_2010,
   trip_d_cbg_2020,
   trip_d_cd_2050,
+  trip_d_cd_2040,
   trip_d_ctu,
   trip_d_cty,
   trip_d_mpo,
@@ -475,6 +540,7 @@ rm(
   trip_o_cbg_2010,
   trip_o_cbg_2020,
   trip_o_cd_2050,
+  trip_o_cd_2040,
   trip_o_ctu,
   trip_o_cty,
   trip_o_mpo,
@@ -483,6 +549,7 @@ rm(
   work_cbg_2010,
   work_cbg_2020,
   work_cd_2050,
+  work_cd_2040,
   work_ctu,
   work_cty,
   work_mpo,
