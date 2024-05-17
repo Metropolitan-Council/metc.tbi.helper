@@ -104,10 +104,10 @@ cd_2050_sf <-
   mutate(
     cd_2050_broad = recode_factor(
       cd_2050,
-      "Agricultural" = "Rural/Non-Coucil",
-      "Rural Center" = "Rural/Non-Coucil",
-      "Rural Residential" = "Rural/Non-Coucil",
-      "Non-Council Community" = "Rural/Non-Coucil"
+      "Agricultural" = "Rural/Non-Council",
+      "Rural Center" = "Rural/Non-Council",
+      "Rural Residential" = "Rural/Non-Council",
+      "Non-Council Community" = "Rural/Non-Council"
     )
   ) %>%
   mutate(
@@ -115,7 +115,7 @@ cd_2050_sf <-
       cd_2050_broad,
       "Urban Edge" = "Urban",
       "Suburban Edge" = "Suburban",
-      "Diversified Residential" = "Rural/Non-Coucil"
+      "Diversified Residential" = "Rural/Non-Council"
     )
   )
 
@@ -134,10 +134,10 @@ cd_2040_sf <-
   mutate(
     cd_2040_broad = recode_factor(
       cd_2040,
-      "Agricultural" = "Rural/Non-Coucil",
-      "Rural Center" = "Rural/Non-Coucil",
-      "Rural Residential" = "Rural/Non-Coucil",
-      "Non-Council Area" = "Rural/Non-Coucil"
+      "Agricultural" = "Rural/Non-Council",
+      "Rural Center" = "Rural/Non-Council",
+      "Rural Residential" = "Rural/Non-Council",
+      "Non-Council Area" = "Rural/Non-Council"
     )
   ) %>%
   mutate(
@@ -145,7 +145,7 @@ cd_2040_sf <-
       cd_2040_broad,
       "Urban Edge" = "Urban",
       "Suburban Edge" = "Suburban",
-      "Diversified Residential" = "Rural/Non-Coucil"
+      "Diversified Residential" = "Rural/Non-Council"
     )
   )
 
