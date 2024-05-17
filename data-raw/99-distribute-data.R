@@ -25,9 +25,6 @@ lapply(tbi_rmPII, \(tab){
 })
 
 # output tables --------
-tables <- names(tbi_rmPII)
-# years <- tbi_rmPII$hh$survey_year %>% unique()
-years <- c(2019, 2021)
 lapply(tables, \(tab){
   lapply(years, \(yr){
     tbi_yr_path <- file.path(tbi_geospatialCommons_path, paste0("tbi", yr))
@@ -43,7 +40,6 @@ lapply(tables, \(tab){
 
 # MTS_Planning DB --------------------------------------
 # remove emojis and special charactors from the data.
-# tab <- copy(tbi$trip)
 lapply(tbi, \(tab){
   cols <- tab %>%
     sapply(typeof) %>%
@@ -57,6 +53,8 @@ lapply(tbi, \(tab){
 
 
 # save to database. The process is faster if we do it in smaller chuncks
+tables <- names(tbi_rmPII)
+years <- c(2019, 2021)
 db_con <- db_connect()
 # tab <- "trip"
 # yr <- 2023
@@ -89,7 +87,7 @@ lapply(tables, \(tab){
 })
 dbDisconnect(db_con)
 
-# N Drive -----------------
+# N Drive -
 # put data in the N drive
 
 # fwrite(table_subsets[['2915']], '~/Desktop/test.csv')
@@ -100,7 +98,7 @@ dbDisconnect(db_con)
 # DBI::dbWriteTable(db_con, name = table_name, value = table_subsets[['583']], append = T)
 
 
-# # MTS_Planning DB --------------------------------------
+# # MTS_Planning DB -
 # # location file is not modified in this process and in the
 # # data base as TBI19_RAW_LOCATION
 # db_con <- db_connect()
