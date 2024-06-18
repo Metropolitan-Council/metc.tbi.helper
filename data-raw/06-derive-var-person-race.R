@@ -35,15 +35,15 @@ per_race <-
   .[, .(race_ethnicity = ifelse(uniqueN(race) > 1, "2 or more races", race_decoded)), keyby = person_id]
 tbi$person[per_race, on = "person_id", race_ethnicity := i.race_ethnicity]
 
-
 race_detailed <-
   var_list[
-    variable_2021 %>% str_detect("race"),
-    .(variable_2021, description_unified)
+    variable %>% str_detect("^race"),
+    .(variable, description)
   ] %>%
-  .[, desc := description_unified %>% str_replace_all(".*: ", "")]
+  .[, desc := description %>% str_replace_all(".*: ", "")] %>%
+  .[, desc := desc %>% str_replace_all("Race-- ", "")]
 race_detailed_mapping <- race_detailed$desc
-names(race_detailed_mapping) <- race_detailed$variable_2021
+names(race_detailed_mapping) <- race_detailed$variable
 
 per_race_detailed <-
   tbi$person %>%
@@ -54,9 +54,10 @@ per_race_detailed <-
   melt(id.vars = "person_id", variable.name = "race", variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_detailed_mapping[race]] %>%
-  .[, .(race_ethnicity = race_decoded %>% unique() %>% paste0(collapse = "; ")), keyby = person_id]
+  .[, .(race_ethnicity_detailed = race_decoded %>% unique() %>% na.omit() %>% paste0(collapse = "; ")), keyby = person_id]
+per_race_detailed[race_ethnicity_detailed == "", race_ethnicity_detailed := NA]
 
-tbi$person[per_race_detailed, on = "person_id", race_ethnicity_detailed := i.race_ethnicity]
+tbi$person[per_race_detailed, on = "person_id", race_ethnicity_detailed := i.race_ethnicity_detailed]
 
 # rename race columns ------------
 race_col_mapping <- c(

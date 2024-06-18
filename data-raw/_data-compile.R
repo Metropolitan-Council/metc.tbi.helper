@@ -26,7 +26,7 @@ source("data-raw/07-derive-var-hh-income-easyread.R")
 
 # source("data-raw/08-derive-var-trip-mode-group.R") # deprecated
 # source("data-raw/09-derive-var-trip-distance-adjusted.R") # Analysis needed
-source("data-raw/10-derive-table-trip-purpose.R")
+# source("data-raw/10-derive-table-trip-purpose.R")
 source("data-raw/11-derive-var-trip-purpose-broad.R")
 source("data-raw/12-derive-var-trip-seasons.R")
 source("data-raw/13-remove-pii.R")

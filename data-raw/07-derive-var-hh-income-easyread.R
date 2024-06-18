@@ -15,7 +15,6 @@ income_mapping <-
   )
 
 levels(tbi$hh$income_detailed) <- tbi$hh[, income_mapping[levels(income_detailed)]]
-tbi$hh[, .N, keyby = income_detailed]
 
 # income_broad --------------
 income_mapping <-
@@ -29,7 +28,5 @@ income_mapping <-
   )
 
 levels(tbi$hh$income_broad) <- tbi$hh[, income_mapping[levels(income_broad)]]
-tbi$hh[, .N, keyby = income_broad]
-
 
 rm(income_mapping)
