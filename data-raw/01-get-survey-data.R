@@ -2,10 +2,10 @@
 # MetC staff only
 # qs::qload("/Volumes/MTS/Working/Modeling/Household_Survey_Data/Dataset_2024-05-13/CombinedDataset_2024-05-13/dat_all_upcoded_labeled.qs")
 # qs::qload("N:/MTS/Working/Modeling/Household_Survey_Data/Dataset_2024-05-13/CombinedDataset_2024-05-13/dat_all_upcoded_labeled.qs")
-if(Sys.info()['sysname'] == 'Darwin'){
+if (Sys.info()["sysname"] == "Darwin") {
   system("open smb://rafsshare.mc.local/shared/MTS/")
   qs::qload("/Volumes/MTS/Working/Modeling/Household_Survey_Data/Dataset_2024-05-13/CombinedDataset_2024-05-13/dat_all_upcoded_labeled.qs")
-}else{
+} else {
   qs::qload("N:/MTS/Working/Modeling/Household_Survey_Data/Dataset_2024-05-13/CombinedDataset_2024-05-13/dat_all_upcoded_labeled.qs")
 }
 tbi <- dat_all_upcoded_labeled
