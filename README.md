@@ -8,11 +8,15 @@ Behavior Inventory Household Survey data.
 data, check out the* `data` *folder or source from URL:*
 
 ``` r
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi21.rda")))
-                
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi19.rda")))
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi21.rda"
+)))
+
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi19.rda"
+)))
 ```
 
 Other things you might find useful in here include R scripts to create
@@ -90,7 +94,7 @@ data, metadata and R scripts in two ways.
 source(
   paste0(
     "directory/where/your/repository/lives/",
-    "R/previous_code/xtab-vehicle-stops.R" 
+    "R/previous_code/xtab-vehicle-stops.R"
   )
 )
 ```
@@ -104,7 +108,7 @@ can be sourced directly with base R:
 ``` r
 source(
   paste0(
-    "https://raw.githubusercontent.com/Metropolitan-Council/metc.tbi.helper/main/", 
+    "https://raw.githubusercontent.com/Metropolitan-Council/metc.tbi.helper/main/",
     "R/previous_code/xtab-vehicle-stops.R"
   )
 )
@@ -121,8 +125,10 @@ library(dplyr)
 library(bit64) # for looking at big integers, like the person_ids
 library(srvyr)
 
-load(url(paste0("https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
-                "tbi21.rda")))
+load(url(paste0(
+  "https://github.com/Metropolitan-Council/metc.tbi.helper/raw/main/data/",
+  "tbi21.rda"
+)))
 
 tbi21$vehicle %>%
   left_join(tbi21$household) %>%

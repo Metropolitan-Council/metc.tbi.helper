@@ -27,26 +27,28 @@ if (exists("db_connect") == FALSE) {
 
         if (
           DBI::dbCanConnect(odbc::odbc(),
-                            "MTS_Planning_Data",
-                            uid = uid,
-                            pwd = pwd) == FALSE){
+            "MTS_Planning_Data",
+            uid = uid,
+            pwd = pwd
+          ) == FALSE) {
           cli::cli_abort("Database failed to connect")
-        } else{
+        } else {
           conn <- DBI::dbConnect(odbc::odbc(),
-                                 "MTS_Planning_Data",
-                                 uid = uid,
-                                 pwd = pwd)
+            "MTS_Planning_Data",
+            uid = uid,
+            pwd = pwd
+          )
           return(conn)
         }
-
       }
     } else if (drv == "SQL Server") {
       if (DBI::dbCanConnect(odbc::odbc(),
-                            Driver = drv,
-                            Database = "MTS_Planning_Data",
-                            Server = keyring::key_get("mts_planning_database_string"),
-                            Trusted_Connection = "yes") ==
-          FALSE) {
+        Driver = drv,
+        Database = "MTS_Planning_Data",
+        Server = keyring::key_get("mts_planning_database_string"),
+        Trusted_Connection = "yes"
+      ) ==
+        FALSE) {
         cli::cli_abort("Database failed to connect")
       }
     }
@@ -56,18 +58,18 @@ if (exists("db_connect") == FALSE) {
 
     conn <- if (drv == "FreeTDS") {
       DBI::dbConnect(odbc::odbc(),
-                     Driver = drv,
-                     Database = "MTS_Planning_Data",
-                     Uid = uid,
-                     Pwd = pwd,
-                     Server = keyring::key_get("mts_planning_database_string")
+        Driver = drv,
+        Database = "MTS_Planning_Data",
+        Uid = uid,
+        Pwd = pwd,
+        Server = keyring::key_get("mts_planning_database_string")
       )
     } else if (drv == "SQL Server") {
       DBI::dbConnect(odbc::odbc(),
-                     Driver = drv,
-                     Database = "MTS_Planning_Data",
-                     Server = keyring::key_get("mts_planning_database_string"),
-                     Trusted_Connection = "yes"
+        Driver = drv,
+        Database = "MTS_Planning_Data",
+        Server = keyring::key_get("mts_planning_database_string"),
+        Trusted_Connection = "yes"
       )
     }
 
@@ -93,11 +95,11 @@ if (exists("db_connect") == FALSE) {
     # check that db can connect
     if (drv == "FreeTDS") {
       if (DBI::dbCanConnect(odbc::odbc(),
-                            "GISLibrary",
-                            Driver = "FreeTDS",
-                            timeout = 10,
-                            Uid = uid,
-                            Pwd = pwd
+        "GISLibrary",
+        Driver = "FreeTDS",
+        timeout = 10,
+        Uid = uid,
+        Pwd = pwd
       ) == FALSE) {
         cli::cli_abort("Database failed to connect")
       }
@@ -115,11 +117,11 @@ if (exists("db_connect") == FALSE) {
 
     conn <- if (drv == "FreeTDS") {
       DBI::dbConnect(odbc::odbc(),
-                     "GISLibrary",
-                     Driver = "FreeTDS",
-                     timeout = 10,
-                     Uid = uid,
-                     Pwd = pwd
+        "GISLibrary",
+        Driver = "FreeTDS",
+        timeout = 10,
+        Uid = uid,
+        Pwd = pwd
       )
     } else if (drv == "SQL Server") {
       DBI::dbConnect(
