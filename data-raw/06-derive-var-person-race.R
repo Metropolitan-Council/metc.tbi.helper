@@ -4,6 +4,7 @@
 
 # Note, we should really go through the "other_specify" column (not included in this data extract)
 # to weed out the (presumably) white people who answer as "human race", "none of your business" etc :/
+setnames(tbi$person, "race_other", "race_other_text")
 
 race_mapping <- c(
   "race_1" = "American Indian, Alaskan Native",
