@@ -6,25 +6,27 @@ save(tbi_rmPII, file = "data/tbi.rda")
 
 # Geospatial commons --------------------------------------
 # Contact GIS
-tbi_desktop_path <- file.path("~/Desktop", "TBI_data_out")
-dir.create(tbi_desktop_path)
+# tbi_desktop_path <- file.path("Desktop", "TBI_data_out")
+dir.create("TBI_data_out")
 
-tbi_geospatialCommons_path <- file.path(tbi_desktop_path, "geospatial_commons")
+tbi_geospatialCommons_path <- file.path("TBI_data_out", "geospatial_commons")
 dir.create(tbi_geospatialCommons_path)
 
 # remove emojis and special charactors from the data.
-lapply(tbi_rmPII, \(tab){
-  cols <- tab %>%
-    sapply(typeof) %>%
-    str_detect("character")
-  col_names <- names(tab)[cols]
-  tab[, c(col_names) :=
-    lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-  .SDcols = cols
-  ]
-})
+# lapply(tbi_rmPII, \(tab){
+#   cols <- tab %>%
+#     sapply(typeof) %>%
+#     str_detect("character")
+#   col_names <- names(tab)[cols]
+#   tab[, c(col_names) :=
+#     lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
+#   .SDcols = cols
+#   ]
+# })
 
 # output tables --------
+tables <- names(tbi_rmPII)
+years <- c("2019", "2021", "2023")
 lapply(tables, \(tab){
   lapply(years, \(yr){
     tbi_yr_path <- file.path(tbi_geospatialCommons_path, paste0("tbi", yr))
@@ -39,23 +41,28 @@ lapply(tables, \(tab){
 })
 
 # MTS_Planning DB --------------------------------------
-# remove emojis and special charactors from the data.
-lapply(tbi, \(tab){
-  cols <- tab %>%
-    sapply(typeof) %>%
-    str_detect("character")
-  col_names <- names(tab)[cols]
-  tab[, c(col_names) :=
-    lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-  .SDcols = cols
-  ]
-})
+# remove emojis and special characters from the data.
+# lapply(tbi, \(tab){
+#   cols <- tab %>%
+#     sapply(typeof) %>%
+#     str_detect("character")
+#   col_names <- names(tab)[cols]
+#   tab[, c(col_names) :=
+#     lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
+#   .SDcols = cols
+#   ]
+# })
 
 
 # save to database. The process is faster if we do it in smaller chuncks
 tables <- names(tbi_rmPII)
-years <- c(2019, 2021)
-db_con <- db_connect()
+years <- c(2019, 2021, 2023)
+db_con <- dbConnect(odbc::odbc(),
+                     dsn = "MTS_Planning_Data",
+                     uid = keyring::key_get("councilR.uid"),
+                     pwd = keyring::key_get("councilR.pwd")
+)
+
 # tab <- "trip"
 # yr <- 2023
 lapply(tables, \(tab){
@@ -75,6 +82,9 @@ lapply(tables, \(tab){
         )
       )
 
+      # create an empty table using the function created in script 15
+      create_table(db_con, tab, table_name)
+
       i <- 1
       N <- length(table_subsets)
       lapply(table_subsets, \(table_ss_){
@@ -86,6 +96,7 @@ lapply(tables, \(tab){
   })
 })
 dbDisconnect(db_con)
+
 
 # N Drive -
 # put data in the N drive
