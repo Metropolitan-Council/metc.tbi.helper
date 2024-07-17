@@ -1,6 +1,6 @@
 # This script writes a function called "create_table". The purpose is to convert data types of variables to what SQL Server can read and create an empty table before writing data.
 
-create_table <- function(db_conn, tab, table_name){
+create_table <- function(db_conn, tab, table_name) {
   types <- tbi[[tab]] %>%
     sapply(typeof)
   class <- tbi[[tab]] %>%
@@ -27,9 +27,12 @@ create_table <- function(db_conn, tab, table_name){
   types[names(types) %in% names(factor_check[factor_check == TRUE])] <- "character"
 
   # adapt long string by editing the length of character
-  check_length <- tbi[[tab]][, .SD, .SDcols = types == 'character'] %>%
+  check_length <- tbi[[tab]][, .SD, .SDcols = types == "character"] %>%
     sapply(\(x){
-      na.omit(x) %>% as.character() %>% nchar() %>% max > 255
+      na.omit(x) %>%
+        as.character() %>%
+        nchar() %>%
+        max() > 255
     })
   fifelse(
     check_length[check_length == TRUE],

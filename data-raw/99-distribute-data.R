@@ -58,9 +58,9 @@ lapply(tables, \(tab){
 tables <- names(tbi_rmPII)
 years <- c(2019, 2021, 2023)
 db_con <- dbConnect(odbc::odbc(),
-                     dsn = "MTS_Planning_Data",
-                     uid = keyring::key_get("councilR.uid"),
-                     pwd = keyring::key_get("councilR.pwd")
+  dsn = "MTS_Planning_Data",
+  uid = keyring::key_get("councilR.uid"),
+  pwd = keyring::key_get("councilR.pwd")
 )
 
 # tab <- "trip"
