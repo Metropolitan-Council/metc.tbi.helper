@@ -1,5 +1,5 @@
-# This script is writen to run after
-# 15-create-dictionary.R
+# read function
+source("data-raw/_helper_function.R")
 
 # GitHub --------------------------------------
 save(tbi_rmPII, file = "data/tbi.rda")
