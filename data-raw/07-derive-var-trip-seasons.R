@@ -1,5 +1,5 @@
 # This script is writen to run after
-# 11-derive-var-trip-purpose-broad.R
+# 06-derive-var-trip-purpose-broad.R
 
 # Seasons -------------
 getSeason <- function(input.date) {

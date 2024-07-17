@@ -1,5 +1,5 @@
 # This script is writen to run after
-# 12-derive-var-trip-seasons.R
+# 07-derive-var-trip-seasons.R
 
 # check for any PII and remove
 # for vehicle table, remove make, model, year and name, and then round the numbers from DPS/EPA
