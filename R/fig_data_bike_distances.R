@@ -1,3 +1,6 @@
+# DEPRECATED
+# code must be updated before it can run correctly
+
 library(data.table)
 library(plotly)
 library(stringr)
