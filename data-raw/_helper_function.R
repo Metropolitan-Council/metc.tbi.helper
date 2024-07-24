@@ -36,7 +36,7 @@ create_table <- function(db_conn, tab, table_name) {
     })
   fifelse(
     check_length[check_length == TRUE],
-    types[names(types) %in% names(check_length[check_length == TRUE])] <- "varchar(max)",
+    types[names(types) %in% names(check_length[check_length == TRUE])] <- "varchar(8000)",
     types[names(types) %in% names(check_length[check_length == FALSE])] <- "varchar(255)"
   )
 
