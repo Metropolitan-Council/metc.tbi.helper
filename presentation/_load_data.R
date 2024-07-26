@@ -1,9 +1,15 @@
 source("_load_libraries.R")
 
-con_mtsp <- DBI::dbConnect(odbc::odbc(), Driver = "FreeTDS",
-  Database = "MTS_Planning_Data", Uid = keyring::key_get("councilR.uid"),
-  Pwd = keyring::key_get("councilR.pwd"), Server = "dbsqlcl11t.test.local,65414",
-  timezone_out = "America/Chicago")
+# con_mtsp <- DBI::dbConnect(odbc::odbc(), Driver = "FreeTDS",
+#   Database = "MTS_Planning_Data", Uid = keyring::key_get("councilR.uid"),
+#   Pwd = keyring::key_get("councilR.pwd"), Server = "dbsqlcl11t.test.local,65414",
+#   timezone_out = "America/Chicago")
+
+con_mtsp <- dbConnect(odbc::odbc(),
+                    dsn = "MTS_Planning_Data",
+                    uid = keyring::key_get("councilR.uid"),
+                    pwd = keyring::key_get("councilR.pwd")
+)
 odbc::odbcSetTransactionIsolationLevel(con_mtsp, 'read_uncommitted')
 
 # list tables
