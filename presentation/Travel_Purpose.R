@@ -1,4 +1,4 @@
-source("d_trip_mode_purpose.R")
+source("presentation/d_trip_mode_purpose.R")
 
 # tbi$trip[, purpose_category := fifelse(d_purpose_category == "Home", o_purpose_category, d_purpose_category)]
 # tbi$trip[, purpose := fifelse(d_purpose == "Went home", o_purpose, d_purpose)]
@@ -12,21 +12,21 @@ trip_purpose[
   .[, paste0('"', purpose_category, '" = , #', V1) %>% unique() %>% paste(collapse = '\n') %>% cat]
 
 mapping <- c(
-  "Errand" = "Errand/Misc", #2019_2021
-  "Errand/Other" = "Errand/Misc", #2019_2021
-  "Home" = "Errand/Misc", #2019_2021
-  "Not imputable" = "Errand/Misc", #2019_2021
-  "Other" = "Errand/Misc", #2021
-  "Overnight" = "Errand/Misc", #2019_2021
-
-  "Escort" = "Escort", #2019_2021
-  "Meal" = "Dining", #2019_2021
-  "School" = "Education", #2019_2021
-  "School related" = "Education", #2019_2021
-  "Shopping" = "Shopping", #2019_2021
-  "Social/Recreation" = "Social/Rec", #2019_2021
-  "Work" = "Work", #2019_2021
-  "Work related" =  "Work" #2019_2021
+  "Errand" = "Errand/Misc", #2019_2021_2023
+  "Errand/Other" = "Errand/Misc", #2019_2021_2023
+  "Home" = "Errand/Misc", #2019_2021_2023
+  "Not imputable" = "Errand/Misc", #2019_2021_2023
+  "Other" = "Errand/Misc", #2021_2023
+  "Overnight" = "Errand/Misc", #2019_2021_2023
+  "Missing" = "Missing", #2023
+  "Escort" = "Escort", #2019_2021_2023
+  "Meal" = "Dining", #2019_2021_2023
+  "School" = "Education", #2019_2021_2023
+  "School related" = "Education", #2019_2021_2023
+  "Shopping" = "Shopping", #2019_2021_2023
+  "Social/Recreation" = "Social/Rec", #2019_2021_2023
+  "Work" = "Work", #2019_2021_2023
+  "Work related" =  "Work" #2019_2021_2023
 )
 trip_purpose[, purpose_aligned := mapping[purpose_category]]
 trip_purpose[purpose %>% str_detect("Medical"), purpose_aligned := "Medical"]
@@ -35,7 +35,7 @@ trip_purpose[purpose %>% tolower() %>% str_detect("exercise"), purpose_aligned :
 
 trip_purpose <-
   trip_purpose[
-    , .(trips = sum(trip_purpose_weight))
+    , .(trips = sum(trip_purpose_weight, na.rm = TRUE))
     , keyby = .(survey_year, purpose_aligned)
   ] %>%
     .[, pct := trips / sum(trips), survey_year] %>%
@@ -88,24 +88,24 @@ plot_ly() %>%
 
 
 # 2021 only
-plot_ly() %>%
-  add_bars(data = trip_purpose[survey_year == 2021]
-           , x = ~trips
-           , y = ~ reorder(purpose_aligned, trips)
-           # , color = ~survey_year
-           , colors = c(colors$councilBlue, colors$esBlue)
-           , text =~ sprintf("%sM (%s%%)"
-                             , round(trips/1000000, 2) %>% abs()
-                             , round(pct * 100, 1) %>% abs())
-           , textfont = list(size = 11, color = "white")
-           , textangle = 0
-           , textposition = "inside"
-  ) %>%
-  plotly_layout(
-    main_title = "Trip Purpose",
-    subtitle = "Source: TBI Household 2021",
-    legend_title = "",
-    y_title = "Trip Purpose",
-    x_title = "Average Weekday Trips"
-  )
+# plot_ly() %>%
+#   add_bars(data = trip_purpose[survey_year == 2021]
+#            , x = ~trips
+#            , y = ~ reorder(purpose_aligned, trips)
+#            # , color = ~survey_year
+#            , colors = c(colors$councilBlue, colors$esBlue)
+#            , text =~ sprintf("%sM (%s%%)"
+#                              , round(trips/1000000, 2) %>% abs()
+#                              , round(pct * 100, 1) %>% abs())
+#            , textfont = list(size = 11, color = "white")
+#            , textangle = 0
+#            , textposition = "inside"
+#   ) %>%
+#   plotly_layout(
+#     main_title = "Trip Purpose",
+#     subtitle = "Source: TBI Household 2021",
+#     legend_title = "",
+#     y_title = "Trip Purpose",
+#     x_title = "Average Weekday Trips"
+#   )
 

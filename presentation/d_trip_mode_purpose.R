@@ -1,5 +1,5 @@
-source("_load_libraries.R")
-source("_load_data.R")
+source("presentation/_load_libraries.R")
+source("presentation/_load_data.R")
 
 # 2019 --------------------
 trip19 <- tbi$TBI2019_TRIP[survey_year == 2019]
@@ -239,13 +239,138 @@ rm(
   nonhomebasedtrips21_2,
   nonhomebasedtrips21,
   homecats,
-  linked_trips21,
-  trip19,
-  trip21
+  linked_trips21
 )
 
-trip_purpose <- rbind(trip_purpose19,trip_purpose21)
 
-rm(trip_purpose19, trip_purpose21)
+# 2023 -------------
+trip23 <- tbi$TBI2023_TRIP[survey_year == 2023]
+setkey(trip23, linked_trip_id, leg_num)
+
+linked_trips23 <-
+  trip23[
+    , .(
+      # First origin
+      o_purpose_category = first(o_purpose_category),
+      o_purpose = first(o_purpose),
+
+      # Last destination
+      d_purpose_category = last(d_purpose_category),
+      d_purpose = last(d_purpose),
+      # trip weight:
+      trip_purpose_weight = first(trip_weight),
+
+      # distance (total):
+      distance_miles = sum(distance_miles)
+    ),
+    keyby = .(linked_trip_id, person_id, hh_id)
+  ]
+
+# get rid of these
+linked_trips23 <- linked_trips23[!o_purpose_category %in% "Change mode"]
+
+# get rid of these
+linked_trips23 <- linked_trips23[!d_purpose_category %in% "Change mode"]
+
+
+### Trip Purpose Table ------------
+homecats <- c("Overnight", "Home")
+linked_trips23[
+  , trip_type := case_when(
+    o_purpose_category %in% homecats |
+      d_purpose_category %in% homecats ~ "Home-based",
+    .default = "Non-home-based"
+  )
+]
+
+#### Home-based trip purpose = NOT home ----------------
+homebasedtrips23 <-
+  linked_trips23[
+    trip_type == "Home-based"
+  ][
+    , `:=`(
+      purpose_category = case_when(
+        # when coming FROM home, the purpose is the destination
+        o_purpose_category %in% homecats ~ d_purpose_category,
+        # when going TO home, the purpose is the origin:
+        d_purpose_category %in% homecats ~ o_purpose_category
+      ),
+      purpose = case_when(
+        # when coming FROM home, the purpose is the destination
+        o_purpose_category %in% homecats ~ d_purpose,
+        # when going TO home, the purpose is the origin:
+        d_purpose_category %in% homecats ~ o_purpose
+      )
+    )
+  ][
+    , c(
+      "o_purpose_category",
+      "o_purpose",
+      "d_purpose_category",
+      "d_purpose"
+    ) := NULL
+  ]
+
+
+### Trip Weight Adjustment: 50% for each half of the trip ----------------
+nonhomebasedtrips23_1 <-
+  linked_trips23[
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose_category", "d_purpose_category"),
+      value.name = "purpose_category"
+    )
+  ][
+    , .(purpose_category)
+  ]
+
+nonhomebasedtrips23_2 <-
+  linked_trips23[
+    trip_type == "Non-home-based",
+    melt(
+      .SD,
+      measure.vars = c("o_purpose", "d_purpose"),
+      value.name = "purpose"
+    )
+  ][
+    , `:=`(
+      trip_purpose_weight = 0.5 * trip_purpose_weight,
+      distance_miles = 0.5 * distance_miles
+    )
+  ][
+    , .(
+      linked_trip_id, trip_type, person_id,
+      hh_id, trip_purpose_weight, purpose,
+      distance_miles
+    )
+  ]
+
+nonhomebasedtrips23 <- cbind(nonhomebasedtrips23_1, nonhomebasedtrips23_2)
+
+
+#### Merge home-based and non-homebased trips ------------
+trip_purpose23 <-
+  rbind(homebasedtrips23, nonhomebasedtrips23, fill = F) %>%
+  .[, trip_type := NULL] %>%
+  .[, survey_year := "2023"]
+
+
+rm(
+  homebasedtrips23,
+  nonhomebasedtrips23_1,
+  nonhomebasedtrips23_2,
+  nonhomebasedtrips23,
+  homecats,
+  linked_trips23,
+  trip19,
+  trip21,
+  trip23
+)
+
+
+trip_purpose <- rbind(trip_purpose19,trip_purpose21, trip_purpose23)
+
+rm(trip_purpose19, trip_purpose21, trip_purpose23)
 
 

@@ -1,13 +1,14 @@
-source("_load_libraries.R")
-source("_load_data.R")
-tbi$trip[survey_year == '2019', depart_time := depart_time + 60^2]
-tbi$trip[survey_year == '2019', depart_time_imputed := depart_time_imputed + 60^2]
+source("presentation/_load_libraries.R")
+source("presentation/_load_data.R")
 
-tbi$trip[, doy := depart_time %>%
+# trip[survey_year == '2019', depart_time := depart_time + 60^2]
+# trip[survey_year == '2019', depart_time_imputed := depart_time_imputed + 60^2]
+
+trip[, doy := depart_time %>%
            as.Date() %>%
            wday(label = T)]
 
-tbi$trip[, depart_floor :=
+trip[, depart_floor :=
            fifelse(survey_year == 2019, depart_time_imputed, depart_time) %>%
            floor_date("30 min") %>%
            as.ITime() %>%
@@ -15,29 +16,36 @@ tbi$trip[, depart_floor :=
            ]
 
 trips <-
-  tbi$trip[
+  trip[
     # # use only rMove trips
-    # tbi$household[participation_group %>% str_detect("rMove"), .(hh_id)]
+    # household[participation_group %>% str_detect("rMove"), .(hh_id)]
     # , on = "hh_id"
   ][
+    trip_weight > 0,
+    .(
+      trip_weight = max(trip_weight, na.rm = TRUE), depart_floor
+    ),
+    keyby = .(linked_trip_id, survey_year)
+  ][
     , .(
-      trips = sum(trip_weight),
-      max_wt = quantile(trip_weight, prob = 0.95)
+      trips = sum(trip_weight, na.rm = TRUE),
+      max_wt = quantile(trip_weight, prob = 0.95, na.rm = TRUE)
       , surveys = .N %>% as.numeric()
     )
     , .(depart_floor, survey_year)
   ] %>%
-  .[, surveys := surveys/max(surveys), survey_year] %>%
-  na.omit() %>%
-  print
+  .[, surveys := surveys/max(surveys, na.rm = TRUE), survey_year] %>%
+  na.omit()
 
 # weighted  ------
+Sys.timezone()
+trips[, depart_floor_central := as.POSIXct(format(depart_floor, tz = "America/Chicago", usetz = TRUE))]
 plot_ly() %>%
   add_lines(data = trips
-            , x=~ depart_floor
-            , y=~ trips
+            , x= ~ depart_floor_central
+            , y= ~ trips
             , fill = "tozeroy"
-            , color=~survey_year
+            , color= ~survey_year
             , colors = c(colors$councilBlue, colors$esBlue)
             ) %>%
   layout(

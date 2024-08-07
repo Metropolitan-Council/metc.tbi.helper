@@ -1,17 +1,17 @@
-source("_load_libraries.R")
-source("_load_data.R")
+source("presentation/_load_libraries.R")
+source("presentation/_load_data.R")
 
-tbi$trip %>% names %>% str_subset("dist")
-tbi$trip[survey_year == "2019", linked_trip_id := paste0(person_id, "_", linked_trip_num)]
-tbi$trip[survey_year == '2019', depart_time := depart_time + 60^2]
-tbi$trip[survey_year == '2019', depart_time_imputed := depart_time_imputed + 60^2]
-tbi$trip[, depart_time := fifelse(!is.na(depart_time_imputed), depart_time_imputed, depart_time)]
-tbi$trip[, depart_time_imputed := NULL]
-setkey(tbi$trip, linked_trip_id, leg_num)
+trip %>% names %>% str_subset("dist")
+#trip[survey_year == "2019", linked_trip_id := paste0(person_id, "_", linked_trip_num)]
+trip[survey_year == '2019', depart_time := depart_time + 60^2]
+trip[survey_year == '2019', depart_time_imputed := depart_time_imputed + 60^2]
+trip[, depart_time := fifelse(!is.na(depart_time_imputed), depart_time_imputed, depart_time)]
+trip[, depart_time_imputed := NULL]
+setkey(trip, linked_trip_id, leg_num)
 
 # trips that are serviced by transit
 dest2019 <-
-  tbi$trip[survey_year == "2019", .(trip_id, d_lat, d_lon)] %>%
+  trip[survey_year == "2019", .(trip_id, d_lat, d_lon)] %>%
   st_as_sf(coords = c("d_lon", "d_lat"), crs = 4326) %>%
   st_join(st_as_sf(transit_access_2019), join = st_within, left = F) %>%
   st_drop_geometry() %>%
@@ -19,7 +19,7 @@ dest2019 <-
   print
 
 org2019 <-
-  tbi$trip[survey_year == "2019", .(trip_id, o_lat, o_lon)] %>%
+  trip[survey_year == "2019", .(trip_id, o_lat, o_lon)] %>%
   st_as_sf(coords = c("o_lon", "o_lat"), crs = 4326) %>%
   st_join(st_as_sf(transit_access_2019), join = st_within, left = F) %>%
   st_drop_geometry() %>%
@@ -27,7 +27,7 @@ org2019 <-
   print
 
 dest2021 <-
-  tbi$trip[survey_year == "2021", .(trip_id, d_lat, d_lon)] %>%
+  trip[survey_year == "2021", .(trip_id, d_lat, d_lon)] %>%
   st_as_sf(coords = c("d_lon", "d_lat"), crs = 4326) %>%
   st_join(st_as_sf(transit_access_2021), join = st_within, left = F) %>%
   st_drop_geometry() %>%
@@ -35,7 +35,7 @@ dest2021 <-
   print
 
 org2021 <-
-  tbi$trip[survey_year == "2021", .(trip_id, o_lat, o_lon)] %>%
+  trip[survey_year == "2021", .(trip_id, o_lat, o_lon)] %>%
   st_as_sf(coords = c("o_lon", "o_lat"), crs = 4326) %>%
   st_join(st_as_sf(transit_access_2021), join = st_within, left = F) %>%
   st_drop_geometry() %>%
@@ -44,24 +44,24 @@ org2021 <-
 
 trips <-
 rbind(
-  tbi$trip[survey_year == 2019] %>%
+  trip[survey_year == 2019] %>%
     inner_join(dest2019, by="trip_id") %>%
     inner_join(org2019, by="trip_id"),
-  tbi$trip[survey_year == 2021] %>%
+  trip[survey_year == 2021] %>%
     inner_join(dest2021, by="trip_id") %>%
     inner_join(org2021, by="trip_id")
 )
-tbi$trip[, transit_q_mile := F]
-tbi$trip[trips, on='trip_id', transit_q_mile := T]
+trip[, transit_q_mile := F]
+trip[trips, on='trip_id', transit_q_mile := T]
 
 # plot
-setkey(tbi$trip, linked_trip_id, leg_num)
-tbi$trip[, uniqueN(trip_weight), .(survey_year, linked_trip_id)][, .N, .(survey_year, V1)]
+setkey(trip, linked_trip_id, leg_num)
+trip[, uniqueN(trip_weight), .(survey_year, linked_trip_id)][, .N, .(survey_year, V1)]
 
-tbi$trip[tbi$household, on='hh_id', sample_segment := i.sample_segment]
+trip[tbi$household, on='hh_id', sample_segment := i.sample_segment]
 
 transit <-
-  tbi$trip[
+  trip[
     transit_q_mile == T
     , .(
       transit_mode = fifelse("Rail" %in% mode_type | "Public Bus" %in% mode_type
