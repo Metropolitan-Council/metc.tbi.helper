@@ -1,4 +1,4 @@
-source("_load_libraries.R")
+source("presentation/_load_libraries.R")
 
 # con_mtsp <- DBI::dbConnect(odbc::odbc(), Driver = "FreeTDS",
 #   Database = "MTS_Planning_Data", Uid = keyring::key_get("councilR.uid"),
@@ -6,9 +6,9 @@ source("_load_libraries.R")
 #   timezone_out = "America/Chicago")
 
 con_mtsp <- dbConnect(odbc::odbc(),
-                    dsn = "MTS_Planning_Data",
-                    uid = keyring::key_get("councilR.uid"),
-                    pwd = keyring::key_get("councilR.pwd")
+                      dsn = "MTS_Planning_Data",
+                      uid = keyring::key_get("councilR.uid"),
+                      pwd = keyring::key_get("councilR.pwd")
 )
 odbc::odbcSetTransactionIsolationLevel(con_mtsp, 'read_uncommitted')
 
@@ -23,12 +23,17 @@ tbi <-
   lapply(tables, function(x) {
     print(x)
     dbReadTable(con_mtsp, x) %>% as.data.table()
-  }) %>%
-  print()
+  })
+
 names(tbi) <- tables
 
 dbDisconnect(con_mtsp)
 rm(tables, con_mtsp)
+
+trip <- rbind(tbi$TBI2019_TRIP, tbi$TBI2021_TRIP, tbi$TBI2023_TRIP)
+trip[, linked_trip_id := paste0(person_id, "_", linked_trip_num)]
+household <- rbind(tbi$TBI2019_HH, tbi$TBI2021_HH, tbi$TBI2023_HH)
+person <- rbind(tbi$TBI2019_PERSON, tbi$TBI2021_PERSON, tbi$TBI2023_PERSON)
 
 
 # # gtfs 2019
@@ -47,7 +52,7 @@ rm(tables, con_mtsp)
 #   st_transform(4326)
 # saveRDS(transit_access_2019, 'data/transit_access_2019.RDS')
 # rm(tempService, tempTrips)
-transit_access_2019 <- readRDS("data/transit_access_2019.RDS")
+# transit_access_2019 <- readRDS("data/transit_access_2019.RDS")
 
 # # gtfs 2021
 # tempService <- data.table(service_id = serviceOnDate("2021-11-15", gtfs = "data/gtfs_2021.zip"))
@@ -65,7 +70,7 @@ transit_access_2019 <- readRDS("data/transit_access_2019.RDS")
 #   st_transform(4326)
 # saveRDS(transit_access_2021, 'data/transit_access_2021.RDS')
 # rm(tempService, tempTrips)
-transit_access_2021 <- readRDS("data/transit_access_2021.RDS")
+# transit_access_2021 <- readRDS("data/transit_access_2021.RDS")
 
 
 # leaflet() %>%
