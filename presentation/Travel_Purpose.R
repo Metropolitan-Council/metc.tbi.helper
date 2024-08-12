@@ -12,33 +12,36 @@ trip_purpose[
   .[, paste0('"', purpose_category, '" = , #', V1) %>% unique() %>% paste(collapse = '\n') %>% cat]
 
 mapping <- c(
-  "Errand" = "Errand/Misc", #2019_2021_2023
-  "Errand/Other" = "Errand/Misc", #2019_2021_2023
-  "Home" = "Errand/Misc", #2019_2021_2023
-  "Not imputable" = "Errand/Misc", #2019_2021_2023
-  "Other" = "Errand/Misc", #2021_2023
-  "Overnight" = "Errand/Misc", #2019_2021_2023
+  "Errand" = "Errand/Misc/Shopping", #2019_2021_2023
+  "Errand/Other" = "Errand/Misc/Shopping", #2019_2021_2023
+  "Home" = "Errand/Misc/Shopping", #2019_2021_2023
+  "Not imputable" = "Errand/Misc/Shopping", #2019_2021_2023
+  "Other" = "Errand/Misc/Shopping", #2021_2023
+  "Overnight" = "Errand/Misc/Shopping", #2019_2021_2023
   "Missing" = "Missing", #2023
   "Escort" = "Escort", #2019_2021_2023
   "Meal" = "Dining", #2019_2021_2023
   "School" = "Education", #2019_2021_2023
   "School related" = "Education", #2019_2021_2023
-  "Shopping" = "Shopping", #2019_2021_2023
+  "Shopping" = "Errand/Misc/Shopping", #2019_2021_2023
   "Social/Recreation" = "Social/Rec", #2019_2021_2023
   "Work" = "Work", #2019_2021_2023
   "Work related" =  "Work" #2019_2021_2023
 )
 trip_purpose[, purpose_aligned := mapping[purpose_category]]
-trip_purpose[purpose %>% str_detect("Medical"), purpose_aligned := "Medical"]
+trip_purpose[purpose %>% str_detect("Medical"), purpose_aligned := "Errand/Misc/Shopping"]
 trip_purpose[purpose %>% tolower() %>% str_detect("exercise"), purpose_aligned := "Exercise"]
 
 
 trip_purpose <-
   trip_purpose[
-    , .(trips = sum(trip_purpose_weight, na.rm = TRUE))
+    , .(trips = sum(trip_purpose_weight, na.rm = TRUE),
+        person = sum(person_weight, na.rm = TRUE))
     , keyby = .(survey_year, purpose_aligned)
   ] %>%
-    .[, pct := trips / sum(trips), survey_year] %>%
+    .[, pct := trips / sum(trips), survey_year] %>% .[
+      , trip_rate := trips/person, survey_year
+    ] %>%
     print
 
 # Trip purp --------
@@ -51,11 +54,11 @@ trip_purpose <-
 #                    .(purpose_aligned, year = factor(year))] %>%
 #       .[, pct := trips / sum(trips)]
 #   )
-fct_order <- trip_purpose[survey_year == 2021, sum(abs(trips)), purpose_aligned][order(-V1),purpose_aligned]
+fct_order <- trip_purpose[survey_year == 2023, sum(abs(trips)), purpose_aligned][order(-V1),purpose_aligned]
 trip_purpose[, purpose_aligned := factor(purpose_aligned, levels = fct_order)]
 
 plot_ly() %>%
-  add_bars(data = trip_purpose
+  add_bars(data = trip_purpose[purpose_aligned != "Missing"]
            , y = ~trips
            , x = ~ purpose_aligned
            , color = ~survey_year
@@ -74,13 +77,13 @@ plot_ly() %>%
     , yaxis = list(
       # showticklabels = F,
       # showgrid = F,
-      title = "Average Weekday Trips"
+      title = "Weekday Trips"
     )
     , xaxis = list(
       title = NA
     )
     , margin = list(t = 45)
-    , uniformtext=list(minsize=12, mode=F)
+    , uniformtext = list(minsize = 12, mode = F)
     # , legend = list(traceorder = "reversed")
   ) %>%
   print %>%
