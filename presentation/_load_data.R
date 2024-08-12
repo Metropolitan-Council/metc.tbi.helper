@@ -31,9 +31,10 @@ dbDisconnect(con_mtsp)
 rm(tables, con_mtsp)
 
 trip <- rbind(tbi$TBI2019_TRIP, tbi$TBI2021_TRIP, tbi$TBI2023_TRIP)
-trip[, linked_trip_id := paste0(person_id, "_", linked_trip_num)]
+trip[survey_year == 2019, linked_trip_id := paste0(person_id, "_", linked_trip_num)]
 household <- rbind(tbi$TBI2019_HH, tbi$TBI2021_HH, tbi$TBI2023_HH)
 person <- rbind(tbi$TBI2019_PERSON, tbi$TBI2021_PERSON, tbi$TBI2023_PERSON)
+day <- rbind(tbi$TBI2019_DAY, tbi$TBI2021_DAY, tbi$TBI2023_DAY)
 
 
 # # gtfs 2019
