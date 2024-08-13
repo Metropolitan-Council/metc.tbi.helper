@@ -2,7 +2,10 @@ source("presentation/_load_libraries.R")
 source("presentation/_load_data.R")
 
 # 2019 --------------------
-trip19 <- tbi$TBI2019_TRIP[survey_year == 2019]
+trip19 <- tbi$TBI2019_TRIP
+person19 <- tbi$TBI2019_PERSON
+trip19 <- trip19 %>% merge(person19, by = c("person_id", "hh_id"), all = TRUE)
+trip19$trip_weight[is.na(trip19$trip_weight)] <- 0
 trip19[, linked_trip_id := paste0(person_id, "_", linked_trip_num)]
 setkey(trip19, linked_trip_id, leg_num)
 
@@ -21,10 +24,13 @@ linked_trips19 <-
       trip_purpose_weight = first(trip_weight),
 
       # distance (total):
-      distance_miles = sum(distance_miles)
+      distance_miles = sum(distance_miles),
+
+      person_weight = first(person_weight)
     ),
     keyby = .(linked_trip_id, person_id, hh_id)
   ]
+#trip19[look(linked_trip_id), .(o_purpose_category, d_purpose_category, trip_weight, person_weight)]
 
 # get rid of change mode trips (origin)
 linked_trips19 <- linked_trips19[!o_purpose_category %in% "Change mode"]
@@ -98,7 +104,7 @@ nonhomebasedtrips19_2 <-
   ][
     , .(
       linked_trip_id, person_id, hh_id,
-      trip_type, trip_purpose_weight, purpose,
+      trip_type, trip_purpose_weight, person_weight, purpose,
       distance_miles
     )
   ]
@@ -122,6 +128,9 @@ rm(
 
 # 2021 -------------
 trip21 <- tbi$TBI2021_TRIP[survey_year == 2021]
+person21 <- tbi$TBI2021_PERSON
+trip21 <- trip21 %>% merge(person21, by = c("person_id", "hh_id"), all = TRUE)
+trip21$trip_weight[is.na(trip21$trip_weight)] <- 0
 setkey(trip21, linked_trip_id, leg_num)
 
 linked_trips21 <-
@@ -138,7 +147,9 @@ linked_trips21 <-
       trip_purpose_weight = first(trip_weight),
 
       # distance (total):
-      distance_miles = sum(distance_miles)
+      distance_miles = sum(distance_miles, na.rm = TRUE),
+
+      person_weight = first(person_weight)
     ),
     keyby = .(linked_trip_id, person_id, hh_id)
   ]
@@ -218,7 +229,7 @@ nonhomebasedtrips21_2 <-
   ][
     , .(
       linked_trip_id, trip_type, person_id,
-      hh_id, trip_purpose_weight, purpose,
+      hh_id, trip_purpose_weight, person_weight, purpose,
       distance_miles
     )
   ]
@@ -244,7 +255,10 @@ rm(
 
 
 # 2023 -------------
-trip23 <- tbi$TBI2023_TRIP[survey_year == 2023]
+trip23 <- tbi$TBI2023_TRIP
+person23 <- tbi$TBI2023_PERSON
+trip23 <- trip23 %>% merge(person23, by = c("person_id", "hh_id"), all = TRUE)
+trip23$trip_weight[is.na(trip23$trip_weight)] <- 0
 setkey(trip23, linked_trip_id, leg_num)
 
 linked_trips23 <-
@@ -261,7 +275,9 @@ linked_trips23 <-
       trip_purpose_weight = first(trip_weight),
 
       # distance (total):
-      distance_miles = sum(distance_miles)
+      distance_miles = sum(distance_miles),
+
+      person_weight = first(person_weight)
     ),
     keyby = .(linked_trip_id, person_id, hh_id)
   ]
@@ -341,7 +357,7 @@ nonhomebasedtrips23_2 <-
   ][
     , .(
       linked_trip_id, trip_type, person_id,
-      hh_id, trip_purpose_weight, purpose,
+      hh_id, trip_purpose_weight, person_weight, purpose,
       distance_miles
     )
   ]
