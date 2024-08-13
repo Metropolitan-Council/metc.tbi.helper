@@ -75,11 +75,7 @@ mapping <- c(
 trip[, mode_recat := mapping[mode_type_detailed]]
 
 trip[
-  , .(trip_weight = max(trip_weight), mode_recat)
-  , .(linked_trip_id, survey_year)
-] %>%
-  .[
-  , .(Trips = sum(trip_weight, na.rm = T), .N)
+  , .(Trips = sum(trip_weight, na.rm = TRUE), .N)
   , .(survey_year, mode_recat)
 ] %>%
   .[, pct := Trips/sum(Trips), survey_year] %>%
@@ -90,7 +86,7 @@ trip[
     x = ~ reorder(mode_recat, -pct)
     , y = ~pct
     , color = ~survey_year
-    , colors = c(colors$councilBlue, colors$esBlue) # manually set color
+    , colors = c(colors$councilBlue, colors$esBlue)
   ) %>%
   layout(
     title = "Other Mode",
@@ -104,9 +100,6 @@ trip[
   save_image("output/mode_nonVeh.svg", width =700, height = 500)
 
 trip[
-  , .(trip_weight = max(trip_weight), mode_recat)
-  , .(linked_trip_id, survey_year)
-] %>% .[
   , .(Trips = sum(trip_weight, na.rm = TRUE), .N)
   , .(survey_year
       , mode_recat = fifelse(mode_recat == "Vehicle", "Vehicle", "Other Mode"))
