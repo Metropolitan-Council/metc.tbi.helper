@@ -1,15 +1,34 @@
 # Load data from local file
 # MetC staff only
 # see Brandon/Liz to update the R environment file
+# load data --------
 source("data-raw/00-load-pkgs.R")
-qs::qload(file.path(Sys.getenv("path_to_tbi"), "dat_all_upcoded_labeled.qs"))
-tbi <- dat_all_upcoded_labeled
-rm(dat_all_upcoded_labeled)
+tbi <- qread(file.path(Sys.getenv("path_to_tbi"), "dat_all_upcoded.qs"))$dat_all_upcoded
+val_list <- fread(file.path(Sys.getenv("path_to_tbi"), "values.csv"))
+var_list <- fread(file.path(Sys.getenv("path_to_tbi"), "variables.csv"))
 
-val_list <- fread(file.path(Sys.getenv("path_to_tbi_wt"), "value_labels.csv"))
-var_list <- fread(file.path(Sys.getenv("path_to_tbi_wt"), "variable_list.csv"))
+
 
 # cleaning table
-tbi$trip[pt_density == "Inf", pt_density := 0][point_dist_index == 0, point_dist_index := NA]
+tbi$trip[pt_density == "Inf", pt_density := 0]
+tbi$trip[point_dist_index == 0, point_dist_index := NA]
 
-
+## Upcoded:  labeled data -----
+tbi <-
+  lapply(tbi,
+         function(dt)
+           factorize_df(
+             dt,
+             vals_df =
+               unique(
+                 val_list[,.(variable_unified,
+                             value_upcoded,
+                             label_upcoded)]
+               ),
+             variable_colname = 'variable_unified',
+             value_colname = 'value_upcoded',
+             value_label_colname = 'label_upcoded',
+             value_order_colname = 'value_upcoded',
+             add_na = FALSE
+           ))
+cat('\014')

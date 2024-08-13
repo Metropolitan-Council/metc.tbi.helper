@@ -4,25 +4,18 @@ source("data-raw/_helper_function.R")
 # GitHub --------------------------------------
 save(tbi_rmPII, file = "data/tbi.rda")
 
+dir.create("TBI_data_out")
+# one drive ---------
+tbi_oneDrive_path <- file.path("TBI_data_out", "oneDrive")
+dir.create(tbi_oneDrive_path)
+qsave(tbi, "TBI_data_out/oneDrive/tbi_upcoded_2019_2023.qs")
+
 # Geospatial commons --------------------------------------
 # Contact GIS
 # tbi_desktop_path <- file.path("Desktop", "TBI_data_out")
-dir.create("TBI_data_out")
 
 tbi_geospatialCommons_path <- file.path("TBI_data_out", "geospatial_commons")
 dir.create(tbi_geospatialCommons_path)
-
-# remove emojis and special charactors from the data.
-# lapply(tbi_rmPII, \(tab){
-#   cols <- tab %>%
-#     sapply(typeof) %>%
-#     str_detect("character")
-#   col_names <- names(tab)[cols]
-#   tab[, c(col_names) :=
-#     lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-#   .SDcols = cols
-#   ]
-# })
 
 # output tables --------
 tables <- names(tbi_rmPII)
@@ -41,19 +34,6 @@ lapply(tables, \(tab){
 })
 
 # MTS_Planning DB --------------------------------------
-# remove emojis and special characters from the data.
-# lapply(tbi, \(tab){
-#   cols <- tab %>%
-#     sapply(typeof) %>%
-#     str_detect("character")
-#   col_names <- names(tab)[cols]
-#   tab[, c(col_names) :=
-#     lapply(.SD, str_replace_all, pattern = "[^\x01-\xFF]", replacement = ""),
-#   .SDcols = cols
-#   ]
-# })
-
-
 # save to database. The process is faster if we do it in smaller chuncks
 tables <- names(tbi_rmPII)
 years <- c(2019, 2021, 2023)
@@ -96,8 +76,6 @@ lapply(tables, \(tab){
   })
 })
 dbDisconnect(db_con)
-
-
 # N Drive -
 # put data in the N drive
 
@@ -161,67 +139,68 @@ dbDisconnect(db_con)
 
 
 
-# National Renewable Energy Laboratory -----
-# Work with Cemal.akcicek@nrel.gov and joseph.fish@nrel.gov
-tbi_database_NREL <- file.path(tbi_desktop_path, "database_NREL")
-dir.create(tbi_database_NREL)
-
-# 2019
-tbi19_path <- file.path(tbi_database_NREL, "tbi19_PII")
-dir.create(tbi19_path)
-
-tbi19_PII %>%
-  names() %>%
-  lapply(\(table_){
-    fwrite(tbi19_PII[[table_]],
-      file = file.path(
-        tbi19_path,
-        paste0(
-          "TravelBehaviorInventory2019",
-          str_to_title(table_),
-          ".csv"
-        )
-      )
-    )
-  })
-
-# 2021
-tbi21_path <- file.path(tbi_database_NREL, "tbi21_PII")
-dir.create(tbi21_path)
-
-tbi21_PII %>%
-  names() %>%
-  lapply(\(table_){
-    fwrite(tbi21_PII[[table_]],
-      file = file.path(
-        tbi21_path,
-        paste0(
-          "TravelBehaviorInventory2019",
-          str_to_title(table_),
-          ".csv"
-        )
-      )
-    )
-  })
-
-
-
-
-dbListTables(db_con) %>%
-  str_subset("TBI") %>%
-  str_subset("OBS", T) %>%
-  str_subset("v_", T) %>%
-  str_subset("TOUR", T) %>%
-  paste0(collapse = "\n") %>%
-  cat()
-
-
-lapply(names(tbi), \(dt_name){
-  dt <- copy(tbi[[dt_name]])
-  lapply(c(2019, 2021), \(yr){
-    message(
-      "table: ", dt_name, " yr: ", yr, " nrow: ",
-      dt[survey_year == yr, .N %>% prettyNum(",")]
-    )
-  })
-})
+# # National Renewable Energy Laboratory -----
+# # Work with Cemal.akcicek@nrel.gov and joseph.fish@nrel.gov
+# tbi_database_NREL <- file.path("TBI_data_out", "database_NREL")
+# dir.create(tbi_database_NREL)
+#
+# # 2019
+# tbi19_path <- file.path(tbi_database_NREL, "tbi19_PII")
+# dir.create(tbi19_path)
+#
+# tbi19_PII %>%
+#   names() %>%
+#   lapply(\(table_){
+#     fwrite(tbi19_PII[[table_]],
+#       file = file.path(
+#         tbi19_path,
+#         paste0(
+#           "TravelBehaviorInventory2019",
+#           str_to_title(table_),
+#           ".csv"
+#         )
+#       )
+#     )
+#   })
+#
+# # 2021
+# tbi21_path <- file.path(tbi_database_NREL, "tbi21_PII")
+# dir.create(tbi21_path)
+#
+# tbi21_PII %>%
+#   names() %>%
+#   lapply(\(table_){
+#     fwrite(tbi21_PII[[table_]],
+#       file = file.path(
+#         tbi21_path,
+#         paste0(
+#           "TravelBehaviorInventory2019",
+#           str_to_title(table_),
+#           ".csv"
+#         )
+#       )
+#     )
+#   })
+#
+#
+#
+#
+# dbListTables(db_con) %>%
+#   str_subset("TBI") %>%
+#   str_subset("OBS", T) %>%
+#   str_subset("v_", T) %>%
+#   str_subset("TOUR", T) %>%
+#   paste0(collapse = "\n") %>%
+#   cat()
+#
+#
+# lapply(names(tbi), \(dt_name){
+#   dt <- copy(tbi[[dt_name]])
+#   lapply(c(2019, 2021), \(yr){
+#     message(
+#       "table: ", dt_name, " yr: ", yr, " nrow: ",
+#       dt[survey_year == yr, .N %>% prettyNum(",")]
+#     )
+#   })
+# })
+usethis::edit_r_environ()

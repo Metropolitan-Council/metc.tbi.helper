@@ -121,7 +121,6 @@ cd_2050_sf <-
 
 
 # CD's for 2040
-
 cd_2040_sf <-
   councilR::import_from_gis("THRIVEMSP2040COMMUNITYDESIGNATION") %>%
   st_make_valid() %>%
@@ -156,7 +155,6 @@ cbg2010_sf <-
   st_transform(crs = 4326) %>%
   select(GEOID10) %>%
   rename(cbg_2010 = GEOID10)
-
 
 cbg2020_sf <-
   councilR::import_from_gis("CENSUS2020TIGERBLOCKGROUP") %>%
@@ -511,6 +509,7 @@ rm(
   cty_sf,
   hh_cbg_2010,
   hh_cbg_2020,
+  hh_cd_2040,
   hh_cd_2050,
   hh_ctu,
   hh_cty,
@@ -556,3 +555,4 @@ rm(
   work_sf,
   work_taz
 )
+

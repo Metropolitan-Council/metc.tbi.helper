@@ -26,7 +26,6 @@ race_mapping <- c(
 # meaning this question may be missing for some people. If you filter the
 # dataset to include only adults who have an answer for race_ethnicity, the
 # percentages should be better aligned.
-
 per_race <-
   tbi$person %>%
   .[, .SD, .SDcols = c("person_id", names(race_mapping))] %>%
@@ -38,10 +37,10 @@ tbi$person[per_race, on = "person_id", race_ethnicity := i.race_ethnicity]
 
 race_detailed <-
   var_list[
-    variable %>% str_detect("^race"),
-    .(variable, description)
+    variable_unified %>% str_detect("^race"),
+    .(variable_unified, description_unified)
   ] %>%
-  .[, desc := description %>% str_replace_all(".*: ", "")] %>%
+  .[, desc := description_unified %>% str_replace_all(".*: ", "")] %>%
   .[, desc := desc %>% str_replace_all("Race-- ", "")]
 race_detailed_mapping <- race_detailed$desc
 names(race_detailed_mapping) <- race_detailed$variable
@@ -55,7 +54,8 @@ per_race_detailed <-
   melt(id.vars = "person_id", variable.name = "race", variable.factor = F) %>%
   .[value == "Selected"] %>%
   .[, race_decoded := race_detailed_mapping[race]] %>%
-  .[, .(race_ethnicity_detailed = race_decoded %>% unique() %>% na.omit() %>% paste0(collapse = "; ")), keyby = person_id]
+  .[, .(race_ethnicity_detailed = race_decoded %>% unique() %>% na.omit() %>% paste0(collapse = "; ")),
+    keyby = person_id]
 per_race_detailed[race_ethnicity_detailed == "", race_ethnicity_detailed := NA]
 
 tbi$person[per_race_detailed, on = "person_id", race_ethnicity_detailed := i.race_ethnicity_detailed]
