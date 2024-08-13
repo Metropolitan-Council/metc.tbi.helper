@@ -38,14 +38,14 @@ person[
   print
 
 plot_ly() %>%
-  add_bars(data = telework[!telework_freq %in% c("Missing", "Never")]
-            , x= ~ telework_freq
-            , y= ~ pop
-            , color=~survey_year
+  add_lines(data = telework[!telework_freq %in% c("Missing", "Never")]
+            , x = ~ telework_freq
+            , y = ~ pop
+            , color = ~survey_year
             , colors = c(colors$councilBlue, colors$esBlue)
   ) %>%
   layout(
-    title = "Telework Yes",
+    title = "Telework Distribution",
     # yaxis = list(title = 'Survey/Max(Surveys)'),
     yaxis = list(title = 'People'),
     xaxis = list(title = "Telework")
@@ -166,7 +166,7 @@ trip[
         , colors = c("No Telework" = "#908aff", "Telework" = "#FF295F")
       ) %>%
       layout(
-        title = "Vehicle Trip Distances"
+        title = "Vehicle Trip Distance"
         , font = list(size = 16)
         , yaxis = list(
           title = "Percent of Weekday Trips"
@@ -184,6 +184,58 @@ trip[
   print %>%
     save_image("output/trip_distance.svg", width = 1000, height = 500)
 
+
+  subplot(
+    plot_data %>%
+      .[teleworks == "Telework"] %>%
+      plot_ly() %>%
+      add_lines(
+        x = ~ distance_miles
+        , y = ~ pct
+        , color = ~ survey_year
+        #, colors = c("#908aff", "#FF295F")
+      ) %>%
+      layout(
+        title = "Vehicle Trip Distance"
+        , font = list(size = 16)
+        , yaxis = list(
+          title = "Percent of Weekday Trips"
+          , tickformat = ".0%"
+        )
+        , xaxis = list(
+          title = "Telework"
+        )
+        , margin = list(t = 45)
+        , uniformtext=list(minsize=12, mode = FALSE)
+        , legend = list(traceorder = "reversed")
+      ),
+    plot_data %>%
+      .[teleworks == "No Telework"] %>%
+      plot_ly() %>%
+      add_lines(
+        x = ~ distance_miles
+        , y = ~ pct
+        , color = ~ survey_year
+        , showlegend = FALSE
+        #, colors = c("No Telework" = "#908aff", "Telework" = "#FF295F")
+      ) %>%
+      layout(
+        title = "Vehicle Trip Distance"
+        , font = list(size = 16)
+        , yaxis = list(
+          title = "Percent of Weekday Trips"
+          , tickformat = ".0%"
+        )
+        , xaxis = list(
+          title = "No Telework"
+        )
+        , margin = list(t = 45)
+        , uniformtext=list(minsize=12, mode = FALSE)
+        # , legend = list(traceorder = "reversed")
+      ),
+    shareX = TRUE, shareY = TRUE
+  ) %>%
+    print
 
 
 # travel freq ---------
