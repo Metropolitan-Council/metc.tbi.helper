@@ -6,7 +6,7 @@ source("presentation/_load_data.R")
 
 trip[, doy := depart_time %>%
            as.Date() %>%
-           wday(label = T)]
+           wday(label = TRUE)]
 
 trip[, depart_floor :=
            fifelse(survey_year == 2019, depart_time_imputed, depart_time) %>%
@@ -37,22 +37,29 @@ trips <-
   .[, surveys := surveys/max(surveys, na.rm = TRUE), survey_year] %>%
   na.omit()
 
+
 # weighted  ------
-Sys.timezone()
 trips[, depart_floor_central := as.POSIXct(format(depart_floor, tz = "America/Chicago", usetz = TRUE))]
+trips[, depart_floor_central := paste(Sys.Date(),as.ITime(depart_floor_central)) %>% as.POSIXct()]
 plot_ly() %>%
-  add_lines(data = trips
+  add_lines(data = trips[survey_year == 2019]
             , x= ~ depart_floor_central
             , y= ~ trips
             , fill = "tozeroy"
-            , color= ~survey_year
-            , colors = c(colors$councilBlue, colors$esBlue)
+            , color= ~ survey_year
+            #, colors = c("2019" = "grey")
             ) %>%
+  add_lines(data = trips[survey_year %in% c("2021", "2023")]
+            , x= ~ depart_floor_central
+            , y= ~ trips
+            , color= ~ survey_year
+            #, colors = c("2021" = colors$councilBlue, "2023" = colors$esBlue)
+  ) %>%
   layout(
     # yaxis = list(title = 'Survey/Max(Surveys)'),
-    yaxis = list(title = 'Trips'),
-    xaxis = list(tickformat = "%I %p", title = "Depart Time")
-    , font = list(size = 16)
+    yaxis = list(title = 'Weekday Trips'),
+    xaxis = list(tickformat = "%I %p", tick0 = "2024-08-08 12:00:00", title = "Depart Time"),
+    font = list(size = 16)
   ) %>%
   print %>%
   save_image("output/trip_tod.svg", width = 1200, height = 400)
