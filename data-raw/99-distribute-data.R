@@ -1,24 +1,32 @@
+# N Drive -
+# RSG's raw data delivery is kept in the N drive and on oneDrive
+# See Brandon Whited for access and specific location.
+
 # read function
 source("data-raw/_helper_function.R")
 
 # GitHub --------------------------------------
-save(tbi_rmPII, file = "data/tbi.rda")
+# save(tbi_rmPII, file = "data/tbi.rda")
+qs::qsave(tbi_rmPII, "data/tbi.qs")
 
-dir.create("TBI_data_out")
+# make output file -----------------------------
+output_file <- file.path('~/Desktop', "TBI_data_out")
+output_file %>% dir.create()
+
 # one drive ---------
-tbi_oneDrive_path <- file.path("TBI_data_out", "oneDrive")
+tbi_oneDrive_path <- file.path(output_file, "oneDrive")
 dir.create(tbi_oneDrive_path)
-qsave(tbi, "TBI_data_out/oneDrive/tbi_upcoded_2019_2023.qs")
+qsave(tbi, file.path(output_file, "oneDrive/tbi_upcoded_2019_2021_2023.qs"))
 
 # Geospatial commons --------------------------------------
 # Contact GIS
 # tbi_desktop_path <- file.path("Desktop", "TBI_data_out")
 
-tbi_geospatialCommons_path <- file.path("TBI_data_out", "geospatial_commons")
+tbi_geospatialCommons_path <- file.path(output_file, "geospatial_commons")
 dir.create(tbi_geospatialCommons_path)
 
 # output tables --------
-tables <- names(tbi_rmPII)
+tables <- names(tbi_rmPII) %>% str_subset("meta", negate = T)
 years <- c("2019", "2021", "2023")
 lapply(tables, \(tab){
   lapply(years, \(yr){
@@ -33,9 +41,23 @@ lapply(tables, \(tab){
   })
 })
 
+tbi_geospatialCommons_path %>%
+  list.files() %>%
+  lapply(\(file){
+    fwrite(
+      tbi$metaData_variables,
+      file.path(tbi_geospatialCommons_path, file, "TravelBehaviorInventory_meta_data_variables.csv")
+    )
+    fwrite(
+      tbi$metaData_values,
+      file.path(tbi_geospatialCommons_path, file, "TravelBehaviorInventory_meta_data_values.csv")
+    )
+  })
+
+
 # MTS_Planning DB --------------------------------------
 # save to database. The process is faster if we do it in smaller chuncks
-tables <- names(tbi_rmPII)
+tables <- names(tbi) %>% str_subset("meta", negate = T)
 years <- c(2019, 2021, 2023)
 db_con <- dbConnect(odbc::odbc(),
   dsn = "MTS_Planning_Data",
@@ -52,7 +74,7 @@ lapply(tables, \(tab){
     if (!dbExistsTable(db_con, table_name)) {
       message(tab, yr)
 
-      n <- 5000
+      n <- 1000
       nr <- nrow(tbi[[tab]][survey_year == yr])
       table_subsets <- split(
         tbi[[tab]][survey_year == yr],
@@ -75,132 +97,11 @@ lapply(tables, \(tab){
     }
   })
 })
+
+dbWriteTable(db_con, "TBI2019_2023_META_DATA_VARIABLES", tbi$metaData_variables)
+dbWriteTable(db_con, "TBI2019_2023_META_DATA_VALUES", tbi$metaData_values)
 dbDisconnect(db_con)
-# N Drive -
-# put data in the N drive
 
-# fwrite(table_subsets[['2915']], '~/Desktop/test.csv')
-# for(i in 1:nrow(table_subsets[['583']])){
-#   message(i)
-#   DBI::dbWriteTable(db_con, name = table_name, value = table_subsets[['583']][i], append = T)
-# }
-# DBI::dbWriteTable(db_con, name = table_name, value = table_subsets[['583']], append = T)
-
-
-# # MTS_Planning DB -
-# # location file is not modified in this process and in the
-# # data base as TBI19_RAW_LOCATION
-# db_con <- db_connect()
-# tbi19_PII %>%
-#   names() %>%
-#   setdiff(c("var_list", 'value_list')) %>%
-#   lapply(\(table_){
-#     table_name <- paste0("TBI19_FINAL_", str_to_upper(table_))
-#     if (!dbExistsTable(db_con, table_name)) {
-#       message(table_)
-#       n <- 5000
-#       nr <- nrow(tbi19_PII[[table_]])
-#       table_subsets <- split(tbi19_PII[[table_]], rep(1:ceiling(nr/n), each=n, length.out=nr))
-#
-#       i <- 1
-#       N <- length(table_subsets)
-#       lapply(table_subsets, \(table_ss_){
-#         message(table_, ' ', i, " of ", N)
-#         dbWriteTable(db_con, name = table_name, value = table_ss_, append = T)
-#         i <<- i + 1
-#       })
-#     }
-#   })
-#
-#
-# # 2021
-# # location file is not modified in this process and in the
-# # data base as TBI21_RAW_LOCATION
-# tbi21_PII %>%
-#   names() %>%
-#   setdiff(c("var_list", 'value_list')) %>%
-#   lapply(\(table_){
-#     table_name <- paste0("TBI21_FINAL_", str_to_upper(table_))
-#     if (!dbExistsTable(db_con, table_name)) {
-#       message(table_)
-#       n <- 5000
-#       nr <- nrow(tbi21_PII[[table_]])
-#       table_subsets <- split(tbi21_PII[[table_]], rep(1:ceiling(nr/n), each=n, length.out=nr))
-#
-#       i <- 1
-#       N <- length(table_subsets)
-#       lapply(table_subsets, \(table_ss_){
-#         message(table_, ' ', i, " of ", N)
-#         dbWriteTable(db_con, name = table_name, value = table_ss_, append = T)
-#         i <<- i + 1
-#       })
-#     }
-#   })
-
-
-
-# # National Renewable Energy Laboratory -----
-# # Work with Cemal.akcicek@nrel.gov and joseph.fish@nrel.gov
-# tbi_database_NREL <- file.path("TBI_data_out", "database_NREL")
-# dir.create(tbi_database_NREL)
-#
-# # 2019
-# tbi19_path <- file.path(tbi_database_NREL, "tbi19_PII")
-# dir.create(tbi19_path)
-#
-# tbi19_PII %>%
-#   names() %>%
-#   lapply(\(table_){
-#     fwrite(tbi19_PII[[table_]],
-#       file = file.path(
-#         tbi19_path,
-#         paste0(
-#           "TravelBehaviorInventory2019",
-#           str_to_title(table_),
-#           ".csv"
-#         )
-#       )
-#     )
-#   })
-#
-# # 2021
-# tbi21_path <- file.path(tbi_database_NREL, "tbi21_PII")
-# dir.create(tbi21_path)
-#
-# tbi21_PII %>%
-#   names() %>%
-#   lapply(\(table_){
-#     fwrite(tbi21_PII[[table_]],
-#       file = file.path(
-#         tbi21_path,
-#         paste0(
-#           "TravelBehaviorInventory2019",
-#           str_to_title(table_),
-#           ".csv"
-#         )
-#       )
-#     )
-#   })
-#
-#
-#
-#
-# dbListTables(db_con) %>%
-#   str_subset("TBI") %>%
-#   str_subset("OBS", T) %>%
-#   str_subset("v_", T) %>%
-#   str_subset("TOUR", T) %>%
-#   paste0(collapse = "\n") %>%
-#   cat()
-#
-#
-# lapply(names(tbi), \(dt_name){
-#   dt <- copy(tbi[[dt_name]])
-#   lapply(c(2019, 2021), \(yr){
-#     message(
-#       "table: ", dt_name, " yr: ", yr, " nrow: ",
-#       dt[survey_year == yr, .N %>% prettyNum(",")]
-#     )
-#   })
-# })
-usethis::edit_r_environ()
+# NREL -----
+# TODO: parse and send data to NREL.
+tbi

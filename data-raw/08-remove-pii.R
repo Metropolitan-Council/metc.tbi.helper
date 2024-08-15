@@ -25,7 +25,8 @@ tbi_rmPII$trip[
 tbi_rmPII$person[
   , c("work_lat", "school_lat", "work_lon", "school_lon") := NULL
 ]
+
 # remove raw locations ------
 tbi_rmPII <- tbi_rmPII[names(tbi_rmPII) != "location"]
-
+tbi_rmPII$locations <- locs_noPII
 

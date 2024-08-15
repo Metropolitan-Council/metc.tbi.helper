@@ -176,6 +176,14 @@ taz_sf <-
   mutate(taz = as.integer64(CensusTAZ)) %>%
   select(taz, taz_pop_per_acre, taz_housing_units_per_acre, taz_jobs_per_acre)
 
+##### Tracts ----
+tracts <-
+  councilR::import_from_gis("CENSUS2020TIGERTRACT") %>%
+  st_make_valid() %>%
+  st_transform(crs = 4326) %>%
+  select(census_tract_id = GEOID20)
+
+
 # Household ----------
 hh_mpo <-
   st_join(hh_sf, mpo_sf %>% select(InMPO), join = st_within) %>%
@@ -499,8 +507,36 @@ tbi$person <-
   left_join(school_cbg_2020, by = "person_id") %>%
   left_join(school_taz, by = "person_id")
 
+
+# Location ----
+setkey(tbi$location, survey_year, trip_id, collect_time)
+locs <-
+  tbi$location[, first(.SD), .(survey_year, trip_id)] %>%
+  .[, trip_part := "start"] %>%
+  .[, .(survey_year, trip_id, hh_id, person_id, trip_part, collect_time, lat, lon)] %>%
+  rbind(
+    tbi$location[, last(.SD), .(survey_year, trip_id)] %>%
+      .[, trip_part := "end"] %>%
+      .[, .(survey_year, trip_id, hh_id, person_id, trip_part, collect_time, lat, lon)]
+  ) %>%
+  setkey(survey_year, trip_id, collect_time)
+
+locs_noPII <-
+  locs %>%
+  st_as_sf(
+    coords = c("lon", "lat"),
+    crs = 4326
+  ) %>%
+  st_make_valid() %>%
+  st_join(tracts, join = st_within) %>%
+  st_drop_geometry() %>%
+  as.data.table()
+
+
+
 # Clean up:
 rm(
+  locs,
   cbg2010_sf,
   cbg2020_sf,
   cd_2050_sf,

@@ -36,7 +36,7 @@ per_race <-
 tbi$person[per_race, on = "person_id", race_ethnicity := i.race_ethnicity]
 
 race_detailed <-
-  var_list[
+  tbi$metaData_variables[
     variable_unified %>% str_detect("^race"),
     .(variable_unified, description_unified)
   ] %>%
