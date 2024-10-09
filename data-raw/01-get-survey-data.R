@@ -3,9 +3,8 @@
 # see Brandon/Liz to update the R environment file
 # load data --------
 source("data-raw/00-load-pkgs.R")
-if (Sys.info()["sysname"] == "Darwin") {
-  system('open smb://rafsshare.mc.local/shared/MTS/')
-}
+if (Sys.info()["sysname"] == "Darwin") system('open smb://rafsshare.mc.local/shared/MTS/')
+
 tbi <- qread(file.path(Sys.getenv("path_to_tbi"), "dat_all_upcoded.qs"))$dat_all_upcoded
 metaData_values <- fread(file.path(Sys.getenv("path_to_tbi"), "values.csv"))
 

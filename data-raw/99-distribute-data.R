@@ -7,7 +7,7 @@ source("data-raw/_helper_function.R")
 
 # GitHub --------------------------------------
 # save(tbi_rmPII, file = "data/tbi.rda")
-qs::qsave(tbi_rmPII, "data/tbi.qs")
+# qs::qsave(tbi_rmPII, "data/tbi.qs") # file too big
 
 # make output file -----------------------------
 output_file <- file.path('~/Desktop', "TBI_data_out")

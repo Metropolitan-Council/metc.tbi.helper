@@ -30,3 +30,8 @@ tbi_rmPII$person[
 tbi_rmPII <- tbi_rmPII[names(tbi_rmPII) != "location"]
 tbi_rmPII$locations <- locs_noPII
 
+
+# link trip ---------------------
+tbi_rmPII$linked_trip[
+  , c("d_lon", "d_lat", "o_lon", "o_lat") := NULL
+]
