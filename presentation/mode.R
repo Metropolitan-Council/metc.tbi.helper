@@ -1,10 +1,8 @@
 source("presentation/_load_libraries.R")
-source("presentation/_load_data.R")
+if(!exists("tbi")) source("presentation/_load_data.R")
 
 
-trip %>% names() %>% str_subset("mode")
-
-trip[
+tbi$linked_trip[
   , survey_year %>% unique() %>% sort %>% paste0(collapse = "_")
   , keyby = .(mode_type_detailed)
 ] %>%
@@ -72,7 +70,36 @@ mapping <- c(
   "Walk (or jog/wheelchair)" = "Walk", #2019_2021_2023
   "Work vehicle" = "Vehicle" #2019_2021_2023
 )
-trip[, mode_recat := mapping[mode_type_detailed]]
+
+tbi$trip[, mode_recat := mapping[mode_type_detailed]]
+
+trips1 <- tbi$trip %>%
+  left_join(select(tbi$hh, hh_id, sample_segment, hh_in_mpo), by = "hh_id") %>%
+  filter(!is.na(trip_weight) & trip_weight > 0 & (hh_in_mpo))
+
+trip_design <- trips1 %>%
+  as_survey_design(
+    ids = trip_id,
+    weights = trip_weight,
+    strata = sample_segment
+  )
+
+tbl <- trip_design %>%
+  group_by(mode_recat) %>%
+  summarize(
+    N = n(),
+    wtd_N = sum(trip_weight),
+    wtd_prop = survey_prop(vartype = "se", proportion = TRUE)
+  )
+
+plot_ly(
+  data = tbl,
+  x =~ mode_recat %>% fct_reorder(-wtd_prop),
+  y =~ wtd_prop
+)
+
+
+
 
 trip[
   , .(Trips = sum(trip_weight, na.rm = TRUE), .N)
