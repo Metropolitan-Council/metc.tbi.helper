@@ -2,7 +2,10 @@ source("presentation/_load_libraries.R")
 if(!exists("tbi")) source("presentation/_load_data.R")
 
 trips <-
-  tbi$trip[, .(wtd_num_trips = sum(trip_weight)), .(day_id)] %>%
+  tbi$trip[
+    !is.na(trip_weight) & trip_weight > 0
+    , .(wtd_num_trips = sum(trip_weight))
+    , .(day_id)] %>%
   print
 
 # trip rate x year ----
@@ -48,7 +51,7 @@ tpp <-
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
   .[
     (hh_in_mpo)
-    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 1))
     , keyby = .(income_broad, survey_year)
   ] %>%
   print
@@ -84,7 +87,7 @@ tpp <-
   .[tbi$person, on="person_id", gender := i.gender] %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
   .[!gender %in% c("Male", "Female"), gender := "Other/Unknown"] %>%
-  # print
+  .[, gender := droplevels(gender)] %>%
   .[
     (hh_in_mpo)
     , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
@@ -96,8 +99,8 @@ plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
-    , x = ~ survey_year %>% as.character()
-    , color = ~ gender
+    , color = ~ survey_year
+    , x = ~ gender
     # , colors = c()
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
@@ -133,8 +136,8 @@ plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
-    , x = ~ survey_year %>% as.character()
-    , color = ~ race_ethnicity
+    , color = ~ survey_year
+    , x = ~ race_ethnicity
     # , colors = c()
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
@@ -168,8 +171,8 @@ plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
-    , color = ~ survey_year %>% as.character()
-    , x = ~ age
+    , x = ~ survey_year
+    , color = ~ age
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
   ) %>%
