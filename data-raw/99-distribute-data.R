@@ -13,10 +13,14 @@ source("data-raw/_helper_function.R")
 output_file <- file.path('~/Desktop', "TBI_data_out")
 output_file %>% dir.create()
 
-# one drive ---------
+# one drive / local inst---------
 tbi_oneDrive_path <- file.path(output_file, "oneDrive")
 dir.create(tbi_oneDrive_path)
-qsave(tbi, file.path(output_file, "oneDrive/tbi_upcoded_2019_2021_2023.qs"))
+qsave(tbi, file.path(tbi_oneDrive_path, "tbi_upcoded_2019_2021_2023.qs"))
+
+tbi_local_path <- file.path(output_file, "local")
+dir.create(tbi_local_path)
+qsave(tbi, file.path(tbi_local_path, "tbi_upcoded_2019_2021_2023.qs"))
 
 # Geospatial commons --------------------------------------
 # Contact GIS
