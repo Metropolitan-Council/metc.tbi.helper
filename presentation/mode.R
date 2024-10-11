@@ -1,7 +1,6 @@
 source("presentation/_load_libraries.R")
 if(!exists("tbi")) source("presentation/_load_data.R")
 
-
 tbi$linked_trip[
   , survey_year %>% unique() %>% sort %>% paste0(collapse = "_")
   , keyby = .(mode_type_detailed)
@@ -176,3 +175,12 @@ trip[
   ) %>%
   print %>%
   save_image("output/speed.svg", width = 800, height = 500)
+
+
+
+
+
+
+
+
+

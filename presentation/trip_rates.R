@@ -187,10 +187,46 @@ plot_ly() %>%
   print %>%
   save_image("output/trip_rate_age.svg", width = 800, height = 400)
 
+# TODO: -----
+# trip rate x year x hh_size ----
 
+tpp <-
+  tbi$day[day_weight > 0, .(hh_id, day_id, person_id, day_weight)] %>%
+  merge(trips, by = "day_id", all.x = T) %>%
+  merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year, num_people)], by = "hh_id", all.x = T) %>%
+  .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
+  .[, num_people := fct_collapse(num_people,
+                                '3 to 5 people' =  paste0(3:5, " people"),
+                                "6+ people" = paste0(6:11, " people") %>% c('12 or more people'),
+  )] %>%
+  .[
+    (hh_in_mpo)
+    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+    , keyby = .(survey_year, num_people)
+  ] %>%
+  print
 
+tpp[, num_people := fct_rev(num_people)]
 
+plot_ly() %>%
+  add_bars(
+    data = tpp
+    , y = ~ trip_rate
+    , x = ~ survey_year
+    , color = ~ num_people
+    , text = ~ trip_rate %>% prettyNum(',')
+    , textfont = list(color = "white")
+  ) %>%
+  layout(
+    barmode = 'group'
+    , yaxis = list(title = "Avg Weekday Trips per Person")
+    , xaxis = list(title = "Year")
+    , font = list(size = 16)
+    , legend = list(traceorder = "normal")
+    , margin = list(t = 50)
+  ) %>%
+  print %>%
+  save_image("output/trip_rate_hhsize.svg", width = 800, height = 400)
 
-
-
+rm(tpp, trips)
 
