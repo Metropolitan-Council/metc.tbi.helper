@@ -187,7 +187,6 @@ plot_ly() %>%
   print %>%
   save_image("output/trip_rate_age.svg", width = 800, height = 400)
 
-# TODO: -----
 # trip rate x year x hh_size ----
 
 tpp <-
