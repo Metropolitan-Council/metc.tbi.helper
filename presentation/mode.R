@@ -242,19 +242,88 @@ mode_race %>%
   layout(barmode = 'stack',
          xaxis = list(tickformat = ".0%"),
          legend = list(traceorder = "normal")
-  )
-
-
-trips1 %>%
-left_join(select(tbi$person, person_id, race_ethnicity)) %>%
-  filter(mode_recat == 'School Bus') %>%
-  .[, .(.N, wt_N = sum(trip_weight)), keyby = .(survey_year, race_ethnicity)] %>%
-  gt::gt()
+  ) %>%
+  print %>%
+  save_image("output/mode_share_race.svg", width = 800, height = 400)
 
 # mode x age x 2023 --------------
+mode_age <-
+  trips1 %>%
+  left_join(select(tbi$person, person_id, age)) %>%
+  filter(survey_year == 2023 & !is.na(age)) %>%
+  as_survey_design(
+    ids = linked_trip_id,
+    weights = trip_weight,
+    strata = sample_segment
+  ) %>%
+  group_by(age, mode_recat) %>%
+  summarize(
+    N = n(),
+    wtd_N = survey_total() %>% round,
+    wtd_prop = survey_prop(vartype = "ci", proportion = TRUE) %>% round(3)
+  ) %>%
+  as.data.table() %>%
+  print
+
+# catorder <- mode_age[race_ethnicity == "White"][order(wtd_prop), mode_recat]
+mode_age[mode_recat != "Vehicle"] %>%
+  plot_ly() %>%
+  add_bars(
+    x =~ wtd_prop,  #%>% fct_rev(),
+    color =~ mode_recat,
+    y =~ age # %>% factor(levels = catorder, ordered = T)
+  ) %>%
+  councilR::plotly_layout(
+    main_title = "Non-Vehicle Travel Mode and Age",
+    subtitle = "Source: TBI Household 2023",
+    y_title = "Age Group",
+    x_title = "Proportion of Trips"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/mode_share_age.svg", width = 800, height = 400)
 
 # mode x hhsize x 2023 --------------
+mode_hhsize <-
+  trips1 %>%
+  left_join(select(tbi$hh, hh_id, num_people)) %>%
+  filter(survey_year == 2023 & !is.na(num_people)) %>%
+  as_survey_design(
+    ids = linked_trip_id,
+    weights = trip_weight,
+    strata = sample_segment
+  ) %>%
+  group_by(num_people, mode_recat) %>%
+  summarize(
+    N = n(),
+    wtd_N = survey_total() %>% round,
+    wtd_prop = survey_prop(vartype = "ci", proportion = TRUE) %>% round(3)
+  ) %>%
+  as.data.table() %>%
+  print
 
-
+# catorder <- mode_age[race_ethnicity == "White"][order(wtd_prop), mode_recat]
+mode_hhsize[mode_recat != "Vehicle"] %>%
+  plot_ly() %>%
+  add_bars(
+    x =~ wtd_prop,  #%>% fct_rev(),
+    color =~ mode_recat,
+    y =~ num_people # %>% factor(levels = catorder, ordered = T)
+  ) %>%
+  councilR::plotly_layout(
+    main_title = "Non-Vehicle Travel Mode and Household Size",
+    subtitle = "Source: TBI Household 2023",
+    y_title = "Age Group",
+    x_title = "Proportion of Trips"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/mode_share_hhSize.svg", width = 800, height = 400)
 
 
