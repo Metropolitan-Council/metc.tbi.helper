@@ -1,5 +1,6 @@
 source("presentation/_load_libraries.R")
 if(!exists("tbi")) source("presentation/_load_data.R")
+source('presentation/_plot_styling.R')
 
 # tbi$linked_trip[
 #   , survey_year %>% unique() %>% sort %>% paste0(collapse = "_")
@@ -104,8 +105,6 @@ mode_year <- trips1 %>%
   .[mode_recat != "Vehicle"] %>%
   print
 
-mode_year[mode_recat == "School Bus"]
-
 
 mode_year %>%
   .[, survey_year := fct_rev(survey_year)] %>%
@@ -124,9 +123,7 @@ plot_ly() %>%
   layout(
     barmode = 'group'
     , yaxis = list(tickformat = ".0%")
-    , font = list(size = 16)
     , legend = list(traceorder = "reverse")
-    , margin = list(t = 50)
   ) %>%
   print %>%
   save_image("output/mode_share_wo_veh.svg", width = 700, height = 400)
@@ -195,7 +192,8 @@ mode_income %>%
     y =~ mode_recat %>% factor(levels = catorder, ordered = T)
   ) %>%
   councilR::plotly_layout(
-    main_title = "Title",
+    main_title = "Travel Mode and Income",
+    subtitle = 'Source: TBI Household 2023',
     x_title = "Mode",
     y_title = "Proportion of Trips",
     legend_title = "Household Income"
@@ -211,7 +209,7 @@ mode_income %>%
 mode_race <-
   trips1 %>%
   left_join(select(tbi$person, person_id, race_ethnicity)) %>%
-  filter(survey_year == 2023) %>%
+  filter(survey_year == 2023 & !is.na(race_ethnicity)) %>%
   as_survey_design(
     ids = linked_trip_id,
     weights = trip_weight,
@@ -226,16 +224,18 @@ mode_race <-
   as.data.table() %>%
   print
 
-# catorder <- mode_race[income_broad == "<$25K"][order(wtd_prop), mode_recat]
+catorder <- mode_race[race_ethnicity == "White"][order(wtd_prop), mode_recat]
 mode_race %>%
   plot_ly() %>%
   add_bars(
     x =~ wtd_prop,
     color =~ race_ethnicity, # %>% fct_rev(),
+    colors = race_pal_c,
     y =~ mode_recat %>% factor(levels = catorder, ordered = T)
   ) %>%
   councilR::plotly_layout(
-    main_title = "Title",
+    main_title = "Travel Mode and Race",
+    subtitle = "Source: TBI Household 2023",
     x_title = "Mode",
     y_title = "Proportion of Trips"
   ) %>%
@@ -244,19 +244,16 @@ mode_race %>%
          legend = list(traceorder = "normal")
   )
 
+
+trips1 %>%
+left_join(select(tbi$person, person_id, race_ethnicity)) %>%
+  filter(mode_recat == 'School Bus') %>%
+  .[, .(.N, wt_N = sum(trip_weight)), keyby = .(survey_year, race_ethnicity)] %>%
+  gt::gt()
+
 # mode x age x 2023 --------------
 
-
 # mode x hhsize x 2023 --------------
-
-
-
-
-
-
-
-
-
 
 
 

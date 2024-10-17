@@ -188,7 +188,6 @@ plot_ly() %>%
   save_image("output/trip_rate_age.svg", width = 800, height = 400)
 
 # trip rate x year x hh_size ----
-
 tpp <-
   tbi$day[day_weight > 0, .(hh_id, day_id, person_id, day_weight)] %>%
   merge(trips, by = "day_id", all.x = T) %>%
