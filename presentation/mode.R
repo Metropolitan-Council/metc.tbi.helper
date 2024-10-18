@@ -291,6 +291,14 @@ mode_hhsize <-
   trips1 %>%
   left_join(select(tbi$hh, hh_id, num_people)) %>%
   filter(survey_year == 2023 & !is.na(num_people)) %>%
+  # mutate(
+  #   num_people = fct_collapse(
+  #     num_people,
+  #     "2 - 3 people" = paste0(2:3, " people"),
+  #     "4 - 5 people" = paste0(4:5, " people"),
+  #     "6+ people" = c(paste0(6:11, " people"), "12 or more people")
+  #   )
+  # ) %>%
   as_survey_design(
     ids = linked_trip_id,
     weights = trip_weight,
