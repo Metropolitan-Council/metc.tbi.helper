@@ -206,16 +206,18 @@ mode_income %>%
   save_image("output/mode_share_income.svg", width = 800, height = 400)
 
 # mode x race x 2023 --------------
+# Note: RSG doesnt collect
 mode_race <-
   trips1 %>%
   left_join(select(tbi$person, person_id, race_ethnicity)) %>%
-  filter(survey_year == 2023 & !is.na(race_ethnicity)) %>%
+  # filter(survey_year == 2023 & !is.na(race_ethnicity)) %>%
   as_survey_design(
     ids = linked_trip_id,
     weights = trip_weight,
     strata = sample_segment
   ) %>%
-  group_by(mode_recat, race_ethnicity) %>%
+  # group_by(mode_recat, race_ethnicity) %>%
+  group_by(mode_type, race_ethnicity) %>%
   summarize(
     N = n(),
     wtd_N = survey_total() %>% round,
@@ -223,6 +225,8 @@ mode_race <-
   ) %>%
   as.data.table() %>%
   print
+
+mode_race[mode_type == "School Bus"]
 
 catorder <- mode_race[race_ethnicity == "White"][order(wtd_prop), mode_recat]
 mode_race %>%
@@ -333,5 +337,8 @@ mode_hhsize[mode_recat != "Vehicle"] %>%
   ) %>%
   print %>%
   save_image("output/mode_share_hhSize.svg", width = 800, height = 400)
+
+# clean-up -----
+rm(mapping, mode_year, mode_year_veh, mode_income, mode_race, mode_age)
 
 
