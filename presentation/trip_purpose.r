@@ -2,7 +2,7 @@
 source("presentation/_load_libraries.R")
 if(!exists("tbi")) source("presentation/_load_data.R")
 
-#trip purpose setup
+#Mapping purpose categories
 
 mapping <- c(
   "Not imputable" = "Shopping/Errands/Misc",
@@ -61,8 +61,8 @@ mapping <- c(
   "Other purpose" = "Shopping/Errands/Misc"
 )
 
-
 # trip purpose x year --------------
+
 purpose_year <-
   tbi$trip_purpose %>%
   mutate(purpose_mapped = mapping[purpose]) %>%
@@ -82,34 +82,308 @@ purpose_year <-
 
 year_plot <- plot_ly(
   data = purpose_year,
-  x = ~purpose_mapped,
+  x = ~purpose_mapped %>%
+    str_replace_all("/", "\n"),
   y = ~prop,
   color = ~as.factor(survey_year) %>%
     fct_rev,
   type = "bar",
   colors = c(colors$councilBlue, colors$esBlue),
-  text = ~ paste0(round(prop * 100, 1), "%"),
-  textfont = list(color = "white", textangle = 0),
-  error_y = list(
-    type = "data",
-    array= ~prop_se,
-    visible = TRUE,
-    color = "grey"
-  )
-  ) %>%
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
   councilR::plotly_layout(
     main_title = "Trip Purpose by Year",
-    subtitle = "Source: TBI Household",
+    subtitle = "Source: TBI Household 2019-2023",
     x_title = "Trip Purpose",
     y_title = "Proportion of Trips (%)"
   ) %>%
+  layout(
+    yaxis = list(tickformat = ".0%")
+  ) %>%
   print %>%
-  save_image("output/trip_purpose_year.svg", width = 700, height = 400)
+  save_image("output/trip_purpose_year.svg", width = 1000, height = 500)
 
 # trip purpose x income x 2023 --------------
 
+purpose_income_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(income_broad, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+#To get rid of Undisclosed, insert the following after left_join
+#filter(income_broad != "Undisclosed")
+
+income_plot <- plot_ly(
+  data = purpose_income_2023,
+  x = ~prop,
+  y = ~income_broad,
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Income (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Income Bracket"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_income.svg", width = 1000, height = 600)
+
 # trip purpose x race x 2023 --------------
+
+purpose_race_2023 <- tbi$trip_purpose %>%
+  select(hh_id, survey_year, trip_purpose_weight, linked_trip_id, purpose) %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh %>%
+              select(hh_id, sample_segment)) %>%
+  left_join(tbi$person %>%
+              select(hh_id, race_ethnicity)) %>%
+  filter(!is.na(race_ethnicity)) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(race_ethnicity, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+race_plot <- plot_ly(
+  data = purpose_race_2023,
+  x = ~prop,
+  y = ~race_ethnicity,
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Race (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Race"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_race.svg", width = 1000, height = 600)
 
 # trip purpose x age x 2023 --------------
 
+purpose_age_2023 <- tbi$trip_purpose %>%
+  select(hh_id, survey_year, trip_purpose_weight, linked_trip_id, purpose) %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh %>%
+              select(hh_id, sample_segment)) %>%
+  left_join(tbi$person %>%
+              select(hh_id, age)) %>%
+  filter(!is.na(age)) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(age, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+age_plot <- plot_ly(
+  data = purpose_age_2023,
+  x = ~prop,
+  y = ~age,
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Age (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Age"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_age.svg", width = 1000, height = 600)
+
 # trip purpose x hhsize x 2023 --------------
+
+hhsize_mapping <- c(
+  "1 person" = "1 person",
+  "2 people" = "2 people",
+  "3 people" = "3-4 people",
+  "4 people" = "3-4 people",
+  "5 people" = "5-8 people",
+  "6 people" = "5-8 people",
+  "7 people" = "5-8 people",
+  "8 people" = "5-8 people",
+  "9 people" = "9 or more people",
+  "10 people" = "9 or more people",
+  "11 people" = "9 or more people",
+  "12 or more people" = "9 or more people",
+  "Missing" = "Missing"
+)
+
+purpose_hhsize_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  left_join(tbi$hh) %>%
+  filter(!is.na(num_people)) %>%
+  mutate(hh_size = hhsize_mapping[num_people]) %>%
+  filter(hh_size != "Missing") %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(hh_size, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+hhsize_plot <- plot_ly(
+  data = purpose_hhsize_2023,
+  x = ~prop,
+  y = ~hh_size,
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Household Size (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Household Size"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_hhsize.svg", width = 1000, height = 600)
+
+# trip purpose x gender x 2023 --------------
+
+purpose_gender_2023 <- tbi$trip_purpose %>%
+  select(hh_id, survey_year, trip_purpose_weight, linked_trip_id, purpose) %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh %>%
+              select(hh_id, sample_segment)) %>%
+  left_join(tbi$person %>%
+              select(hh_id, gender)) %>%
+  filter(!is.na(gender)) %>%
+  filter(gender != "Missing") %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(gender, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+gender_plot <- plot_ly(
+  data = purpose_gender_2023,
+  x = ~prop,
+  y = ~gender %>%
+    str_replace_all("/", "\n"),
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Gender (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Gender"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_gender.svg", width = 1000, height = 600)
+
+# trip purpose x trip mode x 2023 --------------
+
+mode_mapping <- c(
+  "Rail" = "Public Transit",
+  "School Bus" = "School Bus",
+  "Public Bus" = "Public Transit",
+  "Other Bus" = "Other",
+  "Long distance passenger mode" = "Long Distance",
+  "Smartphone ridehailing service" = "Ride-hailing/Taxi",
+  "For-Hire Vehicle" = "Ride-hailing/Taxi",
+  "Household Vehicle" = "Personal Vehicle",
+  "Other Vehicle" = "Other",
+  "Micromobility" = "Public Transit",
+  "Other" = "Other",
+  "Walk" = "Walk",
+  "Missing" = "Missing"
+)
+
+purpose_mode_2023 <- tbi$trip_purpose %>%
+  select(hh_id, survey_year, trip_purpose_weight, linked_trip_id, purpose) %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh %>%
+              select(hh_id, sample_segment)) %>%
+  left_join(tbi$trip %>%
+              select(hh_id, mode_type)) %>%
+  filter(!is.na(mode_type)) %>%
+  mutate(mode = mode_mapping[mode_type]) %>%
+  filter(mode != "Missing") %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(mode, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+mode_plot <- plot_ly(
+  data = purpose_mode_2023,
+  x = ~prop,
+  y = ~mode,
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Mode (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Trip Mode"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_mode.svg", width = 1000, height = 600)
