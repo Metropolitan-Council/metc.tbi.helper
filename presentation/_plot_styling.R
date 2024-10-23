@@ -11,7 +11,8 @@ race_pal_c <-
   "No Say" = "#808080",
   "Don't Know" = "#808080",
   "Other" = "#808080",
-  "Black, Indigenous, and People of Color" = "grey20")
+  "Undisclosed" = "#fd8aff",
+  "Black, Indigenous, \nand People of Color" = "grey20")
 
 race_pal <-
   utils::stack(race_pal_c) %>%
