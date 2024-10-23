@@ -138,3 +138,4 @@ plot_ly(data = plot_data,
 
 
 (95 * 8) * (5 * 48 - 12)
+str_replace_all("/", "\n")

@@ -1,5 +1,6 @@
 source("presentation/_load_libraries.R")
 if(!exists("tbi")) source("presentation/_load_data.R")
+source('presentation/_plot_styling.R')
 
 trips <-
   tbi$trip[
@@ -32,16 +33,17 @@ plot_ly() %>%
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
   ) %>%
+  councilR::plotly_layout(
+    main_title = "Trip Rate Over Time",
+    subtitle = "Source: TBI Household 2019-2023",
+    y_title = "Avg Weekday Trips per Person",
+    x_title = "Year"
+  ) %>%
   layout(
-    barmode = 'group'
-    , yaxis = list(title = "Avg Weekday Trips per Person")
-    , xaxis = list(title = "Year")
-    , font = list(size = 16)
-    , legend = list(traceorder = "reversed")
-    , margin = list(t = 50)
+    font = list(size = 18)
   ) %>%
   print %>%
-  save_image("output/trip_rate.svg", width = 500, height = 400)
+  save_image("output/trip_rate.svg", width = 600, height = 500)
 
 # trip rate x year x income ----
 tpp <-
@@ -56,25 +58,21 @@ tpp <-
   ] %>%
   print
 
-tpp[, income_broad := fct_rev(income_broad)]
-
 plot_ly() %>%
   add_bars(
     data = tpp
+    , color = ~ income_broad %>% fct_rev()
+    , x = ~ survey_year %>% fct_rev()
     , y = ~ trip_rate
-    , color = ~ income_broad
-    , x = ~ survey_year
     # , colors = c()
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
   ) %>%
-  layout(
-    barmode = 'group'
-    , yaxis = list(title = "Avg Weekday Trips per Person")
-    , xaxis = list(title = "Year")
-    , font = list(size = 16)
-    # , legend = list(traceorder = "reversed")
-    , margin = list(t = 50)
+  councilR::plotly_layout(
+    main_title = "Trip Rate by Household Income ",
+    subtitle = "Source: TBI Household 2023",
+    y_title = "Avg Weekday Trips per Person",
+    x_title = "Year"
   ) %>%
   print %>%
   save_image("output/trip_rate_income.svg", width = 700, height = 400)
@@ -99,22 +97,28 @@ plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
-    , color = ~ survey_year
-    , x = ~ gender
+    , x = ~ survey_year
+    , color = ~ gender
     # , colors = c()
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
+  ) %>%
+  councilR::plotly_layout(
+    main_title = "Trip Rate by Gender",
+    subtitle = "Source: TBI Household 2023",
+    y_title = "Year",
+    x_title = "trip_rate"
   ) %>%
   layout(
     barmode = 'group'
     , yaxis = list(title = "Avg Weekday Trips per Person")
     , xaxis = list(title = "Year")
     , font = list(size = 16)
-    , legend = list(traceorder = "reversed")
+    , legend = list(traceorder = "normal")
     , margin = list(t = 50)
   ) %>%
   print %>%
-  save_image("output/trip_rate_gender.svg", width = 700, height = 400)
+  save_image("output/trip_rate_gender.svg", width = 600, height = 350)
 
 # trip rate x year x race ----
 tpp <-
@@ -123,7 +127,7 @@ tpp <-
   merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year)], by = "hh_id", all.x = T) %>%
   .[tbi$person, on="person_id", race_ethnicity := i.race_ethnicity] %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
-  .[!race_ethnicity %in% c("White"), race_ethnicity := "Non-White"] %>%
+  # .[!race_ethnicity %in% c("White"), race_ethnicity := "Non-White"] %>%
   # print
   .[
     (hh_in_mpo)
@@ -131,20 +135,28 @@ tpp <-
     , keyby = .(survey_year, race_ethnicity)
   ] %>%
   print
+tpp
+
+tbi$person[, .N, .(survey_year, race_hispanic_latinx_latino)]
+tbi$metaData_variables
 
 plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
-    , color = ~ survey_year
-    , x = ~ race_ethnicity
+    , x = ~ survey_year
+    , color = ~ race_ethnicity
     # , colors = c()
     , text = ~ trip_rate %>% prettyNum(',')
     , textfont = list(color = "white")
   ) %>%
+  councilR::plotly_layout(
+    main_title = "Avg Weekday Trips per Person",
+    y_title = "Year",
+    x_title = "trip_rate"
+  ) %>%
   layout(
     barmode = 'group'
-    , yaxis = list(title = "Avg Weekday Trips per Person")
     , xaxis = list(title = "Year")
     , font = list(size = 16)
     , legend = list(traceorder = "reversed")
