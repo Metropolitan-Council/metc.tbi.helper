@@ -166,10 +166,14 @@ purpose_race_2023 <- tbi$trip_purpose %>%
   group_by(race_ethnicity, purpose_mapped) %>%
   summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
 
+setDT(purpose_race_2023)
+catorder_race <- purpose_race_2023[purpose_mapped == "Dining"][order(prop), race_ethnicity]
+
 race_plot <- plot_ly(
   data = purpose_race_2023,
   x = ~prop,
-  y = ~race_ethnicity,
+  y = ~race_ethnicity %>%
+    factor(levels = catorder_race, ordered = T),
   color = ~as.factor(purpose_mapped),
   text = ~ paste0(round(prop * 100, 0), "%"),
   textfont = list(color = "white", textangle = 0))%>%
@@ -387,3 +391,177 @@ mode_plot <- plot_ly(
   ) %>%
   print %>%
   save_image("output/trip_purpose_mode.svg", width = 1000, height = 600)
+
+# trip purpose x county x 2023 --------------
+
+council_counties <- c("Anoka County, MN", "Carver County, MN", "Dakota County, MN",
+                      "Hennepin County, MN", "Ramsey County, MN",
+                      "Scott County, MN", "Washington County, MN")
+
+purpose_county_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh) %>%
+  filter(home_county %in% council_counties) %>%
+  mutate(home_county = gsub(" County, MN", "", home_county)) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(home_county, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+setDT(purpose_county_2023)
+catorder_county <- purpose_county_2023[purpose_mapped == "Dining"][order(prop), home_county]
+
+county_plot <- plot_ly(
+  data = purpose_county_2023,
+  x = ~prop,
+  y = ~home_county %>%
+    factor(levels = catorder_county, ordered = T),
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by Household Home County (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "Home County"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_county.svg", width = 1000, height = 600)
+
+
+# trip purpose x city class x 2023 --------------
+
+#Using cd_2050_broad
+purpose_cityclass_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(cd_2050_broad, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+setDT(purpose_cityclass_2023)
+catorder_cityclass <- purpose_cityclass_2023[purpose_mapped == "Dining"][order(prop), cd_2050_broad]
+
+cityclass_plot <- plot_ly(
+  data = purpose_cityclass_2023,
+  x = ~prop,
+  y = ~cd_2050_broad %>%
+    factor(levels = catorder_cityclass, ordered = T),
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by 2050 TPP City Classification (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "City Classification"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_cityclass.svg", width = 1000, height = 600)
+
+#Using cd_2050_rsd
+purpose_cityclassrsd_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(cd_2050_rsd, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+setDT(purpose_cityclassrsd_2023)
+catorder_cityclassrsd <- purpose_cityclassrsd_2023[purpose_mapped == "Dining"][order(prop), cd_2050_rsd]
+
+cityclassrsd_plot <- plot_ly(
+  data = purpose_cityclassrsd_2023,
+  x = ~prop,
+  y = ~cd_2050_rsd %>%
+    factor(levels = catorder_cityclassrsd, ordered = T),
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by 2050 TPP City Classification (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "City Classification"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_cityclassrsd.svg", width = 1000, height = 300)
+
+#Using cd_2050
+purpose_cityclassdetail_2023 <-
+  tbi$trip_purpose %>%
+  mutate(purpose_mapped = mapping[purpose]) %>%
+  filter(!is.na(purpose_mapped)) %>%
+  filter(purpose_mapped != "Home") %>%
+  filter(purpose_mapped != "Missing") %>%
+  filter(survey_year == 2023) %>%
+  left_join(tbi$hh) %>%
+  as_survey_design(
+    weights = "trip_purpose_weight",
+    ids = "linked_trip_id",
+    strata = "sample_segment"
+  ) %>%
+  group_by(cd_2050, purpose_mapped) %>%
+  summarize(prop = survey_prop(proportion = TRUE, se = TRUE))
+
+setDT(purpose_cityclassdetail_2023)
+catorder_cityclassdetail <- purpose_cityclassdetail_2023[purpose_mapped == "Dining"][order(prop), cd_2050]
+
+cityclassdetail_plot <- plot_ly(
+  data = purpose_cityclassdetail_2023,
+  x = ~prop,
+  y = ~cd_2050 %>%
+    factor(levels = catorder_cityclassdetail, ordered = T),
+  color = ~as.factor(purpose_mapped),
+  text = ~ paste0(round(prop * 100, 0), "%"),
+  textfont = list(color = "white", textangle = 0))%>%
+  councilR::plotly_layout(
+    main_title = "Trip Purpose by 2050 TPP City Classification (2023)",
+    subtitle = "Source: TBI Household 2023",
+    x_title = "Proportion of Trips (%)",
+    y_title = "City Classification"
+  ) %>%
+  layout(barmode = 'stack',
+         xaxis = list(tickformat = ".0%"),
+         legend = list(traceorder = "normal")
+  ) %>%
+  print %>%
+  save_image("output/trip_purpose_cityclassdetail.svg", width = 1000, height = 800)
