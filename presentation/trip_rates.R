@@ -9,16 +9,23 @@ trips <-
     , .(day_id)] %>%
   print
 
+
+tbi$hh[, num_people_int := num_people %>% str_replace_all("[^0-9]", "") %>% as.integer()]
 # trip rate x year ----
 # join to day table to account for day's without travel
 tpp <-
   tbi$day[day_weight > 0, .(hh_id, day_id, day_weight)] %>%
   merge(trips, by = "day_id", all.x = T) %>%
-  merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year)], by = "hh_id", all.x = T) %>%
+  merge(
+    tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year)]
+    , by = "hh_id"
+    , all.x = T
+  ) %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
   .[
     (hh_in_mpo)
-    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+    , .(trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 1)
+        , n_hh = uniqueN(hh_id))
     , keyby = .(survey_year)
   ] %>%
   print
@@ -30,11 +37,11 @@ plot_ly() %>%
     , x = ~ survey_year %>% as.character()
     , color = ~ survey_year %>% as.character()
     , colors = c(colors$councilBlue, colors$esBlue)
-    , text = ~ trip_rate %>% prettyNum(',')
+    , text = ~ sprintf("<b>%s</b>  (N = %s)", trip_rate, n_hh %>% prettyNum(','))
     , textfont = list(color = "white")
   ) %>%
   councilR::plotly_layout(
-    main_title = "Trip Rate Over Time",
+    main_title = "Trip Rate Across Survey Waves",
     subtitle = "Source: TBI Household 2019-2023",
     y_title = "Avg Weekday Trips per Person",
     x_title = "Year"
@@ -43,39 +50,40 @@ plot_ly() %>%
     font = list(size = 18)
   ) %>%
   print %>%
-  save_image("output/trip_rate.svg", width = 600, height = 500)
+  save_image("output/trip_rate.svg", width = 700, height = 500)
 
 # trip rate x year x income ----
 tpp <-
   tbi$day[day_weight > 0, .(hh_id, day_id, day_weight, survey_year)] %>%
   merge(trips, by = "day_id", all.x = T) %>%
-  merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, income_broad)], by = "hh_id", all.x = T) %>%
+  merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, income_detailed)], by = "hh_id", all.x = T) %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
   .[
     (hh_in_mpo)
-    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 1))
-    , keyby = .(income_broad, survey_year)
+    , .(n_hh = uniqueN(hh_id), trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 1))
+    , keyby = .(income_detailed, survey_year)
   ] %>%
   print
 
 plot_ly() %>%
   add_bars(
     data = tpp
-    , color = ~ income_broad %>% fct_rev()
-    , x = ~ survey_year %>% fct_rev()
+    , color = ~ income_detailed %>% fct_rev()
+    , x = ~ survey_year #%>% fct_rev()
     , y = ~ trip_rate
     # , colors = c()
-    , text = ~ trip_rate %>% prettyNum(',')
+    , text = ~ sprintf("<b>%s</b>  (N = %s)", trip_rate, n_hh %>% prettyNum(','))
     , textfont = list(color = "white")
   ) %>%
   councilR::plotly_layout(
-    main_title = "Trip Rate by Household Income ",
-    subtitle = "Source: TBI Household 2023",
+    main_title = "Trip Rate Across Survey Waves by Household Income",
+    subtitle = "Source: TBI Household 2019-2023",
     y_title = "Avg Weekday Trips per Person",
     x_title = "Year"
   ) %>%
+  # layout(barmode = "stack") %>%
   print %>%
-  save_image("output/trip_rate_income.svg", width = 700, height = 400)
+  save_image("output/trip_rate_income.svg", width = 850, height = 400)
 
 # trip rate x year x gender ----
 tpp <-
@@ -84,11 +92,11 @@ tpp <-
   merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year)], by = "hh_id", all.x = T) %>%
   .[tbi$person, on="person_id", gender := i.gender] %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
-  .[!gender %in% c("Male", "Female"), gender := "Other/Unknown"] %>%
+  # .[!gender %in% c("Male", "Female"), gender := "Other/Unknown"] %>%
   .[, gender := droplevels(gender)] %>%
   .[
     (hh_in_mpo)
-    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+    , .(n_hh = uniqueN(hh_id), trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 1))
     , keyby = .(survey_year, gender)
   ] %>%
   print
@@ -98,29 +106,25 @@ plot_ly() %>%
     data = tpp
     , y = ~ trip_rate
     , x = ~ survey_year
-    , color = ~ gender
-    # , colors = c()
-    , text = ~ trip_rate %>% prettyNum(',')
+    , color = ~ gender %>% str_replace_all("/", '\n')
+    , colors = "Dark2"
+    , text = ~ sprintf("<b>%s</b>  (N = %s)", trip_rate, n_hh %>% prettyNum(','))
     , textfont = list(color = "white")
   ) %>%
   councilR::plotly_layout(
-    main_title = "Trip Rate by Gender",
-    subtitle = "Source: TBI Household 2023",
-    y_title = "Year",
-    x_title = "trip_rate"
+    main_title = "Trip Rate Across Survey Waves by Gender",
+    subtitle = "Source: TBI Household 2019-2023",
+    y_title = "Avg Weekday Trips per Person",
+    x_title = "Year"
   ) %>%
   layout(
-    barmode = 'group'
-    , yaxis = list(title = "Avg Weekday Trips per Person")
-    , xaxis = list(title = "Year")
-    , font = list(size = 16)
-    , legend = list(traceorder = "normal")
-    , margin = list(t = 50)
+    # , legend = list(traceorder = "normal")
   ) %>%
   print %>%
   save_image("output/trip_rate_gender.svg", width = 700, height = 400)
 
 # trip rate x year x race ----
+tbi$person[, .N, race_hispanic_latinx_latino]
 tpp <-
   tbi$day[day_weight > 0, .(hh_id, day_id, person_id, day_weight)] %>%
   merge(trips, by = "day_id", all.x = T) %>%
@@ -131,51 +135,39 @@ tpp <-
       !is.na(race_ethnicity) &
       race_ethnicity != "Don't Know" &
       race_ethnicity != "No Say"] %>%
-  .[,
-    case_when(
-      race_ethnicity %in% c(
-        "Native Hawaiian, Pacific Islander"
-        , "Middle Eastern, North African"
-        , "American Indian, Alaskan Native" ~ 'Other',
-        .default = race_ethnicity
-      )
-    )]
-  .[, .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+  .[race_ethnicity %in% c("American Indian, Alaskan Native",
+                          "Middle Eastern, North African",
+                          "Native Hawaiian, Pacific Islander"),
+    race_ethnicity := "Other"
+    ] %>%
+  .[, .(n_per = uniqueN(person_id), trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
     , keyby = .(survey_year, race_ethnicity)
   ] %>%
   print
 
-  tpp[order(N)] %>% View
 
-  tbi$person[survey_year == 2023, .N, race_ethnicity] %>%
-    na.omit() %>%
-    with(sprintf("%s (%s)", race_ethnicity %>% sort, N)) %>%
-    paste0(collapse = ', ')
-
+catorder <- tpp[survey_year == 2019][order(-trip_rate), race_ethnicity]
 plot_ly() %>%
   add_bars(
     data = tpp
     , y = ~ trip_rate
     , x = ~ survey_year
-    , color = ~ race_ethnicity
-    # , colors = c()
-    , text = ~ trip_rate %>% prettyNum(',')
+    , color = ~ race_ethnicity %>% factor(levels = catorder, ordered = T)
+    , colors = race_pal_c
+    , text = ~ sprintf("<b>%s</b>  (N = %s)", trip_rate, n_per %>% prettyNum(','))
     , textfont = list(color = "white")
   ) %>%
   councilR::plotly_layout(
-    main_title = "Avg Weekday Trips per Person",
+    main_title = "Trip Rate Across Survey Waves by Race",
+    subtitle = "Source: TBI Household 2019-2023",
     y_title = "Year",
     x_title = "trip_rate"
   ) %>%
   layout(
-    barmode = 'group'
-    , xaxis = list(title = "Year")
-    , font = list(size = 16)
-    , legend = list(traceorder = "normal")
-    , margin = list(t = 50)
+    # , legend = list(traceorder = "normal")
   ) %>%
   print %>%
-  save_image("output/trip_rate_race.svg", width = 700, height = 400)
+  save_image("output/trip_rate_race.svg", width = 850, height = 400)
 
 # trip rate x year x age ----
 tpp <-
