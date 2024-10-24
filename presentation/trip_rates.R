@@ -118,7 +118,7 @@ plot_ly() %>%
     , margin = list(t = 50)
   ) %>%
   print %>%
-  save_image("output/trip_rate_gender.svg", width = 600, height = 350)
+  save_image("output/trip_rate_gender.svg", width = 700, height = 400)
 
 # trip rate x year x race ----
 tpp <-
@@ -127,18 +127,30 @@ tpp <-
   merge(tbi$hh[, .(hh_id, sample_segment, hh_in_mpo, survey_year)], by = "hh_id", all.x = T) %>%
   .[tbi$person, on="person_id", race_ethnicity := i.race_ethnicity] %>%
   .[, wtd_num_trips := nafill(wtd_num_trips, fill = 0)] %>%
-  # .[!race_ethnicity %in% c("White"), race_ethnicity := "Non-White"] %>%
-  # print
-  .[
-    (hh_in_mpo)
-    , .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
+  .[(hh_in_mpo) &
+      !is.na(race_ethnicity) &
+      race_ethnicity != "Don't Know" &
+      race_ethnicity != "No Say"] %>%
+  .[,
+    case_when(
+      race_ethnicity %in% c(
+        "Native Hawaiian, Pacific Islander"
+        , "Middle Eastern, North African"
+        , "American Indian, Alaskan Native" ~ 'Other',
+        .default = race_ethnicity
+      )
+    )]
+  .[, .(.N, trip_rate = round(sum(wtd_num_trips)/sum(day_weight), 2))
     , keyby = .(survey_year, race_ethnicity)
   ] %>%
   print
-tpp
 
-tbi$person[, .N, .(survey_year, race_hispanic_latinx_latino)]
-tbi$metaData_variables
+  tpp[order(N)] %>% View
+
+  tbi$person[survey_year == 2023, .N, race_ethnicity] %>%
+    na.omit() %>%
+    with(sprintf("%s (%s)", race_ethnicity %>% sort, N)) %>%
+    paste0(collapse = ', ')
 
 plot_ly() %>%
   add_bars(
@@ -159,7 +171,7 @@ plot_ly() %>%
     barmode = 'group'
     , xaxis = list(title = "Year")
     , font = list(size = 16)
-    , legend = list(traceorder = "reversed")
+    , legend = list(traceorder = "normal")
     , margin = list(t = 50)
   ) %>%
   print %>%
